@@ -1,0 +1,62 @@
+{
+  "name": "@zendesk/zcli",
+  "description": "Zendesk cli is a single command line tool for all your zendesk needs",
+  "version": "0.2.2",
+  "author": "@vegemite",
+  "bin": {
+    "zcli": "./bin/run"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "1.22.2"
+  },
+  "dependencies": {
+    "@oclif/command": "^1.6.1",
+    "@oclif/config": "^1",
+    "@oclif/plugin-autocomplete": "^0.1.5",
+    "@oclif/plugin-help": "^2",
+    "@oclif/plugin-not-found": "^1.2.4",
+    "@oclif/plugin-warn-if-update-available": "1.7.0",
+    "@oclif/plugin-update":"1.3.10",
+    "@zendesk/zcli-apps": "^0.2.2",
+    "@zendesk/zcli-core": "^0.2.2",
+    "cli-ux": "^5.4.1",
+    "tslib": "^1"
+  },
+  "engines": {
+    "node": ">=12.10.0"
+  },
+  "files": [
+    "/bin",
+    "/src",
+    "/oclif.manifest.json",
+    "/npm-shrinkwrap.json"
+  ],
+  "keywords": [
+    "zcli"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "oclif": {
+    "commands": "./src/commands",
+    "bin": "zcli",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-autocomplete",
+      "@oclif/plugin-not-found",
+      "@oclif/plugin-warn-if-update-available",
+      "@zendesk/zcli-apps"
+    ],
+    "topics": {
+      "apps": {
+        "description": "manage Zendesk apps workflow"
+      },
+      "profiles": {
+        "description": "manage cli user profiles"
+      }
+    }
+  },
+  "scripts": {
+    "install:zcli": "rimraf package-lock.json && npm link"
+  },
+  "types": "lib/index.d.ts"
+}
