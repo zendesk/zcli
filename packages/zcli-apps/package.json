@@ -1,0 +1,71 @@
+{
+  "name": "@zendesk/zcli-apps",
+  "description": "zcli apps commands live here",
+  "version": "0.2.2",
+  "author": "@vegemite",
+  "bin": {
+    "zcli-apps": "./bin/run"
+  },
+  "scripts": {
+    "test": "nyc mocha -r ts-node/register src/**/*test.ts",
+    "test:functional": "mocha -r ts-node/register tests/**/*test.ts"
+  },
+  "dependencies": {
+    "@oclif/command": "^1",
+    "@oclif/config": "^1",
+    "@types/cors": "^2.8.6",
+    "@types/node-fetch": "^2.5.5",
+    "adm-zip": "0.4.16",
+    "archiver": "4.0.1",
+    "axios": "0.19.1",
+    "chalk": "4.0.0",
+    "cli-ux": "^5.4.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "fs-extra": "9.0.1",
+    "morgan": "1.10.0",
+    "semver": "^7.3.2",
+    "form-data": "3.0.0",
+    "tslib": "^1",
+    "uuid": "7.0.2"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "1.22.2",
+    "@oclif/test": "^1",
+    "@types/chai": "^4",
+    "@types/mocha": "^5",
+    "@types/morgan": "1.9.0",
+    "@types/node": "^10",
+    "@types/rimraf": "^2.0.3",
+    "@types/uuid": "^7.0.2",
+    "@types/archiver": "3.1.0",
+    "chai": "^4",
+    "eslint": "^5.13",
+    "eslint-config-oclif": "^3.1",
+    "eslint-config-oclif-typescript": "^0.1",
+    "globby": "^10",
+    "lerna": "^3.20.2",
+    "mocha": "^5",
+    "sinon": "9.0.1"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/oclif.manifest.json",
+    "/npm-shrinkwrap.json"
+  ],
+  "keywords": [
+    "zcli"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "oclif": {
+    "commands": "./src/commands",
+    "bin": "zcli-apps"
+  },
+  "types": "lib/index.d.ts"
+}
