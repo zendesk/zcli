@@ -1,0 +1,59 @@
+name: Test
+
+on: [pull_request]
+
+jobs:
+  build-linux:
+
+    # This is temporary, once this project is open sourced, let's change it to Github vm ubuntu
+    runs-on: zendesk-stable
+
+    steps:
+    - uses: zendesk/checkout@v2
+    - name: Use Node.js
+      uses: zendesk/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: yarn install
+    - run: yarn lint
+    - run: yarn test
+    - run: yarn test:functional
+      env:
+        CI: true
+
+  # NOTE: Temporary disabled because for private repos we have run out of credit.
+  # Uncomment this once everyone has moved to self-hosted or once we make this repo public (no limits)
+  
+  # build-mac:
+
+  #   runs-on: macos-10.15
+
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Use Node.js
+  #     uses: actions/setup-node@v1
+  #     with:
+  #       node-version: '12.x'
+  #   - run: yarn install
+  #   - run: yarn lint
+  #   - run: yarn test
+  #   - run: yarn test:functional
+  #     env:
+  #       CI: true
+
+  # build-windows:
+
+  #   runs-on: windows-2019
+
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Use Node.js
+  #     uses: actions/setup-node@v1
+  #     with:
+  #       node-version: '12.x'
+  #   - run: yarn install
+  #   - run: yarn lint
+  #   - run: yarn test
+  #   - run: yarn test:functional
+  #     env:
+  #       CI: true

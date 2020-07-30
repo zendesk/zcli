@@ -1,0 +1,8 @@
+{
+  "plan": "silver",
+  "app_id": 123,
+  "parameters": {
+    "someToken": "fksjdhfb231435",
+    "salesForceId": 123
+  }
+}

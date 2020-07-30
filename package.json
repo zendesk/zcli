@@ -1,0 +1,64 @@
+{
+  "name": "zcli-monorepo",
+  "description": "Zendesk cli is a single command line tool for all your zendesk needs",
+  "version": "0.0.1",
+  "author": "@vegemite",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@oclif/dev-cli": "^1",
+    "@oclif/test": "^1",
+    "@types/chai": "^4",
+    "@types/express": "^4.17.3",
+    "@types/mocha": "^5",
+    "@types/node": "^14.0.14",
+    "@types/rimraf": "^2.0.3",
+    "@typescript-eslint/eslint-plugin": "^2.18.0",
+    "@typescript-eslint/parser": "^2.18.0",
+    "nock": "12.0.3",
+    "chai": "^4",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "2",
+    "eslint-plugin-node": "9",
+    "eslint-plugin-promise": "4",
+    "eslint-plugin-standard": "^4.0.1",
+    "file-system": "^2.2.2",
+    "form-data": "^3.0.0",
+    "globby": "^10",
+    "lerna": "^3.20.2",
+    "lerna-changelog": "^1.0.0",
+    "mocha": "^5",
+    "nyc": "^14",
+    "rimraf": "3.0.2",
+    "standard": "^14.3.1",
+    "ts-node": "^8",
+    "typescript": "^3.8.3"
+  },
+  "engines": {
+    "node": ">=12.10.0"
+  },
+  "keywords": [
+    "zcli"
+  ],
+  "scripts": {
+    "postinstall": "lerna bootstrap",
+    "dev": "./packages/zcli/bin/run",
+    "link:bin": "lerna link && lerna run install:zcli",
+    "lint": "eslint . --ext .ts --config .eslintrc",
+    "test": "nyc --extension .ts mocha --opts mocha.opts --forbid-only packages/**/src/**/*.test.ts",
+    "test:functional": "mocha -r ts-node/register packages/**/tests/**/*.test.ts",
+    "changelog": "lerna-changelog"
+  },
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "repository": "zendesk/zcli",
+  "types": "lib/index.d.ts"
+}

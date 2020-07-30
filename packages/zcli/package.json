@@ -1,0 +1,69 @@
+{
+  "name": "@zendesk/zcli",
+  "description": "Zendesk cli is a single command line tool for all your zendesk needs",
+  "version": "1.0.0-beta.0",
+  "author": "@vegemite",
+  "npmRegistry": "https://registry.npmjs.org",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "zcli": "./bin/run"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "1.22.2"
+  },
+  "dependencies": {
+    "@oclif/command": "^1.6.1",
+    "@oclif/config": "^1",
+    "@oclif/plugin-autocomplete": "^0.2.0",
+    "@oclif/plugin-help": "^2",
+    "@oclif/plugin-not-found": "^1.2.4",
+    "@oclif/plugin-update": "1.3.10",
+    "@oclif/plugin-warn-if-update-available": "1.7.0",
+    "@zendesk/zcli-apps": "^1.0.0-beta.7",
+    "@zendesk/zcli-core": "^1.0.0-beta.7",
+    "cli-ux": "^5.4.1",
+    "tslib": "^1"
+  },
+  "engines": {
+    "node": ">=12.10.0"
+  },
+  "files": [
+    "/bin",
+    "/src",
+    "/dist",
+    "/oclif.manifest.json",
+    "/npm-shrinkwrap.json"
+  ],
+  "keywords": [
+    "zcli"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "oclif": {
+    "commands": "./src/commands",
+    "bin": "zcli",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-autocomplete",
+      "@oclif/plugin-not-found",
+      "@oclif/plugin-warn-if-update-available",
+      "@zendesk/zcli-apps"
+    ],
+    "topics": {
+      "apps": {
+        "description": "manage Zendesk apps workflow"
+      },
+      "profiles": {
+        "description": "manage cli user profiles"
+      }
+    }
+  },
+  "scripts": {
+    "install:zcli": "rimraf package-lock.json && npm link",
+    "prepack": "tsc && ../../scripts/prepack.sh",
+    "postpack": "rm -f oclif.manifest.json npm-shrinkwrap.json && rm -rf ./dist && git checkout ./package.json"
+  },
+  "types": "src/index.d.ts"
+}

@@ -1,0 +1,7 @@
+node_modules
+lerna-debug.log
+yarn-error.log
+.nyc_output
+.vscode
+packages/zcli-apps/tests/functional/mocks/*/tmp
+packages/**/dist
