@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "nyc mocha -r ts-node/register src/**/*test.ts",
-    "test:functional": "mocha -r ts-node/register tests/**/*test.ts"
+    "test:functional": "mocha -r ts-node/register tests/**/*test.ts",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "dependencies": {
     "@oclif/command": "^1",
@@ -28,7 +30,8 @@
     "semver": "^7.3.2",
     "form-data": "3.0.0",
     "tslib": "^1",
-    "uuid": "7.0.2"
+    "uuid": "7.0.2",
+    "snyk": "^1.369.2"
   },
   "devDependencies": {
     "@oclif/dev-cli": "1.22.2",
@@ -67,5 +70,6 @@
     "commands": "./src/commands",
     "bin": "zcli-apps"
   },
-  "types": "lib/index.d.ts"
+  "types": "lib/index.d.ts",
+  "snyk": true
 }
