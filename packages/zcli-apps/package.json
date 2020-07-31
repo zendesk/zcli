@@ -1,7 +1,7 @@
 {
   "name": "@zendesk/zcli-apps",
   "description": "zcli apps commands live here",
-  "version": "0.2.2",
+  "version": "1.0.0-beta.0",
   "author": "@vegemite",
   "bin": {
     "zcli-apps": "./bin/run"
@@ -22,24 +22,24 @@
     "cli-ux": "^5.4.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "node-fetch": "^2.6.0",
+    "form-data": "3.0.0",
     "fs-extra": "9.0.1",
     "morgan": "1.10.0",
+    "node-fetch": "^2.6.0",
     "semver": "^7.3.2",
-    "form-data": "3.0.0",
     "tslib": "^1",
     "uuid": "7.0.2"
   },
   "devDependencies": {
     "@oclif/dev-cli": "1.22.2",
     "@oclif/test": "^1",
+    "@types/archiver": "3.1.0",
     "@types/chai": "^4",
     "@types/mocha": "^5",
     "@types/morgan": "1.9.0",
     "@types/node": "^10",
     "@types/rimraf": "^2.0.3",
     "@types/uuid": "^7.0.2",
-    "@types/archiver": "3.1.0",
     "chai": "^4",
     "eslint": "^5.13",
     "eslint-config-oclif": "^3.1",
