@@ -5,10 +5,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # 1.0.0-beta.1 (2020-08-04)
 
-**Note:** Version bump only for package zcli-monorepo
-
-
-
-
-
-# Change Log
+**Note:** Version bump only for package @zendesk/zcli
