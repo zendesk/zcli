@@ -1,7 +1,7 @@
 {
   "name": "@zendesk/zcli",
   "description": "Zendesk cli is a single command line tool for all your zendesk needs",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "author": "@vegemite",
   "npmRegistry": "https://registry.npmjs.org",
   "publishConfig": {
@@ -21,8 +21,8 @@
     "@oclif/plugin-not-found": "^1.2.4",
     "@oclif/plugin-update": "1.3.10",
     "@oclif/plugin-warn-if-update-available": "1.7.0",
-    "@zendesk/zcli-apps": "^1.0.0-beta.1",
-    "@zendesk/zcli-core": "^1.0.0-beta.1",
+    "@zendesk/zcli-apps": "^1.0.0-beta.2",
+    "@zendesk/zcli-core": "^1.0.0-beta.2",
     "cli-ux": "^5.4.1",
     "tslib": "^1"
   },
