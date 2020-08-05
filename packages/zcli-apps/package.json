@@ -32,7 +32,7 @@
     "rimraf": "3.0.2",
     "semver": "^7.3.2",
     "tslib": "^1",
-    "uuid": "7.0.2"
+    "uuid": "7.0.3"
   },
   "devDependencies": {
     "@oclif/dev-cli": "1.22.2",
