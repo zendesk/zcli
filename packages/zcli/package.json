@@ -51,6 +51,10 @@
       "@oclif/plugin-warn-if-update-available",
       "@zendesk/zcli-apps"
     ],
+    "warn-if-update-available": {
+      "timeoutInDays": 7,
+      "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
+    },
     "topics": {
       "apps": {
         "description": "manage Zendesk apps workflow"

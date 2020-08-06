@@ -19,7 +19,9 @@ export default class Server extends Command {
     bind: flags.string({ default: 'localhost', description: 'Bind apps server to a specific host' }),
     port: flags.string({ default: '4567', description: 'Port for the http server to use' }),
     logs: flags.boolean({ default: false, description: 'Tail logs' }),
-    config: flags.string({ default: 'zcli.apps.config.json', description: 'Configuration file for zcli::apps' })
+    // TODO: custom file is not supported for other commands,
+    // lets come back to this in near future
+    // config: flags.string({ default: 'zcli.apps.config.json', description: 'Configuration file for zcli::apps' })
   }
 
   static args = [
@@ -36,7 +38,7 @@ export default class Server extends Command {
   async run () {
     const { flags } = this.parse(Server)
     const port = parseInt(flags.port)
-    const config = flags.config
+    const config = 'zcli.apps.config.json'
     const { logs: tailLogs, bind: host } = flags
     const { argv: appDirectories } = this.parse(Server)
 

@@ -5,7 +5,7 @@ import * as chalk from 'chalk'
 import { request } from '@zendesk/zcli-core'
 import cli from 'cli-ux'
 import { getUploadJobStatus } from '../../utils/uploadApp'
-import { getSettings, uploadAppPkg, deployApp } from '../../utils/createApp'
+import { promptAndGetSettings, uploadAppPkg, deployApp } from '../../utils/createApp'
 import { getManifestFile } from '../../utils/manifest'
 import { createAppPkg } from '../../lib/package'
 import { Manifest, Installations } from '../../types'
@@ -36,7 +36,7 @@ export default class Update extends Command {
       cli.action.stop('Deployed')
 
       const installations: Installations = await request.requestAPI('/api/v2/apps/installations.json', {}, true)
-      const settings = manifest.parameters ? await getSettings(manifest.parameters) : {}
+      const settings = manifest.parameters ? await promptAndGetSettings(manifest.parameters) : {}
       const installation_id = installations.installations.filter(i => i.app_id === app_id)[0].id
       const updated = await request.requestAPI(`/api/v2/apps/installations/${installation_id}.json`, {
         method: 'PUT',

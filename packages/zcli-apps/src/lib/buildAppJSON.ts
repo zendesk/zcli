@@ -11,16 +11,15 @@ import {
   Manifest,
   ManifestParameter,
   ProductLocationIcons,
-  ZcliConfigFileContent
+  ZcliConfigFileContent,
+  Dictionary
 } from '../types'
 import * as path from 'path'
 import * as fs from 'fs'
 import { uuidV4 } from '../utils/uuid'
 import { getManifestFile } from '../utils/manifest'
 import { getAllConfigs } from '../utils/appConfig'
-import { getSettings } from '../utils/createApp'
-import * as chalk from 'chalk'
-import { CLIError } from '@oclif/errors'
+import { promptAndGetSettings } from '../utils/createApp'
 import { validateAppPath } from './appPath'
 
 // The SVGs here are in the top bar or nav bar locations. Chat don’t have these locations thus not here.
@@ -86,6 +85,22 @@ export const getAppPayloadFromManifest = (appManifest: Manifest, port: number, a
   }
 }
 
+export const getAppSettings = async (manifest: Manifest, configParams: ConfigParameters) => {
+  if (!manifest.parameters) return {}
+  const configContainsParam = (paramName: string) => Object.keys(configParams).includes(paramName)
+
+  const paramsNotInConfig = manifest.parameters.filter(param => !configContainsParam(param.name))
+  const configSettings = manifest.parameters.reduce((result: Dictionary<string>, param) => {
+    if (configContainsParam(param.name)) {
+      result[param.name] = configParams[param.name] as string
+    }
+    return result
+  }, {})
+
+  const promptSettings = paramsNotInConfig ? await promptAndGetSettings(paramsNotInConfig, manifest.name) : {}
+  return { ...configSettings, ...promptSettings }
+}
+
 export const buildAppJSON = async (appPaths: string[], port: number, configFileName: string): Promise<AppJSONPayload> => {
   const appJSON: AppJSON = { apps: [], installations: [] }
 
@@ -96,14 +111,8 @@ export const buildAppJSON = async (appPaths: string[], port: number, configFileN
 
     const appId = zcliConfigFile.app_id?.toString() || uuidV4()
     const configParams = zcliConfigFile.parameters || {} // if there are no parameters in the config, just attach an empty object
-    let manifestParams = manifest.parameters
-
-    if (manifestParams) {
-      manifestParams = manifestParams.filter(param => !Object.keys(configParams).includes(param.name))
-    }
-
-    const promptSettings = manifestParams ? await getSettings(manifestParams, manifest.name) : {}
-    const appSettings = { ...configParams, ...promptSettings }
+    
+    const appSettings = await getAppSettings(manifest, configParams)
 
     const locationIcons = getLocationIcons(appPath, manifest.location)
     const app = getAppPayloadFromManifest(manifest, port, appId, locationIcons)
