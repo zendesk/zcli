@@ -12,7 +12,7 @@ export default class Create extends Command {
   static description = 'creates apps in your desired target account'
 
   static args = [
-    { name: 'appDirectories', required: true }
+    { name: 'appDirectories', required: true, default: '.' }
   ]
 
   static examples = [

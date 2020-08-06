@@ -23,7 +23,7 @@ export default class Server extends Command {
   }
 
   static args = [
-    { name: 'appDirectories', required: true }
+    { name: 'appDirectories', required: true, default: '.' }
   ]
 
   static examples = [

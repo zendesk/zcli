@@ -20,8 +20,9 @@ export default class Package extends Command {
     const { args } = this.parse(Package)
     const { appDirectory } = args
 
+    validateAppPath(appDirectory)
+
     const appPath = path.resolve(appDirectory)
-    validateAppPath(appPath)
     const pkgPath = await createAppPkg(appPath)
 
     try {

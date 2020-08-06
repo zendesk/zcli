@@ -21,8 +21,9 @@ export default class Validate extends Command {
     const { args } = this.parse(Validate)
     const { appDirectory } = args
 
+    validateAppPath(appDirectory)
+
     const appPath = path.resolve(appDirectory)
-    validateAppPath(appPath)
     const pkgPath = await createAppPkg(appPath)
 
     try {
