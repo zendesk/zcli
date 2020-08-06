@@ -41,7 +41,7 @@ export default class Server extends Command {
     const { argv: appDirectories } = this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
-    const appJSON = buildAppJSON(appPaths, port, config)
+    const appJSON = await buildAppJSON(appPaths, port, config)
 
     const app = express()
     app.use(cors())

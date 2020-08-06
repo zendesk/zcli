@@ -107,25 +107,6 @@ const singleProductLocation = {
 const multiProductAppPath = path.join(process.cwd(), 'packages', '/zcli-apps/tests/functional/mocks/multi_product_app')
 const singleProductAppPath = path.join(process.cwd(), 'packages', '/zcli-apps/tests/functional/mocks/single_product_app')
 
-describe('warnMissingParamsValues', () => {
-  const configParams = {
-    someToken: 'fksjdhfb231435',
-    salesForceId: 123
-  }
-  const manifestParams = [{
-    name: 'api_token',
-    type: 'text',
-    secure: true
-  }]
-  const appId = '234'
-
-  it('should throw an exception if a token is not present in the config file', () => {
-    expect(() => {
-      buildAppJSON.warnMissingParamsValues(configParams, manifestParams, appId)
-    }).to.throw(chalk.red(`Your zcli configuration file is missing a setting: api_token, for app: ${appId}`))
-  })
-})
-
 describe('getIconsByProduct', () => {
   const product = 'support'
   const locations = {
@@ -187,22 +168,6 @@ describe('getAppPayloadFromManifest', () => {
       signed_urls: false,
       framework_version: '2.0'
     })
-  })
-})
-
-describe('getUnsetParameters', () => {
-  const parametersFromConfig = {
-    someToken: 'fksjdhfb231435',
-    salesForceId: 123
-  }
-  const manifestParameters = [{
-    name: 'api_token',
-    type: 'text',
-    secure: true
-  }]
-
-  it('should return unset parameters', () => {
-    expect(buildAppJSON.getUnsetParameters(parametersFromConfig, manifestParameters)).to.deep.equal(['api_token'])
   })
 })
 
@@ -283,8 +248,8 @@ describe('buildAppJSON', () => {
     )
     .stub(uuid, 'uuidV4', () => mockId)
     .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
-    .it('should return a JSON object with zcli.apps.config.json file contents', () => {
-      const appJSON = buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+    .it('should return a JSON object with zcli.apps.config.json file contents', async () => {
+      const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
       expect(appJSON).to.deep.include({
         apps: [
           {
@@ -331,9 +296,9 @@ describe('buildAppJSON', () => {
       }
     })
     )
-    .it('should throw an error if a setting is missing', () => {
-      expect(() => {
-        buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+    .it('should throw an error if a setting is missing', async () => {
+      expect(async () => {
+        await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
       }).to.throw(chalk.red('Your zcli configuration file is missing a setting: salesForceId, for app: 234'))
     })
 
@@ -346,9 +311,9 @@ describe('buildAppJSON', () => {
         plan: 'silver'
       })
       )
-      .it('should throw an error if a setting is missing', () => {
-        expect(() => {
-          buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+      .it('should throw an error if a setting is missing', async () => {
+        expect(async () => {
+          await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
         }).to.throw(chalk.red('Your zcli configuration file is missing a setting: someToken, for app: 234'))
       })
   })
@@ -362,9 +327,9 @@ describe('buildAppJSON', () => {
       })
       )
       .stub(uuid, 'uuidV4', () => mockId)
-      .it('should throw an error if a setting is missing', () => {
-        expect(() => {
-          buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+      .it('should throw an error if a setting is missing', async () => {
+        expect(async () => {
+          await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
         }).to.throw(chalk.red(`Your zcli configuration file is missing a setting: someToken, for app: ${mockId}`))
       })
   })
