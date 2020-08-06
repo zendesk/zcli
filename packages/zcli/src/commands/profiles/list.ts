@@ -12,7 +12,7 @@ export default class List extends Command {
     '$ zcli profiles'
   ]
 
-  renderProfiles (profiles: Credential[], loggedInProfile: Profile | undefined ) {
+  renderProfiles (profiles: Credential[], loggedInProfile: Profile | undefined) {
     cli.table(profiles, {
       account: {
         header: 'Subdomains',

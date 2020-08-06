@@ -11,7 +11,7 @@ export default class SecureStore {
   pluginsPath = path.join(homedir(), '/.local/share/zcli')
   packageName = 'keytar'
   keytarPath = path.join(this.pluginsPath, 'node_modules', this.packageName)
-  keytar:KeyTar | undefined = undefined
+  keytar: KeyTar | undefined = undefined
 
   private async installKeytar () {
     const packageTag = `${this.packageName}@${packageJson.optionalDependencies.keytar}`

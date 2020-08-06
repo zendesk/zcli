@@ -7,6 +7,8 @@
 
 ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif).
 
+<img src="demo.gif" alt="Zendesk Logo" />
+
 For more about ZCLI see [the full documentation.](/docs)
 
 # Getting started
