@@ -229,8 +229,8 @@ describe('getAppSettings', () => {
     .it('should return setting from config and prompt for missing config', async () => {
       const settings = await buildAppJSON.getAppSettings(manifestOutput, { salesForceId: 222 })
       expect(settings).to.deep.equals({
-        "salesForceId": 222,
-        "someToken": "ABC123"
+        salesForceId: 222,
+        someToken: 'ABC123'
       })
     })
 
@@ -238,8 +238,8 @@ describe('getAppSettings', () => {
     .it('should return all settings from config', async () => {
       const settings = await buildAppJSON.getAppSettings(manifestOutput, { salesForceId: 222, someToken: 'XYZ786' })
       expect(settings).to.deep.equals({
-        "salesForceId": 222,
-        "someToken": "XYZ786"
+        salesForceId: 222,
+        someToken: 'XYZ786'
       })
     })
 })

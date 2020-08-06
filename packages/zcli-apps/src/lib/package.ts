@@ -5,7 +5,8 @@ import { request } from '@zendesk/zcli-core'
 import { CLIError } from '@oclif/errors'
 import * as archiver from 'archiver'
 import { validateAppPath } from './appPath'
-import { uuidV4 } from '../utils/uuid'
+
+const getDateTimeFileName = () => (new Date()).toISOString().replace(/[^0-9]/g, '')
 
 export const createAppPkg = async (
   relativeAppPath: string,
@@ -14,7 +15,7 @@ export const createAppPkg = async (
   const appPath = path.resolve(relativeAppPath)
   validateAppPath(appPath)
 
-  const pkgName = `app-${uuidV4()}`
+  const pkgName = `app-${getDateTimeFileName()}`
   const pkgPath = `${appPath}/${pkgDir}/${pkgName}.zip`
 
   await fs.ensureDir(`${appPath}/${pkgDir}`)

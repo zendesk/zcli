@@ -9,7 +9,6 @@ import {
   Location,
   LocationIcons,
   Manifest,
-  ManifestParameter,
   ProductLocationIcons,
   ZcliConfigFileContent,
   Dictionary
@@ -111,7 +110,7 @@ export const buildAppJSON = async (appPaths: string[], port: number, configFileN
 
     const appId = zcliConfigFile.app_id?.toString() || uuidV4()
     const configParams = zcliConfigFile.parameters || {} // if there are no parameters in the config, just attach an empty object
-    
+
     const appSettings = await getAppSettings(manifest, configParams)
 
     const locationIcons = getLocationIcons(appPath, manifest.location)
