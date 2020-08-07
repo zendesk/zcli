@@ -18,8 +18,10 @@ export default class Server extends Command {
     help: flags.help({ char: 'h' }),
     bind: flags.string({ default: 'localhost', description: 'Bind apps server to a specific host' }),
     port: flags.string({ default: '4567', description: 'Port for the http server to use' }),
-    logs: flags.boolean({ default: false, description: 'Tail logs' }),
-    config: flags.string({ default: 'zcli.apps.config.json', description: 'Configuration file for zcli::apps' })
+    logs: flags.boolean({ default: false, description: 'Tail logs' })
+    // TODO: custom file is not supported for other commands,
+    // lets come back to this in near future
+    // config: flags.string({ default: 'zcli.apps.config.json', description: 'Configuration file for zcli::apps' })
   }
 
   static args = [
@@ -36,12 +38,12 @@ export default class Server extends Command {
   async run () {
     const { flags } = this.parse(Server)
     const port = parseInt(flags.port)
-    const config = flags.config
+    const config = 'zcli.apps.config.json'
     const { logs: tailLogs, bind: host } = flags
     const { argv: appDirectories } = this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
-    const appJSON = buildAppJSON(appPaths, port, config)
+    const appJSON = await buildAppJSON(appPaths, port, config)
 
     const app = express()
     app.use(cors())
@@ -58,6 +60,7 @@ export default class Server extends Command {
 
     return app.listen(port, host, () => {
       this.log(`\nApps server is running on ${chalk.green(`http://${host}:${port}`)} 🚀\n`)
+      this.log(`Add ${chalk.bold('?zcli_apps=true')} to the end of your Zendesk URL to load these apps on your Zendesk account.\n`)
       tailLogs && this.log(chalk.bold('Tailing logs'))
     })
   }

@@ -24,10 +24,10 @@ export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
   return response.json()
 }
 
-export const getSettings = async (params: ManifestParameter[]) => {
+export const promptAndGetSettings = async (params: ManifestParameter[], appName = 'app') => {
   const settings: Dictionary<string> = {}
   for (const param of params) {
-    settings[param.name] = await cli.prompt(`Enter app setting.${param.name} value`, { type: param.secure ? 'hide' : 'normal' })
+    settings[param.name] = await cli.prompt(`Enter ${appName} setting.${param.name} value`, { type: param.secure ? 'hide' : 'normal' })
   }
   return settings
 }

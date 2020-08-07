@@ -21,7 +21,7 @@ export default class Config {
     await this.ensureConfigFile()
     const config = await fs.readJson(CONFIG_PATH) || {}
     config[key] = value
-    await fs.outputJson(CONFIG_PATH, config)
+    await fs.outputJson(CONFIG_PATH, JSON.stringify(config, null, 2))
   }
 
   async removeConfig (key: string) {

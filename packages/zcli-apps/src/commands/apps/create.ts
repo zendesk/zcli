@@ -1,6 +1,6 @@
 import { Command } from '@oclif/command'
 import { request } from '@zendesk/zcli-core'
-import { getSettings, uploadAppPkg, deployApp } from '../../utils/createApp'
+import { promptAndGetSettings, uploadAppPkg, deployApp } from '../../utils/createApp'
 import * as chalk from 'chalk'
 import { getUploadJobStatus } from '../../utils/uploadApp'
 import cli from 'cli-ux'
@@ -46,7 +46,7 @@ export default class Create extends Command {
       try {
         const { app_id }: any = await getUploadJobStatus(job_id, appPath)
         cli.action.stop('Deployed')
-        const settings = manifest.parameters ? await getSettings(manifest.parameters) : {}
+        const settings = manifest.parameters ? await promptAndGetSettings(manifest.parameters) : {}
         const installed = await request.requestAPI('api/v2/apps/installations.json', {
           method: 'POST',
           body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),

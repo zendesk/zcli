@@ -9,17 +9,16 @@ import {
   Location,
   LocationIcons,
   Manifest,
-  ManifestParameter,
   ProductLocationIcons,
-  ZcliConfigFileContent
+  ZcliConfigFileContent,
+  Dictionary
 } from '../types'
 import * as path from 'path'
 import * as fs from 'fs'
 import { uuidV4 } from '../utils/uuid'
 import { getManifestFile } from '../utils/manifest'
 import { getAllConfigs } from '../utils/appConfig'
-import * as chalk from 'chalk'
-import { CLIError } from '@oclif/errors'
+import { promptAndGetSettings } from '../utils/createApp'
 import { validateAppPath } from './appPath'
 
 // The SVGs here are in the top bar or nav bar locations. Chat don’t have these locations thus not here.
@@ -85,69 +84,42 @@ export const getAppPayloadFromManifest = (appManifest: Manifest, port: number, a
   }
 }
 
-export const getUnsetParameters = (configParams: ConfigParameters, manifestParams: Array<ManifestParameter>): Array<string> => {
-  const unsetParameters: string[] = []
+export const getAppSettings = async (manifest: Manifest, configParams: ConfigParameters) => {
+  if (!manifest.parameters) return {}
+  const configContainsParam = (paramName: string) => Object.keys(configParams).includes(paramName)
 
-  const configParamNames = Object.keys(configParams)
-  return manifestParams
-    .reduce((unsetParams, manifestParam) => {
-      if (!configParamNames.includes(manifestParam.name)) {
-        unsetParams.push(manifestParam.name)
-      }
-      return unsetParams
-    }, unsetParameters)
+  const paramsNotInConfig = manifest.parameters.filter(param => !configContainsParam(param.name))
+  const configSettings = manifest.parameters.reduce((result: Dictionary<string>, param) => {
+    if (configContainsParam(param.name)) {
+      result[param.name] = configParams[param.name] as string
+    }
+    return result
+  }, {})
+
+  const promptSettings = paramsNotInConfig ? await promptAndGetSettings(paramsNotInConfig, manifest.name) : {}
+  return { ...configSettings, ...promptSettings }
 }
 
-export const warnMissingParamsValues = (configParams: ConfigParameters, manifestParams: Array<ManifestParameter>, appId: string): void => {
-  const unsetParameters = getUnsetParameters(configParams, manifestParams)
-  unsetParameters
-    .map(unsetParameter => {
-      throw new CLIError(chalk.red(`Your zcli configuration file is missing a setting: ${unsetParameter}, for app: ${appId}`))
-    })
-}
+export const buildAppJSON = async (appPaths: string[], port: number, configFileName: string): Promise<AppJSONPayload> => {
+  const appJSON: AppJSON = { apps: [], installations: [] }
 
-export const getAppSettings = (configParams: ConfigParameters, manifestParams: Array<ManifestParameter>): ConfigParameters => {
-  const allowedKeys = manifestParams.map(param => param.name)
-  return allowedKeys
-    .reduce((appSettings, key) => {
-      return { ...appSettings, [key]: configParams[key] }
-    }, {})
-}
+  for (const appPath of appPaths) {
+    validateAppPath(appPath)
+    const manifest = getManifestFile(appPath)
+    const zcliConfigFile = getAllConfigs(appPath, configFileName) || {}
 
-export const buildAppJSON = (appPaths: string[], port: number, configFileName: string): AppJSONPayload => {
-  const appJSONStructure: AppJSON = { apps: [], installations: [] }
-  let appSettings: ConfigParameters
+    const appId = zcliConfigFile.app_id?.toString() || uuidV4()
+    const configParams = zcliConfigFile.parameters || {} // if there are no parameters in the config, just attach an empty object
 
-  const appJSON = appPaths
-    .map(appPath => {
-      validateAppPath(appPath)
-      const manifest = getManifestFile(appPath)
-      const zcliConfigFile = getAllConfigs(appPath, configFileName) || {}
+    const appSettings = await getAppSettings(manifest, configParams)
 
-      const appId = zcliConfigFile.app_id?.toString() || uuidV4()
-      const configParams = zcliConfigFile.parameters || {} // if there are no parameters in the config, just attach an empty object
-      const manifestParams = manifest.parameters
+    const locationIcons = getLocationIcons(appPath, manifest.location)
+    const app = getAppPayloadFromManifest(manifest, port, appId, locationIcons)
+    const installation = getInstallation(appId, app, zcliConfigFile, appSettings)
 
-      if (manifestParams && manifestParams.length) {
-        warnMissingParamsValues(configParams, manifestParams, appId)
-        appSettings = getAppSettings(configParams, manifestParams)
-      }
-
-      const locationIcons = getLocationIcons(appPath, manifest.location)
-      const app = getAppPayloadFromManifest(manifest, port, appId, locationIcons)
-      const installation = getInstallation(appId, app, zcliConfigFile, appSettings)
-
-      return {
-        app,
-        installation
-      }
-    })
-    .reduce((result, current) => {
-      result.apps.push(current.app)
-      result.installations.push(current.installation)
-
-      return result
-    }, appJSONStructure)
+    appJSON.apps.push(app)
+    appJSON.installations.push(installation)
+  }
 
   return (appJSON as unknown) as AppJSONPayload
 }
