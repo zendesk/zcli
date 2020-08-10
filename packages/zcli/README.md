@@ -4,7 +4,7 @@ $ npm install -g @zendesk/zcli
 $ zcli COMMAND
 running command...
 $ zcli (-v|--version|version)
-@zendesk/zcli/1.0.0-beta.6 darwin-x64 node-v12.10.0
+@zendesk/zcli/1.0.0-beta.2 darwin-x64 node-v12.10.0
 $ zcli --help [COMMAND]
 USAGE
   $ zcli COMMAND
