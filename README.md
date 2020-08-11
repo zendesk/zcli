@@ -2,7 +2,7 @@
 
 # ZCLI
 
-[![npm version](https://badge.fury.io/js/%40zendesk%2Fzcli.svg)](https://badge.fury.io/js/%40zendesk%2Fzcli)
+[![npm version](https://badge.fury.io/js/%40zendesk%2Fzcli.svg)](https://www.npmjs.com/package/@zendesk/zcli)
 ![Test](https://github.com/zendesk/zcli/workflows/Test/badge.svg)
 
 ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif).
