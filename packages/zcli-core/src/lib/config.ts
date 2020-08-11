@@ -5,8 +5,6 @@ import * as path from 'path'
 const HOME_DIR = os.homedir()
 export const CONFIG_PATH = path.join(HOME_DIR, '.zcli')
 
-console.log('CONFIG_PATH', CONFIG_PATH, `${HOME_DIR}/.zcli`)
-
 export default class Config {
   async ensureConfigFile () {
     if (!await fs.pathExists(CONFIG_PATH)) {

@@ -48,7 +48,7 @@ describe('setConfig', () => {
       return (args as string[])[0]
     })
     .stub(fs, 'pathExists', () => true)
-    .stub(fs, 'readJson', (...args) => {
+    .stub(fs, 'readJson', () => {
       return { plan: 'silver' }
     })
     .stub(fs, 'outputJson', (...args) => {
