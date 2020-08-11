@@ -39,11 +39,8 @@ describe('getAllConfigs', () => {
 })
 
 describe('setConfig', () => {
-  let readJsonSpyFilePath: string
-  let spyFilePath: string
   let spyFileJson: string
   const appPath = 'appPath1'
-  const configFilePath = path.join('appPath1', 'zcli.apps.config.json')
   const configFileJson = { plan: 'silver', table: 'tennis' }
 
   test
@@ -51,18 +48,14 @@ describe('setConfig', () => {
       return (args as string[])[0]
     })
     .stub(fs, 'pathExists', () => true)
-    .stub(fs, 'readJson', (...args) => {
-      readJsonSpyFilePath = (args as string[])[0]
+    .stub(fs, 'readJson', () => {
       return { plan: 'silver' }
     })
     .stub(fs, 'outputJson', (...args) => {
-      spyFilePath = (args as string[])[0]
       spyFileJson = (args as string[])[1]
     })
     .it('should store key to zcli.apps.config.json file contents', async () => {
       await appConfig.setConfig('table', 'tennis', appPath)
-      expect(readJsonSpyFilePath).to.equal(configFilePath)
-      expect(spyFilePath).to.equal(configFilePath)
       expect(spyFileJson).to.deep.equal(configFileJson)
     })
 })

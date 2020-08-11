@@ -57,7 +57,7 @@ describe('Config', () => {
       })
       .it('should update config with new key value', async () => {
         await config.setConfig('zoo', 'baz')
-        expect(mockConfig).to.equal('{\n  "foo": "bar",\n  "zoo": "baz"\n}')
+        expect(mockConfig).to.deep.equal({ foo: 'bar', zoo: 'baz' })
       })
   })
 
