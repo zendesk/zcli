@@ -1,8 +1,11 @@
 import * as os from 'os'
 import * as fs from 'fs-extra'
+import * as path from 'path'
 
 const HOME_DIR = os.homedir()
-export const CONFIG_PATH = `${HOME_DIR}/.zcli`
+export const CONFIG_PATH = path.join(HOME_DIR, '.zcli')
+
+console.log('CONFIG_PATH', CONFIG_PATH, `${HOME_DIR}/.zcli`)
 
 export default class Config {
   async ensureConfigFile () {
@@ -21,7 +24,7 @@ export default class Config {
     await this.ensureConfigFile()
     const config = await fs.readJson(CONFIG_PATH) || {}
     config[key] = value
-    await fs.outputJson(CONFIG_PATH, JSON.stringify(config, null, 2))
+    await fs.outputJson(CONFIG_PATH, config)
   }
 
   async removeConfig (key: string) {
