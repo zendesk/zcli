@@ -113,7 +113,7 @@ export const generateInstallationOrder = (location: Location, installationId: st
   // [ installationId ].
   const product = Object.keys(location)[0]
   const appLocation = Object.keys(location[product])[0]
-  let installationLocation = { [product]: { [appLocation]: [installationId] } }
+  const installationLocation = { [product]: { [appLocation]: [installationId] } }
   return installationLocation
 }
 
