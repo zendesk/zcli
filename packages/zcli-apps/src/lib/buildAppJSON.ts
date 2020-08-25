@@ -6,6 +6,7 @@ import {
   ConfigParameters,
   IconLocationWhitelist,
   Installation,
+  InstallationOrder,
   Location,
   LocationIcons,
   Manifest,
@@ -106,14 +107,15 @@ export const getAppSettings = async (manifest: Manifest, configParams: ConfigPar
 //     "ticket_sidebar": [123, 456]
 //   }
 // }
-export const generateInstallationOrder = (location: Location, installationId: number): InstallationOrder => {
+export const generateInstallationOrder = (location: Location, installationId: string): InstallationOrder => {
   // Note that location is of the form { "support": { "ticket_sidebar": "iframe.html" } }.  We don't want
   // iframe.html here, so we should throw that information away and replace it with an array consisting of
   // [ installationId ].
-  const appLocation = location[Object.keys(location)[0]]
-  appLocation[Object.keys(appLocation)[0]] = [installationId]
-  location[Object.keys(location)[0]] = appLocation
-  return location
+  const product = Object.keys(location)[0]
+  const appLocation = Object.keys(location[product])[0]
+  const installationIdAsNumber = installationId as any
+  let installationLocation = { [product]: { [appLocation]: [installationIdAsNumber] } }
+  return installationLocation
 }
 
 // takes the existing InstallationOrder on appJSON of the form
