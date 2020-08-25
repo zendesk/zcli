@@ -15,6 +15,14 @@ export interface AppLocation {
   [appLocation: string]: string;
 }
 
+export interface InstallationOrder {
+  [product: string]: InstallationLocation;
+}
+
+export interface InstallationLocation {
+  [installationLocation: string]: Array<number>;
+}
+
 export interface IconLocationWhitelist {
   [product: string]: Array<string>;
 }

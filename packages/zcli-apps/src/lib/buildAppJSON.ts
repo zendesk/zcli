@@ -100,8 +100,56 @@ export const getAppSettings = async (manifest: Manifest, configParams: ConfigPar
   return { ...configSettings, ...promptSettings }
 }
 
+// returns an installationOrder of the form
+// {
+//   "support": {
+//     "ticket_sidebar": [123, 456]
+//   }
+// }
+export const generateInstallationOrder = (location: Location, installationId: number): InstallationOrder => {
+  // Note that location is of the form { "support": { "ticket_sidebar": "iframe.html" } }.  We don't want
+  // iframe.html here, so we should throw that information away and replace it with an array consisting of
+  // [ installationId ].
+  const appLocation = location[Object.keys(location)[0]]
+  appLocation[Object.keys(appLocation)[0]] = [installationId]
+  location[Object.keys(location)[0]] = appLocation
+  return location
+}
+
+// takes the existing InstallationOrder on appJSON of the form
+// {
+//   "support": {
+//     "ticket_sidebar": [123],
+//     "nav_bar": [456, 789]
+//   },
+//   "chat": {
+//     "chat_sidebar": [278, 987]
+//   }
+// }
+// and a singleton InstallationOrder of the form
+// {
+//   "sell": {
+//     "dashboard": [777]
+//   }
+// }
+// and merges the two together to create a new InstallationOrder object.
+export const mergeInstallationOrder = (currentInstallationOrder: InstallationOrder, newInstallationOrderSingleton: InstallationOrder): InstallationOrder => {
+  for (const product in newInstallationOrderSingleton) {
+    if (currentInstallationOrder[product] === undefined) {
+      currentInstallationOrder[product] = newInstallationOrderSingleton[product]
+    } else {
+      for (const appLocation in currentInstallationOrder[product]) {
+        if (currentInstallationOrder[product][appLocation] !== newInstallationOrderSingleton[product][appLocation]) {
+          currentInstallationOrder[product][appLocation] = currentInstallationOrder[product][appLocation].concat(newInstallationOrderSingleton[product][appLocation])
+        }
+      }
+    }
+  }
+  return currentInstallationOrder
+}
+
 export const buildAppJSON = async (appPaths: string[], port: number, configFileName: string): Promise<AppJSONPayload> => {
-  const appJSON: AppJSON = { apps: [], installations: [] }
+  const appJSON: AppJSON = { apps: [], installations: [], installation_orders: {} }
 
   for (const appPath of appPaths) {
     validateAppPath(appPath)
@@ -116,9 +164,11 @@ export const buildAppJSON = async (appPaths: string[], port: number, configFileN
     const locationIcons = getLocationIcons(appPath, manifest.location)
     const app = getAppPayloadFromManifest(manifest, port, appId, locationIcons)
     const installation = getInstallation(appId, app, zcliConfigFile, appSettings)
+    const installationOrder = generateInstallationOrder(manifest.location, installation.id)
 
     appJSON.apps.push(app)
     appJSON.installations.push(installation)
+    appJSON.installation_orders = mergeInstallationOrder(appJSON.installation_orders, installationOrder)
   }
 
   return (appJSON as unknown) as AppJSONPayload
