@@ -113,8 +113,7 @@ export const generateInstallationOrder = (location: Location, installationId: st
   // [ installationId ].
   const product = Object.keys(location)[0]
   const appLocation = Object.keys(location[product])[0]
-  const installationIdAsNumber = installationId as any
-  let installationLocation = { [product]: { [appLocation]: [installationIdAsNumber] } }
+  let installationLocation = { [product]: { [appLocation]: [installationId] } }
   return installationLocation
 }
 
@@ -141,8 +140,13 @@ export const mergeInstallationOrder = (currentInstallationOrder: InstallationOrd
       currentInstallationOrder[product] = newInstallationOrderSingleton[product]
     } else {
       for (const appLocation in currentInstallationOrder[product]) {
-        if (currentInstallationOrder[product][appLocation] !== newInstallationOrderSingleton[product][appLocation]) {
+        if (newInstallationOrderSingleton[product][appLocation] && (currentInstallationOrder[product][appLocation] !== newInstallationOrderSingleton[product][appLocation])) {
           currentInstallationOrder[product][appLocation] = currentInstallationOrder[product][appLocation].concat(newInstallationOrderSingleton[product][appLocation])
+        }
+      }
+      for (const appLocation in newInstallationOrderSingleton[product]) {
+        if (currentInstallationOrder[product][appLocation] !== newInstallationOrderSingleton[product][appLocation]) {
+          currentInstallationOrder[product][appLocation] = newInstallationOrderSingleton[product][appLocation]
         }
       }
     }

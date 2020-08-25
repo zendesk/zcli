@@ -20,7 +20,7 @@ export interface InstallationOrder {
 }
 
 export interface InstallationLocation {
-  [installationLocation: string]: number[];
+  [installationLocation: string]: string[];
 }
 
 export interface IconLocationWhitelist {
