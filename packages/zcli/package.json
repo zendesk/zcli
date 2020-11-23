@@ -24,7 +24,7 @@
     "@zendesk/zcli-apps": "^1.0.0-beta.4",
     "@zendesk/zcli-core": "^1.0.0-beta.4",
     "cli-ux": "^5.5.0",
-    "tslib": "^1"
+    "tslib": "^1.14.0"
   },
   "engines": {
     "node": ">=12.10.0"
