@@ -22,3 +22,6 @@ EXAMPLES
   $ zcli login -i
   $ zcli login -s zendesk-subdomain -i
 ```
+
+
+NOTE: For CI/CD or unattended login you can set `ZENDESK_SUBDOMAIN`, `ZENDESK_EMAIL` and `ZENDESK_API_TOKEN` environment variables. You don't need to run login command if you have set these environment variables.
