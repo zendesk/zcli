@@ -1,7 +1,23 @@
 `zcli apps`
 ===========
 
-manage Zendesk apps workflow
+zcli apps commands helps with managing Zendesk apps workflow.
+
+NOTE: You can set your apps config/settings in `zcli.apps.config.json` at the root of your app directory ie
+
+```
+{
+  "plan": "silver",
+  "app_id": 123,
+  "parameters": {
+    "someToken": "fksjdhfb231435",
+    "someSecret": 123
+  }
+}
+
+```
+
+See [these mock apps](https://github.com/zendesk/zcli/tree/master/packages/zcli-apps/tests/functional/mocks) for more references of `zcli.apps.config.json`.
 
 * [`zcli apps:bump [APPPATH]`](#zcli-appsbump-apppath)
 * [`zcli apps:clean [APPPATH]`](#zcli-appsclean-apppath)
