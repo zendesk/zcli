@@ -96,7 +96,7 @@ export const getAppSettings = async (manifest: Manifest, configParams: ConfigPar
     return result
   }, {})
 
-  const promptSettings = paramsNotInConfig ? await promptAndGetSettings(paramsNotInConfig, manifest.name) : {}
+  const promptSettings = paramsNotInConfig ? await promptAndGetSettings(paramsNotInConfig, manifest.name, false) : {}
   return { ...configSettings, ...promptSettings }
 }
 
