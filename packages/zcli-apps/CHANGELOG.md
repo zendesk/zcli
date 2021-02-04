@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.5](https://github.com/zendesk/zcli/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2021-02-04)
+
+
+### Bug Fixes
+
+* upgrade adm-zip from 0.4.16 to 0.5.0 ([f4b2eee](https://github.com/zendesk/zcli/commit/f4b2eee180af6a08ee6400e98c85eb1b5fe2bfff))
+* upgrade adm-zip from 0.5.0 to 0.5.1 ([321b0b6](https://github.com/zendesk/zcli/commit/321b0b61bcf6e3f5d95c7a23485fb23a9bf26b2b))
+
+
+
+
+
 # [1.0.0-beta.4](https://github.com/zendesk/zcli/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2020-08-11)
 
 **Note:** Version bump only for package @zendesk/zcli-apps
