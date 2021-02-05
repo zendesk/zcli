@@ -18,6 +18,16 @@ export default class Auth {
     this.config = new Config()
   }
 
+  const parseSubdomain = (subdomain: string) => {
+    // dirty check: if someone mistakenly provides full hostname instead of a subdomain
+    // then strip out domain name from it.
+    if (subdomain && subdomain.includes('.zendesk.com')) {
+      return subdomain.split('.zendesk.com')[0]
+    }
+  
+    return subdomain
+  }
+
   // 1. If env vars are set, prepare token using them
   // 2. If no env vars, check if current profile is set
   async getAuthorizationToken () {
@@ -54,7 +64,7 @@ export default class Auth {
   }
 
   async loginInteractively (options?: Profile) {
-    const subdomain = options?.subdomain || await cli.prompt('Subdomain')
+    const subdomain = parseSubdomain(options?.subdomain || await cli.prompt('Subdomain'))
     const email = await cli.prompt('Email')
     const password = await cli.prompt('Password', { type: 'hide' })
 
