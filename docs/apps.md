@@ -9,6 +9,7 @@ NOTE: You can set your apps config/settings in `zcli.apps.config.json` at the ro
 {
   "plan": "silver",
   "app_id": 123,
+  "installation_id": 12434234,
   "parameters": {
     "someToken": "fksjdhfb231435",
     "someSecret": 123
