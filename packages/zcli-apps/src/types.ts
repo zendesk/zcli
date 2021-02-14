@@ -3,6 +3,7 @@ export interface ZcliConfigFileContent {
     zat_update_check?: string;
     plan?: string;
     app_id?: string;
+    installation_id?: string;
     parameters?: ConfigParameters;
 }
 

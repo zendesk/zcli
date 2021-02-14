@@ -52,7 +52,8 @@ export const getLocationIcons = (appPath: string, manifestLocations: Location): 
 }
 
 export const getInstallation = (appId: string, app: App, configFileContents: ZcliConfigFileContent, appSettings: ConfigParameters): Installation => {
-  const installationId = uuidV4()
+  const installationId = configFileContents.installation_id || uuidV4()
+
   return {
     app_id: appId,
     name: app.name,
