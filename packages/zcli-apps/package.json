@@ -18,7 +18,7 @@
   "dependencies": {
     "@oclif/command": "^1",
     "@oclif/config": "^1",
-    "adm-zip": "0.5.1",
+    "adm-zip": "0.5.2",
     "archiver": "4.0.2",
     "chalk": "4.1.0",
     "cli-ux": "^5.4.1",
