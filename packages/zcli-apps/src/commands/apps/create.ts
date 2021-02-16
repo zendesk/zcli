@@ -7,6 +7,8 @@ import cli from 'cli-ux'
 import { getManifestFile } from '../../utils/manifest'
 import { createAppPkg } from '../../lib/package'
 import { validateAppPath } from '../../lib/appPath'
+import { getAllConfigs } from '../../utils/appConfig'
+import { getAppSettings } from '../../utils/getAppSettings'
 
 export default class Create extends Command {
   static description = 'creates apps in your desired target account'
@@ -46,7 +48,11 @@ export default class Create extends Command {
       try {
         const { app_id }: any = await getUploadJobStatus(job_id, appPath)
         cli.action.stop('Deployed')
-        const settings = manifest.parameters ? await promptAndGetSettings(manifest.parameters) : {}
+
+        const allConfigs = getAllConfigs(appPath)
+        const configParams = allConfigs?.parameters || {} // if there are no parameters in the config, just attach an empty object
+
+        const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
         const installed = await request.requestAPI('api/v2/apps/installations.json', {
           method: 'POST',
           body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),

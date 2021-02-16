@@ -9,6 +9,7 @@ import * as manifest from '../utils/manifest'
 import * as createApp from '../utils/createApp'
 import { Manifest } from './../types'
 import * as path from 'path'
+import { DEFAULT_APPS_CONFIG_FILE } from '../constants'
 
 const manifestOutput: Manifest = {
   name: 'app 1',
@@ -269,7 +270,7 @@ describe('buildAppJSON', () => {
     .stub(uuid, 'uuidV4', () => mockId)
     .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
     .it('should return a JSON object with zcli.apps.config.json file contents', async () => {
-      const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+      const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234)
       expect(appJSON).to.deep.include({
         apps: [
           {
@@ -321,7 +322,7 @@ describe('buildAppJSON', () => {
       .stub(uuid, 'uuidV4', () => mockId)
       .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
       .it('should return a JSON object with zcli.apps.config.json file contents', async () => {
-        const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+        const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234)
 
         expect(appJSON).to.deep.include({
           apps: [
