@@ -6,7 +6,6 @@ import * as cors from 'cors'
 import { buildAppJSON } from '../../lib/buildAppJSON'
 import { Installation } from '../../types'
 import { getAppPaths } from '../../utils/shared'
-import { DEFAULT_APPS_CONFIG_FILE } from '../../constants'
 
 const logMiddleware = morgan((tokens, req, res) =>
   `${chalk.green(tokens.method(req, res))} ${tokens.url(req, res)} ${chalk.bold(tokens.status(req, res))}`
@@ -39,12 +38,11 @@ export default class Server extends Command {
   async run () {
     const { flags } = this.parse(Server)
     const port = parseInt(flags.port)
-    const config = DEFAULT_APPS_CONFIG_FILE
     const { logs: tailLogs, bind: host } = flags
     const { argv: appDirectories } = this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
-    const appJSON = await buildAppJSON(appPaths, port, config)
+    const appJSON = await buildAppJSON(appPaths, port)
 
     const app = express()
     app.use(cors())

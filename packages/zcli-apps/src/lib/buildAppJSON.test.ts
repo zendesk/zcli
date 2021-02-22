@@ -6,10 +6,8 @@ import * as uuid from '../utils/uuid'
 import * as buildAppJSON from './buildAppJSON'
 import * as appPath from '../lib/appPath'
 import * as manifest from '../utils/manifest'
-import * as createApp from '../utils/createApp'
 import { Manifest } from './../types'
 import * as path from 'path'
-import { DEFAULT_APPS_CONFIG_FILE } from '../constants'
 
 const manifestOutput: Manifest = {
   name: 'app 1',
@@ -221,27 +219,6 @@ describe('getInstallation', () => {
           },
           updated_at: '2020-01-01T00:00:00.000Z'
         })
-    })
-})
-
-describe('getAppSettings', () => {
-  test
-    .stub(createApp, 'promptAndGetSettings', () => ({ someToken: 'ABC123' }))
-    .it('should return setting from config and prompt for missing config', async () => {
-      const settings = await buildAppJSON.getAppSettings(manifestOutput, { salesForceId: 222 })
-      expect(settings).to.deep.equals({
-        salesForceId: 222,
-        someToken: 'ABC123'
-      })
-    })
-
-  test
-    .it('should return all settings from config', async () => {
-      const settings = await buildAppJSON.getAppSettings(manifestOutput, { salesForceId: 222, someToken: 'XYZ786' })
-      expect(settings).to.deep.equals({
-        salesForceId: 222,
-        someToken: 'XYZ786'
-      })
     })
 })
 

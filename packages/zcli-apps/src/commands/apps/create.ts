@@ -1,6 +1,6 @@
 import { Command } from '@oclif/command'
 import { request } from '@zendesk/zcli-core'
-import { promptAndGetSettings, uploadAppPkg, deployApp } from '../../utils/createApp'
+import { uploadAppPkg, deployApp } from '../../utils/createApp'
 import * as chalk from 'chalk'
 import { getUploadJobStatus } from '../../utils/uploadApp'
 import cli from 'cli-ux'
