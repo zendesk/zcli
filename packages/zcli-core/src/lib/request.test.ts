@@ -14,7 +14,7 @@ describe('requestAPI', () => {
       api
         .get('/api/v2/me')
         .reply(function () {
-          expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbTp0b2tlbi8xMjM0NTY=')
+          expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
           return [200]
         })
     })
@@ -34,7 +34,7 @@ describe('requestAPI', () => {
       api
         .get('/api/v2/me')
         .reply(function () {
-          expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbTp0b2tlbi8xMjM0NTY=')
+          expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
           expect(this.req.headers.foo[0]).to.equal('bar')
           return [200]
         })
