@@ -1,14 +1,12 @@
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as sinon from 'sinon'
-import cli from 'cli-ux'
 import * as createAppUtils from '../../src/utils/createApp'
 import * as appConfig from '../../src/utils/appConfig'
 import * as requestUtils from '../../../zcli-core/src/lib/requestUtils'
 import * as packageUtil from '../../src/lib/package'
 
 describe('apps create', function () {
-  const promptStub = sinon.stub()
   const singleProductApp = path.join(__dirname, 'mocks/single_product_app')
   const multiProductApp = path.join(__dirname, 'mocks/multi_product_app')
   const successMessage = 'Successfully installed app'
@@ -22,7 +20,6 @@ describe('apps create', function () {
 
   describe('with multiple apps', () => {
     test
-      .stub(cli, 'prompt', () => promptStub)
       .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
       .stub(createAppUtils, 'getManifestAppName', () => 'importantAppName')
       .stub(requestUtils, 'getSubdomain', () => Promise.resolve('z3ntest'))
@@ -33,7 +30,6 @@ describe('apps create', function () {
         ZENDESK_PASSWORD: '123456' // the universal password
       })
       .do(() => {
-        promptStub.onFirstCall().resolves('salesForcePowersActivate!')
         createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
         uploadAppPkgStub.onFirstCall().resolves({ id: 817 })
         uploadAppPkgStub.onSecondCall().resolves({ id: 818 })
@@ -55,7 +51,7 @@ describe('apps create', function () {
           .post('/api/v2/apps/installations.json', { app_id: '123456', settings: { name: 'Test App 1' } })
           .reply(200)
         api
-          .post('/api/v2/apps/installations.json', { app_id: '123458', settings: { name: 'Test App 2', salesForceId: 'salesForcePowersActivate!' } })
+          .post('/api/v2/apps/installations.json', { app_id: '123458', settings: { name: 'Test App 2', salesForceId: 123 } })
           .reply(200)
       })
       .stdout()
