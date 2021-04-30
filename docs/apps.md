@@ -122,7 +122,6 @@ USAGE
 OPTIONS
   -h, --help       show CLI help
   --bind=bind      [default: localhost] Bind apps server to a specific host
-  --config=config  [default: zcli.apps.config.json] Configuration file for zcli::apps
   --logs           Tail logs
   --port=port      [default: 4567] Port for the http server to use
 
