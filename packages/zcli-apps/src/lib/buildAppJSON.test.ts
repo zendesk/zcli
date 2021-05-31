@@ -6,7 +6,6 @@ import * as uuid from '../utils/uuid'
 import * as buildAppJSON from './buildAppJSON'
 import * as appPath from '../lib/appPath'
 import * as manifest from '../utils/manifest'
-import * as createApp from '../utils/createApp'
 import { Manifest } from './../types'
 import * as path from 'path'
 
@@ -223,27 +222,6 @@ describe('getInstallation', () => {
     })
 })
 
-describe('getAppSettings', () => {
-  test
-    .stub(createApp, 'promptAndGetSettings', () => ({ someToken: 'ABC123' }))
-    .it('should return setting from config and prompt for missing config', async () => {
-      const settings = await buildAppJSON.getAppSettings(manifestOutput, { salesForceId: 222 })
-      expect(settings).to.deep.equals({
-        salesForceId: 222,
-        someToken: 'ABC123'
-      })
-    })
-
-  test
-    .it('should return all settings from config', async () => {
-      const settings = await buildAppJSON.getAppSettings(manifestOutput, { salesForceId: 222, someToken: 'XYZ786' })
-      expect(settings).to.deep.equals({
-        salesForceId: 222,
-        someToken: 'XYZ786'
-      })
-    })
-})
-
 describe('buildAppJSON', () => {
   before(function () {
     this.clock = sinon.useFakeTimers(new Date('2020-01-01'))
@@ -269,7 +247,7 @@ describe('buildAppJSON', () => {
     .stub(uuid, 'uuidV4', () => mockId)
     .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
     .it('should return a JSON object with zcli.apps.config.json file contents', async () => {
-      const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+      const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234)
       expect(appJSON).to.deep.include({
         apps: [
           {
@@ -321,7 +299,7 @@ describe('buildAppJSON', () => {
       .stub(uuid, 'uuidV4', () => mockId)
       .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
       .it('should return a JSON object with zcli.apps.config.json file contents', async () => {
-        const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234, 'zcli.apps.config.json')
+        const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234)
 
         expect(appJSON).to.deep.include({
           apps: [

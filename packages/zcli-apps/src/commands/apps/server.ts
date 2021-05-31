@@ -38,12 +38,11 @@ export default class Server extends Command {
   async run () {
     const { flags } = this.parse(Server)
     const port = parseInt(flags.port)
-    const config = 'zcli.apps.config.json'
     const { logs: tailLogs, bind: host } = flags
     const { argv: appDirectories } = this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
-    const appJSON = await buildAppJSON(appPaths, port, config)
+    const appJSON = await buildAppJSON(appPaths, port)
 
     const app = express()
     app.use(cors())

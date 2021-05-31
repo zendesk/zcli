@@ -36,7 +36,7 @@ describe('Auth', () => {
       })
       .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
       .it('should return basic token if ZENDESK_EMAIL and ZENDESK_API_TOKEN is set', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Basic test@zendesk.com_token/test_api_token_base64')
+        expect(await auth.getAuthorizationToken()).to.equal('Basic test@zendesk.com/token_test_api_token_base64')
       })
 
     test
@@ -75,7 +75,7 @@ describe('Auth', () => {
       })
       .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
       .it('should give precedence to ZENDESK_EMAIL and ZENDESK_API_TOKEN when ZENDESK_OAUTH_TOKEN is not defined', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Basic test@zendesk.com_token/test_api_token_base64')
+        expect(await auth.getAuthorizationToken()).to.equal('Basic test@zendesk.com/token_test_api_token_base64')
       })
   })
 
