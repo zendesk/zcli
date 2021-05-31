@@ -9,6 +9,7 @@ NOTE: You can set your apps config/settings in `zcli.apps.config.json` at the ro
 {
   "plan": "silver",
   "app_id": 123,
+  "installation_id": 12434234,
   "parameters": {
     "someToken": "fksjdhfb231435",
     "someSecret": 123
@@ -121,7 +122,6 @@ USAGE
 OPTIONS
   -h, --help       show CLI help
   --bind=bind      [default: localhost] Bind apps server to a specific host
-  --config=config  [default: zcli.apps.config.json] Configuration file for zcli::apps
   --logs           Tail logs
   --port=port      [default: 4567] Port for the http server to use
 
