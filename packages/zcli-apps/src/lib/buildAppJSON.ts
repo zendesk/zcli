@@ -10,15 +10,14 @@ import {
   LocationIcons,
   Manifest,
   ProductLocationIcons,
-  ZcliConfigFileContent,
-  Dictionary
+  ZcliConfigFileContent
 } from '../types'
 import * as path from 'path'
 import * as fs from 'fs'
 import { uuidV4 } from '../utils/uuid'
 import { getManifestFile } from '../utils/manifest'
 import { getAllConfigs } from '../utils/appConfig'
-import { promptAndGetSettings } from '../utils/createApp'
+import { getAppSettings } from '../utils/getAppSettings'
 import { validateAppPath } from './appPath'
 
 // The SVGs here are in the top bar or nav bar locations. Chat don’t have these locations thus not here.
@@ -52,7 +51,8 @@ export const getLocationIcons = (appPath: string, manifestLocations: Location): 
 }
 
 export const getInstallation = (appId: string, app: App, configFileContents: ZcliConfigFileContent, appSettings: ConfigParameters): Installation => {
-  const installationId = uuidV4()
+  const installationId = configFileContents.installation_id || uuidV4()
+
   return {
     app_id: appId,
     name: app.name,
@@ -84,29 +84,13 @@ export const getAppPayloadFromManifest = (appManifest: Manifest, port: number, a
   }
 }
 
-export const getAppSettings = async (manifest: Manifest, configParams: ConfigParameters) => {
-  if (!manifest.parameters) return {}
-  const configContainsParam = (paramName: string) => Object.keys(configParams).includes(paramName)
-
-  const paramsNotInConfig = manifest.parameters.filter(param => !configContainsParam(param.name))
-  const configSettings = manifest.parameters.reduce((result: Dictionary<string>, param) => {
-    if (configContainsParam(param.name)) {
-      result[param.name] = configParams[param.name] as string
-    }
-    return result
-  }, {})
-
-  const promptSettings = paramsNotInConfig ? await promptAndGetSettings(paramsNotInConfig, manifest.name, false) : {}
-  return { ...configSettings, ...promptSettings }
-}
-
-export const buildAppJSON = async (appPaths: string[], port: number, configFileName: string): Promise<AppJSONPayload> => {
+export const buildAppJSON = async (appPaths: string[], port: number): Promise<AppJSONPayload> => {
   const appJSON: AppJSON = { apps: [], installations: [] }
 
   for (const appPath of appPaths) {
     validateAppPath(appPath)
     const manifest = getManifestFile(appPath)
-    const zcliConfigFile = getAllConfigs(appPath, configFileName) || {}
+    const zcliConfigFile = getAllConfigs(appPath) || {}
 
     const appId = zcliConfigFile.app_id?.toString() || uuidV4()
     const configParams = zcliConfigFile.parameters || {} // if there are no parameters in the config, just attach an empty object
