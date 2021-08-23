@@ -32,7 +32,7 @@ export default class New extends Command {
   unzippedScaffoldPath = path.join(process.cwd(), 'app_scaffolds-master')
   EMAIL_REGEX = /^.+@.+\..+$/
 
-  async downloadScaffold (url: string) {
+  async downloadScaffoldsRepo (url: string) {
     return new Promise((resolve, reject) => {
       const destination = fs.createWriteStream(this.zipScaffoldPath)
 
@@ -60,6 +60,9 @@ export default class New extends Command {
         path.join(process.cwd(), '/', `app_scaffolds-master-${flagScaffold}`),
         { overwrite: true, errorOnExist: true }, (err) => {
           if (err) {
+            if (err.code === 'ENOENT') {
+              reject(new Error(`Package ${flagScaffold} does not exist: ${err}`))
+            }
             reject(err)
           }
           resolve()
@@ -96,11 +99,11 @@ export default class New extends Command {
     const scaffoldUrl = 'https://codeload.github.com/zendesk/app_scaffolds/zip/master'
 
     try {
-      await this.downloadScaffold(scaffoldUrl)
+      await this.downloadScaffoldsRepo(scaffoldUrl)
       await this.extractSubfolderToTarget(flagScaffold)
       await cleanDirectory(this.unzippedScaffoldPath)
     } catch (err) {
-      throw new CLIError(chalk.red('Download of scaffold structure failed'))
+      throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
     }
 
     fs.renameSync(path.join(process.cwd(), scaffoldDir), path.join(process.cwd(), directoryName))
