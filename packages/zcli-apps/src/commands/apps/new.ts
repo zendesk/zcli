@@ -1,9 +1,10 @@
-import { Scaffolds, ManifestPath } from './../../types'
+import { ManifestPath } from './../../types'
 import { Command, flags } from '@oclif/command'
 import { cleanDirectory } from '../../utils/fileUtils'
 import { getManifestFile, updateManifestFile } from '../../utils/manifest'
 import cli from 'cli-ux'
 import * as fs from 'fs'
+import * as fsExtra from 'fs-extra'
 import * as https from 'https'
 import * as path from 'path'
 import * as AdmZip from 'adm-zip'
@@ -28,6 +29,7 @@ export default class New extends Command {
   ]
 
   zipScaffoldPath = path.join(process.cwd(), 'scaffold.zip')
+  unzippedScaffoldPath = path.join(process.cwd(), 'app_scaffolds-master')
   EMAIL_REGEX = /^.+@.+\..+$/
 
   async downloadScaffold (url: string) {
@@ -51,12 +53,23 @@ export default class New extends Command {
     })
   }
 
+  async extractSubfolderToTarget (scaffoldName: string, targetName: string) {
+    return new Promise((resolve, reject) => {
+      fsExtra.copy(
+        path.join(process.cwd(), '/', scaffoldName, '/packages/', targetName),
+        path.join(process.cwd(), '/', `${scaffoldName}-${targetName}`),
+        { overwrite: true, errorOnExist: true }, (err) => {
+          if (err) {
+            reject(err)
+          }
+          resolve()
+        }
+      )
+    })
+  }
+
   getScaffoldDir (flagScaffold: string): string {
-    const scaffolds: Scaffolds = {
-      basic: 'apps_scaffold_basic',
-      react: 'app_scaffold'
-    }
-    const scaffoldRepo = scaffolds[flagScaffold]
+    const scaffoldRepo = 'app_scaffolds'
     if (!scaffoldRepo) {
       throw new CLIError(chalk.red(`Invalid scaffold option entered ${flagScaffold}`))
     }
@@ -89,16 +102,19 @@ export default class New extends Command {
     const appName = flags.appName || await cli.prompt('Enter a name for this new app')
     const scaffoldRepo = this.getScaffoldDir(flagScaffold)
     const scaffoldDir = scaffoldRepo + '-master'
+    const scaffoldDirWithType = scaffoldDir + '-' + flagScaffold
 
     const scaffoldUrl = `https://codeload.github.com/zendesk/${scaffoldRepo}/zip/master`
 
     try {
       await this.downloadScaffold(scaffoldUrl)
+      await this.extractSubfolderToTarget(scaffoldDir, flagScaffold)
+      await cleanDirectory(this.unzippedScaffoldPath)
     } catch (err) {
       throw new CLIError(chalk.red('Download of scaffold structure failed'))
     }
 
-    fs.renameSync(path.join(process.cwd(), scaffoldDir), path.join(process.cwd(), directoryName))
+    fs.renameSync(path.join(process.cwd(), scaffoldDirWithType), path.join(process.cwd(), directoryName))
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold)
     try {
       await cleanDirectory(this.zipScaffoldPath)
