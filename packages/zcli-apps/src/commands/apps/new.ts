@@ -53,11 +53,11 @@ export default class New extends Command {
     })
   }
 
-  async extractSubfolderToTarget (scaffoldName: string, targetName: string) {
+  async extractSubfolderToTarget (flagScaffold: string) {
     return new Promise((resolve, reject) => {
       fsExtra.copy(
-        path.join(process.cwd(), '/', scaffoldName, '/packages/', targetName),
-        path.join(process.cwd(), '/', `${scaffoldName}-${targetName}`),
+        path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
+        path.join(process.cwd(), '/', `app_scaffolds-master-${flagScaffold}`),
         { overwrite: true, errorOnExist: true }, (err) => {
           if (err) {
             reject(err)
@@ -66,14 +66,6 @@ export default class New extends Command {
         }
       )
     })
-  }
-
-  getScaffoldDir (flagScaffold: string): string {
-    const scaffoldRepo = 'app_scaffolds'
-    if (!scaffoldRepo) {
-      throw new CLIError(chalk.red(`Invalid scaffold option entered ${flagScaffold}`))
-    }
-    return scaffoldRepo
   }
 
   modifyManifest (directoryName: string, appName: string, authorName: string, authorEmail: string, flagScaffold: string) {
@@ -100,21 +92,18 @@ export default class New extends Command {
       authorEmail = flags.authorEmail || await cli.prompt('Enter this app authors email')
     }
     const appName = flags.appName || await cli.prompt('Enter a name for this new app')
-    const scaffoldRepo = this.getScaffoldDir(flagScaffold)
-    const scaffoldDir = scaffoldRepo + '-master'
-    const scaffoldDirWithType = scaffoldDir + '-' + flagScaffold
-
-    const scaffoldUrl = `https://codeload.github.com/zendesk/${scaffoldRepo}/zip/master`
+    const scaffoldDir = 'app_scaffolds-master-' + flagScaffold
+    const scaffoldUrl = 'https://codeload.github.com/zendesk/app_scaffolds/zip/master'
 
     try {
       await this.downloadScaffold(scaffoldUrl)
-      await this.extractSubfolderToTarget(scaffoldDir, flagScaffold)
+      await this.extractSubfolderToTarget(flagScaffold)
       await cleanDirectory(this.unzippedScaffoldPath)
     } catch (err) {
       throw new CLIError(chalk.red('Download of scaffold structure failed'))
     }
 
-    fs.renameSync(path.join(process.cwd(), scaffoldDirWithType), path.join(process.cwd(), directoryName))
+    fs.renameSync(path.join(process.cwd(), scaffoldDir), path.join(process.cwd(), directoryName))
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold)
     try {
       await cleanDirectory(this.zipScaffoldPath)
