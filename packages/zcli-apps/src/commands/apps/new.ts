@@ -1,4 +1,4 @@
-import { ManifestPath } from './../../types'
+import { FsExtraError, ManifestPath } from './../../types'
 import { Command, flags } from '@oclif/command'
 import { cleanDirectory } from '../../utils/fileUtils'
 import { getManifestFile, updateManifestFile } from '../../utils/manifest'
@@ -58,7 +58,7 @@ export default class New extends Command {
       fsExtra.copy(
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
         path.join(process.cwd(), '/', `app_scaffolds-master-${flagScaffold}`),
-        { overwrite: true, errorOnExist: true }, (err) => {
+        { overwrite: true, errorOnExist: true }, (err: FsExtraError) => {
           if (err) {
             if (err.code === 'ENOENT') {
               reject(new Error(`Package ${flagScaffold} does not exist: ${err}`))
