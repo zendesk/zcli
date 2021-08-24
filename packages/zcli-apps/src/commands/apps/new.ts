@@ -51,8 +51,8 @@ export default class New extends Command {
       destination.on('finish', () => {
         const zip = new AdmZip(this.zipScaffoldPath)
         const overwrite = false
-        zip.extractAllToAsync(path.join(process.cwd()), overwrite, (err) => {
-          tryCleanUp(this.zipScaffoldPath)
+        zip.extractAllToAsync(path.join(process.cwd()), overwrite, async (err) => {
+          await tryCleanUp(this.zipScaffoldPath)
           if (err) {
             reject(err)
           }
@@ -67,8 +67,8 @@ export default class New extends Command {
       fsExtra.copy(
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
         path.join(process.cwd(), directoryName),
-        { overwrite: true, errorOnExist: true }, (err: FsExtraError) => {
-          tryCleanUp(this.unzippedScaffoldPath)
+        { overwrite: true, errorOnExist: true }, async (err: FsExtraError) => {
+          await tryCleanUp(this.unzippedScaffoldPath)
           if (err) {
             if (err.code === 'ENOENT') {
               reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
