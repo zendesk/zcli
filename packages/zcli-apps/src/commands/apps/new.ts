@@ -52,6 +52,7 @@ export default class New extends Command {
         const zip = new AdmZip(this.zipScaffoldPath)
         const overwrite = false
         zip.extractAllToAsync(path.join(process.cwd()), overwrite, (err) => {
+          tryCleanUp(this.zipScaffoldPath)
           if (err) {
             reject(err)
           }
@@ -92,11 +93,6 @@ export default class New extends Command {
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
-  async cleanAfterError () {
-    await tryCleanUp(this.unzippedScaffoldPath)
-    await tryCleanUp(this.zipScaffoldPath)
-  }
-
   async run () {
     const { flags } = this.parse(New)
     const flagScaffold = flags.scaffold
@@ -116,13 +112,12 @@ export default class New extends Command {
       await this.extractScaffoldIfExists(flagScaffold)
       await cleanDirectory(this.unzippedScaffoldPath)
     } catch (err) {
-      await this.cleanAfterError()
+      await tryCleanUp(this.unzippedScaffoldPath)
       throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
     }
 
     fs.renameSync(path.join(process.cwd(), scaffoldDir), path.join(process.cwd(), directoryName))
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold)
-    await tryCleanUp(this.zipScaffoldPath)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }
