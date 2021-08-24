@@ -62,12 +62,13 @@ export default class New extends Command {
     })
   }
 
-  async extractScaffoldIfExists (flagScaffold: string) {
+  async extractScaffoldIfExists (flagScaffold: string, directoryName: string) {
     return new Promise((resolve, reject) => {
       fsExtra.copy(
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
-        path.join(process.cwd(), '/', `app_scaffolds-master-${flagScaffold}`),
+        path.join(process.cwd(), directoryName),
         { overwrite: true, errorOnExist: true }, (err: FsExtraError) => {
+          tryCleanUp(this.unzippedScaffoldPath)
           if (err) {
             if (err.code === 'ENOENT') {
               reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
@@ -104,19 +105,15 @@ export default class New extends Command {
       authorEmail = flags.authorEmail || await cli.prompt('Enter this app authors email')
     }
     const appName = flags.appName || await cli.prompt('Enter a name for this new app')
-    const scaffoldDir = 'app_scaffolds-master-' + flagScaffold
     const scaffoldUrl = 'https://codeload.github.com/zendesk/app_scaffolds/zip/master'
 
     try {
       await this.downloadScaffoldsRepo(scaffoldUrl)
-      await this.extractScaffoldIfExists(flagScaffold)
-      await cleanDirectory(this.unzippedScaffoldPath)
+      await this.extractScaffoldIfExists(flagScaffold, directoryName)
     } catch (err) {
-      await tryCleanUp(this.unzippedScaffoldPath)
       throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
     }
 
-    fs.renameSync(path.join(process.cwd(), scaffoldDir), path.join(process.cwd(), directoryName))
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
