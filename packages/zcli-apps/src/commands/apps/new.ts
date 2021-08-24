@@ -11,14 +11,6 @@ import * as AdmZip from 'adm-zip'
 import * as chalk from 'chalk'
 import { CLIError } from '@oclif/errors'
 
-async function tryCleanUp (path: string) {
-  try {
-    await cleanDirectory(path)
-  } catch (err) {
-    console.log(chalk.yellow(`Failed to clean up ${path}`))
-  }
-}
-
 export default class New extends Command {
   static description = 'generates a bare bones app locally for development'
 
@@ -52,7 +44,7 @@ export default class New extends Command {
         const zip = new AdmZip(this.zipScaffoldPath)
         const overwrite = false
         zip.extractAllToAsync(path.join(process.cwd()), overwrite, async (err) => {
-          await tryCleanUp(this.zipScaffoldPath)
+          await cleanDirectory(this.zipScaffoldPath)
           if (err) {
             reject(err)
           }
@@ -68,7 +60,7 @@ export default class New extends Command {
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
         path.join(process.cwd(), directoryName),
         { overwrite: true, errorOnExist: true }, async (err: FsExtraError) => {
-          await tryCleanUp(this.unzippedScaffoldPath)
+          await cleanDirectory(this.unzippedScaffoldPath)
           if (err) {
             if (err.code === 'ENOENT') {
               reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
