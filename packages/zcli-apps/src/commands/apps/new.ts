@@ -11,6 +11,14 @@ import * as AdmZip from 'adm-zip'
 import * as chalk from 'chalk'
 import { CLIError } from '@oclif/errors'
 
+async function tryCleanUp (path: string) {
+  try {
+    await cleanDirectory(path)
+  } catch (err) {
+    console.log(chalk.yellow(`Failed to clean up ${path}`))
+  }
+}
+
 export default class New extends Command {
   static description = 'generates a bare bones app locally for development'
 
@@ -85,12 +93,8 @@ export default class New extends Command {
   }
 
   async cleanAfterError () {
-    await cleanDirectory(this.unzippedScaffoldPath)
-    try {
-      await cleanDirectory(this.zipScaffoldPath)
-    } catch (err) {
-      console.log(chalk.yellow(`Failed to clean up ${this.zipScaffoldPath}`))
-    }
+    await tryCleanUp(this.unzippedScaffoldPath)
+    await tryCleanUp(this.zipScaffoldPath)
   }
 
   async run () {
@@ -118,11 +122,7 @@ export default class New extends Command {
 
     fs.renameSync(path.join(process.cwd(), scaffoldDir), path.join(process.cwd(), directoryName))
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold)
-    try {
-      await cleanDirectory(this.zipScaffoldPath)
-    } catch (err) {
-      console.log(chalk.yellow(`Failed to clean up ${this.zipScaffoldPath}`))
-    }
+    await tryCleanUp(this.zipScaffoldPath)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }
