@@ -84,7 +84,7 @@ export default class New extends Command {
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
-  async cleanAfterError() {
+  async cleanAfterError () {
     await cleanDirectory(this.unzippedScaffoldPath)
     try {
       await cleanDirectory(this.zipScaffoldPath)
