@@ -84,6 +84,15 @@ export default class New extends Command {
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
+  async cleanAfterError() {
+    await cleanDirectory(this.unzippedScaffoldPath)
+    try {
+      await cleanDirectory(this.zipScaffoldPath)
+    } catch (err) {
+      console.log(chalk.yellow(`Failed to clean up ${this.zipScaffoldPath}`))
+    }
+  }
+
   async run () {
     const { flags } = this.parse(New)
     const flagScaffold = flags.scaffold
@@ -103,7 +112,7 @@ export default class New extends Command {
       await this.extractScaffoldIfExists(flagScaffold)
       await cleanDirectory(this.unzippedScaffoldPath)
     } catch (err) {
-      await cleanDirectory(this.unzippedScaffoldPath)
+      await this.cleanAfterError()
       throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
     }
 
