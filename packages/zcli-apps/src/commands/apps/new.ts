@@ -53,7 +53,7 @@ export default class New extends Command {
     })
   }
 
-  async extractPackageIfExists (flagScaffold: string) {
+  async extractScaffoldIfExists (flagScaffold: string) {
     return new Promise((resolve, reject) => {
       fsExtra.copy(
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
@@ -61,7 +61,7 @@ export default class New extends Command {
         { overwrite: true, errorOnExist: true }, (err: FsExtraError) => {
           if (err) {
             if (err.code === 'ENOENT') {
-              reject(new Error(`Package ${flagScaffold} does not exist: ${err}`))
+              reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
             }
             reject(err)
           }
@@ -100,7 +100,7 @@ export default class New extends Command {
 
     try {
       await this.downloadScaffoldsRepo(scaffoldUrl)
-      await this.extractPackageIfExists(flagScaffold)
+      await this.extractScaffoldIfExists(flagScaffold)
       await cleanDirectory(this.unzippedScaffoldPath)
     } catch (err) {
       throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
