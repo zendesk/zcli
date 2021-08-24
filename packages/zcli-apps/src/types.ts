@@ -29,6 +29,10 @@ export interface FileList {
     time: number;
 }
 
+export interface FsExtraError extends Error {
+    code: string;
+}
+
 export interface Manifest {
     name?: string;
     author: Author;
