@@ -97,7 +97,7 @@ EXAMPLES
 
 ## `zcli apps:package APPDIRECTORY`
 
-validates and packages your app
+validates and packages your app.  Will also search for a file called .zcliignore in the package directory.  This acts in the same manner as the .gitignore file in that you can specify files and directories not to be included in the generated package.
 
 ```
 USAGE
