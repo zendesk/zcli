@@ -1,0 +1,32 @@
+name: publish
+
+on:
+  push:
+    branches: master
+
+jobs:
+  main:
+    name: tag_and_publish
+    runs-on: zendesk-stable
+    steps:
+    - uses: zendesk/checkout@v2
+      with:
+        token: ${{ secrets.ORG_GITHUB_WRITE_TOKEN }}
+    - uses: zendesk/setup-node@v2.1.2
+      with:
+        node-version: '12.x'
+    - uses: zendesk/ga/tag-semantic-release@v2
+      id: tag
+      with:
+        github-token: ${{ secrets.ORG_GITHUB_WRITE_TOKEN }}
+        version-type: patch
+    - name: build_on_merge
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        npm install
+        npm run build
+        npm version ${{ steps.tag.outputs.version }} --force -m "Upgrade to %s from github actions build_on_merge step [ci skip]"
+        npm publish
+        npm run release
+        

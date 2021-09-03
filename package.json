@@ -50,7 +50,8 @@
     "lint": "eslint . --ext .ts --config .eslintrc",
     "test": "nyc --extension .ts mocha --opts mocha.opts --forbid-only packages/**/src/**/*.test.ts",
     "test:functional": "mocha -r ts-node/register packages/**/tests/**/*.test.ts",
-    "changelog": "lerna-changelog"
+    "changelog": "lerna-changelog",
+    "release": "./scripts/release.sh"
   },
   "license": "Apache-2.0",
   "licenses": [
@@ -60,5 +61,8 @@
     }
   ],
   "repository": "zendesk/zcli",
-  "types": "lib/index.d.ts"
+  "types": "lib/index.d.ts",
+  "publishConfig": {
+    "registry": "https://zdrepo.jfrog.io/zdrepo/api/npm/npm"
+  }
 }
