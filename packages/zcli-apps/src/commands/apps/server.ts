@@ -11,12 +11,6 @@ const logMiddleware = morgan((tokens, req, res) =>
   `${chalk.green(tokens.method(req, res))} ${tokens.url(req, res)} ${chalk.bold(tokens.status(req, res))}`
 )
 
-const ZENDESK_DOMAINS_REGEX = new RegExp('^http(?:s)?://[a-z0-9-]+.(?:zendesk|zopim|futuresimple|local.futuresimple|zendesk-(?:dev|master|staging)).com')
-
-const request_from_zendesk = (req: any): boolean => {
-  return ZENDESK_DOMAINS_REGEX.test(req.get('HTTP_ORIGIN'))
-}
-
 export default class Server extends Command {
   static description = 'serves apps in development mode'
 
@@ -55,10 +49,7 @@ export default class Server extends Command {
     tailLogs && app.use(logMiddleware)
 
     app.get('/app.json', (req, res) => {
-      if (request_from_zendesk(req)) {
-        const httpAccessControlRequestHeaders = req.get('HTTP_ACCESS_CONTROL_REQUEST_HEADERS') || ''
-        res.setHeader('Access-Control-Allow-Headers', httpAccessControlRequestHeaders)
-      }
+      res.setHeader('Access-Control-Allow-Headers', 'true')
       res.setHeader('Content-Type', 'application/json')
       res.end(JSON.stringify(appJSON))
     })
