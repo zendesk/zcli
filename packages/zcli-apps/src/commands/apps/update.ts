@@ -36,12 +36,13 @@ export default class Update extends Command {
       const { app_id }: any = await getUploadJobStatus(job_id, appPath)
       cli.action.stop('Deployed')
 
-      const installations: Installations = await request.requestAPI('/api/v2/apps/installations.json', {}, true)
+      const product = Object.keys(manifest.location)[0]
+      const installations: Installations = await request.requestAPI(`/api/${product}/apps/installations.json`, {}, true)
 
       const configParams = appConfig?.parameters || {} // if there are no parameters in the config, just attach an empty object
       const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
       const installation_id = installations.installations.filter(i => i.app_id === app_id)[0].id
-      const updated = await request.requestAPI(`/api/v2/apps/installations/${installation_id}.json`, {
+      const updated = await request.requestAPI(`/api/${product}/apps/installations/${installation_id}.json`, {
         method: 'PUT',
         body: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
         headers: {
