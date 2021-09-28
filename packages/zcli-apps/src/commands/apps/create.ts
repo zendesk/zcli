@@ -53,7 +53,8 @@ export default class Create extends Command {
         const configParams = allConfigs?.parameters || {} // if there are no parameters in the config, just attach an empty object
 
         const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
-        const installed = await request.requestAPI('api/v2/apps/installations.json', {
+        const product = Object.keys(manifest.location)[0]
+        const installed = await request.requestAPI(`api/${product}/apps/installations.json`, {
           method: 'POST',
           body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
           headers: {
