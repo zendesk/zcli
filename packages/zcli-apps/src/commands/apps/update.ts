@@ -35,6 +35,7 @@ export default class Update extends Command {
     try {
       const { app_id }: any = await getUploadJobStatus(job_id, appPath)
       cli.action.stop('Deployed')
+      const updatedSummary: string[] = []
 
       Object.keys(manifest.location).forEach(async product => {
         const installations: Installations = await request.requestAPI(`/api/${product}/apps/installations.json`, {}, true)
@@ -52,11 +53,16 @@ export default class Update extends Command {
         })
 
         if (updated.status === 201 || updated.status === 200) {
-          this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id} within product: ${product}`))
+          updatedSummary.concat('passed')
         } else {
-          this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id} within product: ${product}`))
+          updatedSummary.concat('failed')
         }
       })
+      if (updatedSummary.filter(updateOutcome => updateOutcome === 'failed').length === 0) {
+        this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id}`))
+      } else {
+        this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id}`))
+      }
     } catch (error) {
       cli.action.stop('Failed')
       this.error(chalk.red(error))
