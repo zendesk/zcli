@@ -52,9 +52,9 @@ export default class Update extends Command {
         })
 
         if (updated.status === 201 || updated.status === 200) {
-          this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id}`))
+          this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id} within product: ${product}`))
         } else {
-          this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id}`))
+          this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id} within product: ${product}`))
         }
       })
     } catch (error) {

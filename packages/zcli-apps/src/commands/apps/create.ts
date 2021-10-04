@@ -62,9 +62,9 @@ export default class Create extends Command {
             }
           })
           if (installed.status === 201 || installed.status === 200) {
-            this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
+            this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id} within product: ${product}`))
           } else {
-            this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
+            this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id} within product: ${product}`))
           }
         })
       } catch (error) {
