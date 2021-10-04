@@ -36,25 +36,27 @@ export default class Update extends Command {
       const { app_id }: any = await getUploadJobStatus(job_id, appPath)
       cli.action.stop('Deployed')
 
-      const product = Object.keys(manifest.location)[0]
-      const installations: Installations = await request.requestAPI(`/api/${product}/apps/installations.json`, {}, true)
+      Object.keys(manifest.location).forEach(async product => {
+        const installations: Installations = await request.requestAPI(`/api/${product}/apps/installations.json`, {}, true)
 
-      const configParams = appConfig?.parameters || {} // if there are no parameters in the config, just attach an empty object
-      const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
-      const installation_id = installations.installations.filter(i => i.app_id === app_id)[0].id
-      const updated = await request.requestAPI(`/api/${product}/apps/installations/${installation_id}.json`, {
-        method: 'PUT',
-        body: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
-        headers: {
-          'Content-Type': 'application/json'
+        const configParams = appConfig?.parameters || {} // if there are no parameters in the config, just attach an empty object
+        const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
+        const installation_id = installations.installations.filter(i => i.app_id === app_id)[0].id
+
+        const updated = await request.requestAPI(`/api/${product}/apps/installations/${installation_id}.json`, {
+          method: 'PUT',
+          body: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (updated.status === 201 || updated.status === 200) {
+          this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id}`))
+        } else {
+          this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id}`))
         }
       })
-
-      if (updated.status === 201 || updated.status === 200) {
-        this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id}`))
-      } else {
-        this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id}`))
-      }
     } catch (error) {
       cli.action.stop('Failed')
       this.error(chalk.red(error))

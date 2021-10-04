@@ -53,20 +53,20 @@ export default class Create extends Command {
         const configParams = allConfigs?.parameters || {} // if there are no parameters in the config, just attach an empty object
 
         const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
-        const product = Object.keys(manifest.location)[0]
-        const installed = await request.requestAPI(`api/${product}/apps/installations.json`, {
-          method: 'POST',
-          body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
-          headers: {
-            'Content-Type': 'application/json'
+        Object.keys(manifest.location).forEach(async product => {
+          const installed = await request.requestAPI(`api/${product}/apps/installations.json`, {
+            method: 'POST',
+            body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          if (installed.status === 201 || installed.status === 200) {
+            this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
+          } else {
+            this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
           }
         })
-
-        if (installed.status === 201 || installed.status === 200) {
-          this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
-        } else {
-          this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
-        }
       } catch (error) {
         cli.action.stop('Failed')
         this.error(chalk.red(error))
