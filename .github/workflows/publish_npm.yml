@@ -1,0 +1,21 @@
+name: publish
+
+on:
+  push:
+    branches: af/veg-662-take-2
+
+jobs:
+  main:
+    name: tag_and_publish
+    runs-on: zendesk-stable
+    steps:
+    - uses: zendesk/checkout@v2
+    - uses: zendesk/setup-node@v2.1.2
+      with:
+        node-version: '12.x'
+    - name: build_on_merge
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        ./script/release
+        
