@@ -6,7 +6,6 @@ on:
 
 jobs:
   main:
-    name: tag_and_publish
     runs-on: zendesk-stable
     steps:
     - uses: zendesk/checkout@v2
