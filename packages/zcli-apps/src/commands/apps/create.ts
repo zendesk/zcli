@@ -1,6 +1,5 @@
 import { Command } from '@oclif/command'
-import { request } from '@zendesk/zcli-core'
-import { uploadAppPkg, deployApp } from '../../utils/createApp'
+import { uploadAppPkg, deployApp, createProductInstallation } from '../../utils/createApp'
 import * as chalk from 'chalk'
 import { getUploadJobStatus } from '../../utils/uploadApp'
 import cli from 'cli-ux'
@@ -53,26 +52,12 @@ export default class Create extends Command {
         const configParams = allConfigs?.parameters || {} // if there are no parameters in the config, just attach an empty object
 
         const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
-        const installedSummary: string[] = []
         Object.keys(manifest.location).forEach(async product => {
-          const installResponse = await request.requestAPI(`api/${product}/apps/installations.json`, {
-            method: 'POST',
-            body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-          if (installResponse.status === 201 || installResponse.status === 200) {
-            installedSummary.concat('passed')
-          } else {
-            installedSummary.concat('failed')
+          if (!createProductInstallation(settings, manifest, app_id, product)) {
+            this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
           }
         })
-        if (installedSummary.filter(installOutcome => installOutcome === 'failed').length === 0) {
-          this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
-        } else {
-          this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
-        }
+        this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
       } catch (error) {
         cli.action.stop('Failed')
         this.error(chalk.red(error))
