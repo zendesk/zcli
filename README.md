@@ -18,7 +18,7 @@ This is a [Node.js](https://nodejs.org/en/) module available through the [npm re
 Before installing, download and install Node.js. Node.js 12.10 or higher is required. Installation is done using the npm install command:
 
 ```
-$ npm install @zendesk/zcli -g
+$ npm install @zendesk/zcli --registry=https://registry.npmjs.org/ -g
 ```
 
 ## Installation prerequisites for Linux
