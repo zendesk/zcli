@@ -13,6 +13,8 @@ jobs:
       with:
         node-version: '12.x'
     - name: build_on_merge
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
