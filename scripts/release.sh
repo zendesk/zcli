@@ -15,6 +15,6 @@ git checkout -- docs/login.md
 rm docs/commands.md
 
 # Remove beta once we are out of it
-npx lerna publish --conventional-commits --yes --preid 'beta'
+npx lerna publish --conventional-commits --yes --preid 'beta' --no-verify-access
 echo "✅ Done"
 exit 0
