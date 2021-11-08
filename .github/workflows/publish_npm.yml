@@ -2,7 +2,7 @@ name: publish
 
 on:
   push:
-    branches: af/veg-662-take-2
+    branches: master
 
 jobs:
   main:
@@ -12,7 +12,7 @@ jobs:
     - uses: zendesk/setup-node@v2.1.2
       with:
         node-version: '12.x'
-    - name: build_on_merge
+    - name: publish_on_merge
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
