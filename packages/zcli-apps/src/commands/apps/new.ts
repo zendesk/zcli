@@ -48,6 +48,7 @@ export default class New extends Command {
           if (err) {
             reject(err)
           }
+          // @ts-ignore
           resolve()
         })
       })
@@ -59,6 +60,7 @@ export default class New extends Command {
       fsExtra.copy(
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
         path.join(process.cwd(), directoryName),
+        // @ts-ignore
         { overwrite: true, errorOnExist: true }, async (err: FsExtraError) => {
           await cleanDirectory(this.unzippedScaffoldPath)
           if (err) {
@@ -67,6 +69,7 @@ export default class New extends Command {
             }
             reject(err)
           }
+          // @ts-ignore
           resolve()
         }
       )

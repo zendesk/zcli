@@ -1,0 +1,24 @@
+name: publish
+
+on:
+  push:
+    branches: af/veg-662-take-2
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: zendesk/checkout@v2
+    - uses: zendesk/setup-node@v2.1.2
+      with:
+        node-version: '12.x'
+    - name: publish_on_merge
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        ls
+        echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+        ./scripts/release.sh
+        
