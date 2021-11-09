@@ -2,13 +2,15 @@ name: publish
 
 on:
   push:
-    branches: master
+    branches: af/veg-662-take-2
 
 jobs:
   main:
     runs-on: ubuntu-latest
     steps:
     - uses: zendesk/checkout@v2
+      with:
+        token: ${{ secrets.AUTOMATED_RELEASE_WRITE_KEY }}
     - uses: zendesk/setup-node@v2.1.2
       with:
         node-version: '12.x'
