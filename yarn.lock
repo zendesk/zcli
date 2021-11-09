@@ -2445,7 +2445,7 @@ cli-ux@^4.9.0:
     treeify "^1.1.0"
     tslib "^1.9.3"
 
-cli-ux@^5.1.0, cli-ux@^5.5.1, cli-ux@^5.6.2:
+cli-ux@^5.1.0, cli-ux@^5.5.1, cli-ux@^5.6.3:
   version "5.6.3"
   resolved "https://registry.yarnpkg.com/cli-ux/-/cli-ux-5.6.3.tgz#eecdb2e0261171f2b28f2be6b18c490291c3a287"
   integrity sha512-/oDU4v8BiDjX2OKcSunGH0iGDiEtj2rZaGyqNuv9IT4CgcSMyVWAMfn0+rEHaOc4n9ka78B0wo1+N1QX89f7mw==
@@ -2477,7 +2477,7 @@ cli-ux@^5.1.0, cli-ux@^5.5.1, cli-ux@^5.6.2:
     supports-hyperlinks "^2.1.0"
     tslib "^2.0.0"
 
-cli-ux@^5.2.1, cli-ux@^5.4.1:
+cli-ux@^5.2.1:
   version "5.4.6"
   resolved "https://registry.yarnpkg.com/cli-ux/-/cli-ux-5.4.6.tgz#26bbe7d1fb20402ce362240ea5dc434168ddbd46"
   integrity sha512-EeiS2TzEndRVknCqE+8Ri8g0bsP617a1nq6n+3Trwft1JCDzyUNlX2J1fl7fwTgRPWtmBmiF6xIyueL5YGs65g==
