@@ -25,7 +25,8 @@
   },
   "scripts": {
     "prepack": "tsc && ../../scripts/prepack.sh",
-    "postpack": "rm -rf ./dist && git checkout ./package.json"
+    "postpack": "rm -rf ./dist && git checkout ./package.json",
+    "type:check": "tsc"
   },
   "author": "",
   "license": "ISC"

@@ -20,6 +20,7 @@ jobs:
     - run: yarn test
     - run: yarn test:functional
     - run: yarn dev
+    - run: yarn type:check
       env:
         CI: true
 
@@ -36,6 +37,7 @@ jobs:
     - run: yarn test
     - run: yarn test:functional
     - run: yarn dev
+    - run: yarn type:check
       env:
         CI: true
 
@@ -52,5 +54,6 @@ jobs:
     - run: yarn test
     - run: yarn test:functional
     - run: yarn dev
+    - run: yarn type:check
       env:
         CI: true
