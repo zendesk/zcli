@@ -50,7 +50,8 @@
     "lint": "eslint . --ext .ts --config .eslintrc",
     "test": "nyc --extension .ts mocha --opts mocha.opts --forbid-only packages/**/src/**/*.test.ts",
     "test:functional": "mocha -r ts-node/register packages/**/tests/**/*.test.ts",
-    "changelog": "lerna-changelog"
+    "changelog": "lerna-changelog",
+    "type:check": "lerna run type:check"
   },
   "license": "Apache-2.0",
   "licenses": [

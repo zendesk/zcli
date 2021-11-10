@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsc",
     "prepack": "tsc && ../../scripts/prepack.sh",
-    "postpack": "rm -f oclif.manifest.json npm-shrinkwrap.json && rm -rf ./dist && git checkout ./package.json"
+    "postpack": "rm -f oclif.manifest.json npm-shrinkwrap.json && rm -rf ./dist && git checkout ./package.json",
+    "type:check": "tsc"
   },
   "dependencies": {
     "@oclif/command": "^1",
