@@ -60,26 +60,16 @@ export default class Server extends Command {
       })
     }
 
-    // // chokidar is watching manifest.json changes and reset middlewares
-    // const watcher = chokidar.watch(appPaths)
-    // watcher
-    //   .on('change', async (path) => {
-    //     // if (path.endsWith('manifest.json')) {
-    //     // Regenerate app.json
-    //     appJSON = await buildAppJSON(appPaths, port)
-    //     // Reset middlewares for app assets
-    //     setAppAssetsMiddleware()
-    //     this.log(`${path} changed and please refresh.`)
-    //     // }
-    //   })
-
+    // Keep references of watchers for unwatching later
     const watchers = appPaths.map(appPath =>
       fs.watch(appPath, async (eventType, filename) => {
-        // Regenerate app.json
-        appJSON = await buildAppJSON(appPaths, port)
-        // Reset middlewares for app assets
-        setAppAssetsMiddleware()
-        this.log(`${filename} changed and please refresh.`)
+        if (filename.toLowerCase() === 'manifest.json') {
+          // Regenerate app.json
+          appJSON = await buildAppJSON(appPaths, port)
+          // Reset middlewares for app assets
+          setAppAssetsMiddleware()
+          this.log('manifest.json changed and please refresh.')
+        }
       }))
 
     // Set middlewares for app assets
@@ -92,7 +82,7 @@ export default class Server extends Command {
     })
 
     return {
-      close: async () => {
+      close: () => {
         // Stop watching file changes before terminating the server
         watchers.forEach(watcher => watcher.close())
         server.close()
