@@ -3,7 +3,7 @@ import * as express from 'express'
 import * as morgan from 'morgan'
 import * as chalk from 'chalk'
 import * as cors from 'cors'
-import * as chokidar from 'chokidar'
+import * as fs from 'fs'
 import { buildAppJSON } from '../../lib/buildAppJSON'
 import { Installation } from '../../types'
 import { getAppPaths } from '../../utils/shared'
@@ -60,18 +60,27 @@ export default class Server extends Command {
       })
     }
 
-    // chokidar is watching manifest.json changes and reset middlewares
-    const watcher = chokidar.watch(appPaths)
-    watcher
-      .on('change', async (path) => {
-        // if (path.endsWith('manifest.json')) {
+    // // chokidar is watching manifest.json changes and reset middlewares
+    // const watcher = chokidar.watch(appPaths)
+    // watcher
+    //   .on('change', async (path) => {
+    //     // if (path.endsWith('manifest.json')) {
+    //     // Regenerate app.json
+    //     appJSON = await buildAppJSON(appPaths, port)
+    //     // Reset middlewares for app assets
+    //     setAppAssetsMiddleware()
+    //     this.log(`${path} changed and please refresh.`)
+    //     // }
+    //   })
+
+    const watchers = appPaths.map(appPath =>
+      fs.watch(appPath, async (eventType, filename) => {
         // Regenerate app.json
         appJSON = await buildAppJSON(appPaths, port)
         // Reset middlewares for app assets
         setAppAssetsMiddleware()
-        this.log(`${path} changed and please refresh.`)
-        // }
-      })
+        this.log(`${filename} changed and please refresh.`)
+      }))
 
     // Set middlewares for app assets
     setAppAssetsMiddleware()
@@ -85,7 +94,7 @@ export default class Server extends Command {
     return {
       close: async () => {
         // Stop watching file changes before terminating the server
-        await watcher.close()
+        watchers.forEach(watcher => watcher.close())
         server.close()
       }
     }
