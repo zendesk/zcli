@@ -97,22 +97,22 @@ describe('apps server', function () {
     after(() => server.close())
 
     test
-      .it('should reflect changes in mainfest.json', async () => {
-        // Read mainfest.json
-        const mainfestPath = path.join(singleProductApp, 'manifest.json')
-        const manifest: Manifest = JSON.parse(fs.readFileSync(mainfestPath, 'utf8'))
+      .it('should reflect changes in manifest.json', async () => {
+        // Read manifest.json
+        const manifestPath = path.join(singleProductApp, 'manifest.json')
+        const manifest: Manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
         const appName = manifest.name
         manifest.name = `${appName} modified`
-        // Modifed mainfest.json
-        fs.writeFileSync(mainfestPath, JSON.stringify(manifest))
+        // Modifed manifest.json
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest))
         await wait(200)
         const response = await fetch(`${appHost}/app.json`)
         appJSON = await response.json()
         const appJson = appJSON.apps[0]
         expect(appJson.name).to.eq(`${appName} modified`)
-        // Restored mainfest.json
+        // Restored manifest.json
         manifest.name = appName
-        fs.writeFileSync(mainfestPath, JSON.stringify(manifest, null, 2))
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
       })
   })
 })
