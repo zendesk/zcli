@@ -2,7 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as http from 'http'
 import fetch from 'node-fetch'
-import { promises as fs } from 'fs'
+import * as fs from 'fs'
 import { omit } from 'lodash'
 import ServerCommand from '../../src/commands/apps/server'
 import { AppJSONPayload, Manifest } from '../../src/types'
@@ -98,20 +98,21 @@ describe('apps server', function () {
 
     test
       .it('should reflect changes in mainfest.json', async () => {
-      // Read mainfest.json
-        const manifest: Manifest = JSON.parse(await fs.readFile(path.join(singleProductApp, 'manifest.json'), 'utf8'))
+        // Read mainfest.json
+        const mainfestPath = path.join(singleProductApp, 'manifest.json')
+        const manifest: Manifest = JSON.parse(fs.readFileSync(mainfestPath, 'utf8'))
         const appName = manifest.name
         manifest.name = `${appName} modified`
         // Modifed mainfest.json
-        await fs.writeFile(path.join(singleProductApp, 'manifest.json'), JSON.stringify(manifest))
-        await wait(1000)
+        fs.writeFileSync(mainfestPath, JSON.stringify(manifest))
+        await wait(200)
         const response = await fetch(`${appHost}/app.json`)
         appJSON = await response.json()
         const appJson = appJSON.apps[0]
         expect(appJson.name).to.eq(`${appName} modified`)
         // Restored mainfest.json
         manifest.name = appName
-        await fs.writeFile(path.join(singleProductApp, 'manifest.json'), JSON.stringify(manifest, null, 2))
+        fs.writeFileSync(mainfestPath, JSON.stringify(manifest, null, 2))
       })
   })
 })
