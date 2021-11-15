@@ -2,9 +2,10 @@ import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as http from 'http'
 import fetch from 'node-fetch'
+import { promises as fs } from 'fs'
 import { omit } from 'lodash'
 import ServerCommand from '../../src/commands/apps/server'
-import { AppJSONPayload } from '../../src/types'
+import { AppJSONPayload, Manifest } from '../../src/types'
 const appJSONSnapshot = require('./mocks/snapshot_app') // eslint-disable-line @typescript-eslint/no-var-requires
 
 describe('apps server', function () {
@@ -82,6 +83,35 @@ describe('apps server', function () {
 
         expect(installations[0].updated_at).to.includes(yyyymmdd)
         expect(installations[1].updated_at).to.includes(yyyymmdd)
+      })
+  })
+
+  describe('with manifest.json changes', () => {
+    const wait = (ms = 10) => new Promise(resolve => setTimeout(resolve, ms))
+    let server: http.Server, appHost: string, appJSON: AppJSONPayload
+    before(async () => {
+      server = await ServerCommand.run([singleProductApp])
+      appHost = 'http://localhost:4567'
+    })
+
+    after(() => server.close())
+
+    test
+      .it('should reflect changes in mainfest.json', async () => {
+      // Read mainfest.json
+        const manifest: Manifest = JSON.parse(await fs.readFile(path.join(singleProductApp, 'manifest.json'), 'utf8'))
+        const appName = manifest.name
+        manifest.name = `${appName} modified`
+        // Modifed mainfest.json
+        await fs.writeFile(path.join(singleProductApp, 'manifest.json'), JSON.stringify(manifest))
+        await wait(1000)
+        const response = await fetch(`${appHost}/app.json`)
+        appJSON = await response.json()
+        const appJson = appJSON.apps[0]
+        expect(appJson.name).to.eq(`${appName} modified`)
+        // Restored mainfest.json
+        manifest.name = appName
+        await fs.writeFile(path.join(singleProductApp, 'manifest.json'), JSON.stringify(manifest, null, 2))
       })
   })
 })

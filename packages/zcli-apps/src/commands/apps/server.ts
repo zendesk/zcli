@@ -3,6 +3,7 @@ import * as express from 'express'
 import * as morgan from 'morgan'
 import * as chalk from 'chalk'
 import * as cors from 'cors'
+import * as chokidar from 'chokidar'
 import { buildAppJSON } from '../../lib/buildAppJSON'
 import { Installation } from '../../types'
 import { getAppPaths } from '../../utils/shared'
@@ -42,7 +43,7 @@ export default class Server extends Command {
     const { argv: appDirectories } = this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
-    const appJSON = await buildAppJSON(appPaths, port)
+    let appJSON = await buildAppJSON(appPaths, port)
 
     const app = express()
     app.use(cors())
@@ -53,14 +54,40 @@ export default class Server extends Command {
       res.end(JSON.stringify(appJSON))
     })
 
-    appJSON.installations.forEach((installation: Installation, index: number) => {
-      app.use(`/${installation.app_id}/assets`, express.static(`${appPaths[index]}/assets`))
-    })
+    const setAppAssetsMiddleware = () => {
+      appJSON.installations.forEach((installation: Installation, index: number) => {
+        app.use(`/${installation.app_id}/assets`, express.static(`${appPaths[index]}/assets`))
+      })
+    }
 
-    return app.listen(port, host, () => {
+    // chokidar is watching manifest.json changes and reset middlewares
+    const watcher = chokidar.watch(appPaths)
+    watcher
+      .on('change', async (path) => {
+        // if (path.endsWith('manifest.json')) {
+        // Regenerate app.json
+        appJSON = await buildAppJSON(appPaths, port)
+        // Reset middlewares for app assets
+        setAppAssetsMiddleware()
+        this.log(`${path} changed and please refresh.`)
+        // }
+      })
+
+    // Set middlewares for app assets
+    setAppAssetsMiddleware()
+
+    const server = app.listen(port, host, () => {
       this.log(`\nApps server is running on ${chalk.green(`http://${host}:${port}`)} 🚀\n`)
       this.log(`Add ${chalk.bold('?zcli_apps=true')} to the end of your Zendesk URL to load these apps on your Zendesk account.\n`)
       tailLogs && this.log(chalk.bold('Tailing logs'))
     })
+
+    return {
+      close: async () => {
+        // Stop watching file changes before terminating the server
+        await watcher.close()
+        server.close()
+      }
+    }
   }
 }
