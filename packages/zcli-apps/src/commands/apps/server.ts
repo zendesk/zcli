@@ -68,7 +68,6 @@ export default class Server extends Command {
           appJSON = await buildAppJSON(appPaths, port)
           // Reset middlewares for app assets
           setAppAssetsMiddleware()
-          this.log('manifest.json changed and please refresh.')
         }
       }))
 
