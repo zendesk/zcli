@@ -11,6 +11,7 @@ const appJSONSnapshot = require('./mocks/snapshot_app') // eslint-disable-line @
 describe('apps server', function () {
   const singleProductApp = path.join(__dirname, 'mocks/single_product_app')
   const multiProductApp = path.join(__dirname, 'mocks/multi_product_app')
+  const singleProductAnotherApp = path.join(__dirname, 'mocks/single_product_another_app')
 
   describe('--port 1234', () => {
     let server: http.Server
@@ -88,9 +89,9 @@ describe('apps server', function () {
 
   describe('with manifest.json changes', () => {
     const wait = (ms = 10) => new Promise(resolve => setTimeout(resolve, ms))
-    let server: http.Server, appHost: string, appJSON: AppJSONPayload
+    let server: http.Server, appHost: string, appsJSON: AppJSONPayload
     before(async () => {
-      server = await ServerCommand.run([singleProductApp])
+      server = await ServerCommand.run([singleProductApp, singleProductAnotherApp])
       appHost = 'http://localhost:4567'
     })
 
@@ -98,21 +99,23 @@ describe('apps server', function () {
 
     test
       .it('should reflect changes in manifest.json', async () => {
-        // Read manifest.json
-        const manifestPath = path.join(singleProductApp, 'manifest.json')
-        const manifest: Manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
-        const appName = manifest.name
-        manifest.name = `${appName} modified`
-        // Modifed manifest.json
-        fs.writeFileSync(manifestPath, JSON.stringify(manifest))
-        await wait(200)
-        const response = await fetch(`${appHost}/app.json`)
-        appJSON = await response.json()
-        const appJson = appJSON.apps[0]
-        expect(appJson.name).to.eq(`${appName} modified`)
-        // Restored manifest.json
-        manifest.name = appName
-        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
+        await Promise.all([singleProductApp, singleProductAnotherApp].map(async (app, index) => {
+          // Read manifest.json
+          const manifestPath = path.join(app, 'manifest.json')
+          const manifest: Manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+          const appName = manifest.name
+          manifest.name = `${appName} modified`
+          // Modifed manifest.json
+          fs.writeFileSync(manifestPath, JSON.stringify(manifest))
+          await wait()
+          const response = await fetch(`${appHost}/app.json`)
+          appsJSON = await response.json()
+          const appJSON = appsJSON.apps[index]
+          expect(appJSON.name).to.eq(`${appName} modified`)
+          // Restored manifest.json
+          manifest.name = appName
+          fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
+        }))
       })
   })
 })
