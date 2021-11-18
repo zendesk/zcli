@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as http from 'http'
 import fetch from 'node-fetch'
+import { promises as fsPromise } from 'fs'
 import * as fs from 'fs'
 import { omit } from 'lodash'
 import ServerCommand from '../../src/commands/apps/server'
@@ -105,16 +106,15 @@ describe('apps server', function () {
           const manifest: Manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
           const appName = manifest.name
           manifest.name = `${appName} modified`
-          // Modifed manifest.json
-          fs.writeFileSync(manifestPath, JSON.stringify(manifest))
-          await wait()
+          // Modify manifest.json
+          await fsPromise.writeFile(manifestPath, JSON.stringify(manifest))
           const response = await fetch(`${appHost}/app.json`)
           appsJSON = await response.json()
           const appJSON = appsJSON.apps[index]
           expect(appJSON.name).to.eq(`${appName} modified`)
-          // Restored manifest.json
+          // Restore manifest.json
           manifest.name = appName
-          fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
+          await fsPromise.writeFile(manifestPath, JSON.stringify(manifest, null, 2))
         }))
       })
   })
