@@ -108,6 +108,8 @@ describe('apps server', function () {
           manifest.name = `${appName} modified`
           // Modify manifest.json
           await fsPromise.writeFile(manifestPath, JSON.stringify(manifest))
+          // Wait for setAppAssetsMiddleware() spy to be called to ensure that change has been written
+          // TODO implement spy on said method here and/or however this works in Cypress / Puppeteer perhaps on the route
           const response = await fetch(`${appHost}/app.json`)
           appsJSON = await response.json()
           const appJSON = appsJSON.apps[index]
