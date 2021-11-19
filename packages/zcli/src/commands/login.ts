@@ -2,6 +2,7 @@ import { Command, flags } from '@oclif/command'
 import chalk from 'chalk'
 import { SecureStore, Auth } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../utils/helpMessage'
+
 export default class Login extends Command {
   static description = 'creates and/or saves an authentication token for the specified subdomain'
 

@@ -1011,17 +1011,17 @@
     chalk "^2.4.2"
     tslib "^1.9.3"
 
-"@oclif/plugin-autocomplete@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@oclif/plugin-autocomplete/-/plugin-autocomplete-0.2.1.tgz#169cd9a88c0c60d8ecf59887ca9bfdd3b1a755ac"
-  integrity sha512-EOcoh1x3auFg1a7NNVTT+hJ1PPih7Kg1it7WtG8oBgYKe+YD/bvHnX2QlXqi9S7H0XsQQMUb8hxbLP+XwQY/8Q==
+"@oclif/plugin-autocomplete@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@oclif/plugin-autocomplete/-/plugin-autocomplete-0.2.0.tgz#e965ae83abdb81ff97eb7d63a975bcedb78dfdd9"
+  integrity sha512-pHbaE2PH7d9lHjCgFrrQ+ZIwvY+7OAQaGoaANqDbicBNDK/Rszt4N4oGj22dJT7sCQ8a/3Eh942rjxYIq9Mi9Q==
   dependencies:
     "@oclif/command" "^1.5.13"
     "@oclif/config" "^1.13.0"
     chalk "^2.4.1"
     cli-ux "^5.2.1"
     debug "^4.0.0"
-    fs-extra "^9.0.1"
+    fs-extra "^7.0.0"
     moment "^2.22.1"
 
 "@oclif/plugin-help@^2", "@oclif/plugin-help@^2.1.6":
@@ -1566,10 +1566,10 @@ acorn@^7.1.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.3.1.tgz#85010754db53c3fbaf3b9ea3e083aa5c5d147ffd"
   integrity sha512-tLc0wSnatxAQHVHUapaHdz72pi9KUyHjq5KyHjGg9Y8Ifdc79pTh2XvI6I1/chZbnM7QtNKzh66ooDogPZSleA==
 
-adm-zip@0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/adm-zip/-/adm-zip-0.5.1.tgz#32e51c6fe88370f4389b424567b78a345e79ebc6"
-  integrity sha512-a5ABmIFUJ9OxHV5zrXM9Q41JzpRIflFtdgpL4UQM9DsTHHxQzPRaeyAdnMW7kxL0NRWm/NHafJdj6pO+ty7L2g==
+adm-zip@0.4.16:
+  version "0.4.16"
+  resolved "https://registry.yarnpkg.com/adm-zip/-/adm-zip-0.4.16.tgz#cf4c508fdffab02c269cbc7f471a875f05570365"
+  integrity sha512-TFi4HBKSGfIKsK5YCkKaaFG2m4PEDyViZmEwof3MTIgzimHLto6muaHVpbrljdIvIrFZzEq/p4nafOeLcYegrg==
 
 agent-base@4, agent-base@^4.3.0:
   version "4.3.0"
@@ -8307,7 +8307,7 @@ tslib@^1, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.13.0.tgz#c881e13cc7015894ed914862d276436fa9a47043"
   integrity sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==
 
-tslib@^1.14.1:
+tslib@^1.14.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
