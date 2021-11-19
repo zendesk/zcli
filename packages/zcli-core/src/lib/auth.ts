@@ -5,6 +5,7 @@ import Config from './config'
 import fetch from 'node-fetch'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
+import { parseSubdomain } from './authUtils'
 
 export interface AuthOptions {
   secureStore: SecureStore;
@@ -16,16 +17,6 @@ export default class Auth {
   constructor (options?: AuthOptions) {
     this.secureStore = options?.secureStore
     this.config = new Config()
-  }
-
-  const parseSubdomain = (subdomain: string) => {
-    // dirty check: if someone mistakenly provides full hostname instead of a subdomain
-    // then strip out domain name from it.
-    if (subdomain && subdomain.includes('.zendesk.com')) {
-      return subdomain.split('.zendesk.com')[0]
-    }
-  
-    return subdomain
   }
 
   // 1. If env vars are set, prepare token using them
