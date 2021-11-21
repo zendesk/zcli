@@ -3,6 +3,7 @@ export interface ZcliConfigFileContent {
     zat_update_check?: string;
     plan?: string;
     app_id?: string;
+    installation_id?: string;
     parameters?: ConfigParameters;
 }
 
@@ -26,6 +27,10 @@ export interface Location {
 export interface FileList {
     name: string;
     time: number;
+}
+
+export interface FsExtraError extends Error {
+    code: string;
 }
 
 export interface Manifest {

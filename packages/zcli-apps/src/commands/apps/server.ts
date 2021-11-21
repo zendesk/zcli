@@ -3,6 +3,7 @@ import * as express from 'express'
 import * as morgan from 'morgan'
 import * as chalk from 'chalk'
 import * as cors from 'cors'
+import * as fs from 'fs'
 import { buildAppJSON } from '../../lib/buildAppJSON'
 import { Installation } from '../../types'
 import { getAppPaths } from '../../utils/shared'
@@ -38,12 +39,11 @@ export default class Server extends Command {
   async run () {
     const { flags } = this.parse(Server)
     const port = parseInt(flags.port)
-    const config = 'zcli.apps.config.json'
     const { logs: tailLogs, bind: host } = flags
     const { argv: appDirectories } = this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
-    const appJSON = await buildAppJSON(appPaths, port, config)
+    let appJSON = await buildAppJSON(appPaths, port)
 
     const app = express()
     app.use(cors())
@@ -54,14 +54,38 @@ export default class Server extends Command {
       res.end(JSON.stringify(appJSON))
     })
 
-    appJSON.installations.forEach((installation: Installation, index: number) => {
-      app.use(`/${installation.app_id}/assets`, express.static(`${appPaths[index]}/assets`))
-    })
+    const setAppAssetsMiddleware = () => {
+      appJSON.installations.forEach((installation: Installation, index: number) => {
+        app.use(`/${installation.app_id}/assets`, express.static(`${appPaths[index]}/assets`))
+      })
+    }
 
-    return app.listen(port, host, () => {
+    // Keep references of watchers for unwatching later
+    const watchers = appPaths.map(appPath =>
+      fs.watch(appPath, async (eventType, filename) => {
+        if (filename.toLowerCase() === 'manifest.json') {
+          // Regenerate app.json
+          appJSON = await buildAppJSON(appPaths, port)
+          // Reset middlewares for app assets
+          setAppAssetsMiddleware()
+        }
+      }))
+
+    // Set middlewares for app assets
+    setAppAssetsMiddleware()
+
+    const server = app.listen(port, host, () => {
       this.log(`\nApps server is running on ${chalk.green(`http://${host}:${port}`)} 🚀\n`)
       this.log(`Add ${chalk.bold('?zcli_apps=true')} to the end of your Zendesk URL to load these apps on your Zendesk account.\n`)
       tailLogs && this.log(chalk.bold('Tailing logs'))
     })
+
+    return {
+      close: () => {
+        // Stop watching file changes before terminating the server
+        watchers.forEach(watcher => watcher.close())
+        server.close()
+      }
+    }
   }
 }

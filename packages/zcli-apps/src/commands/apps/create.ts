@@ -1,12 +1,13 @@
 import { Command } from '@oclif/command'
-import { request } from '@zendesk/zcli-core'
-import { promptAndGetSettings, uploadAppPkg, deployApp } from '../../utils/createApp'
+import { uploadAppPkg, deployApp, createProductInstallation } from '../../utils/createApp'
 import * as chalk from 'chalk'
 import { getUploadJobStatus } from '../../utils/uploadApp'
 import cli from 'cli-ux'
 import { getManifestFile } from '../../utils/manifest'
 import { createAppPkg } from '../../lib/package'
 import { validateAppPath } from '../../lib/appPath'
+import { getAllConfigs } from '../../utils/appConfig'
+import { getAppSettings } from '../../utils/getAppSettings'
 
 export default class Create extends Command {
   static description = 'creates apps in your desired target account'
@@ -46,20 +47,17 @@ export default class Create extends Command {
       try {
         const { app_id }: any = await getUploadJobStatus(job_id, appPath)
         cli.action.stop('Deployed')
-        const settings = manifest.parameters ? await promptAndGetSettings(manifest.parameters) : {}
-        const installed = await request.requestAPI('api/v2/apps/installations.json', {
-          method: 'POST',
-          body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
-          headers: {
-            'Content-Type': 'application/json'
+
+        const allConfigs = getAllConfigs(appPath)
+        const configParams = allConfigs?.parameters || {} // if there are no parameters in the config, just attach an empty object
+
+        const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
+        Object.keys(manifest.location).forEach(async product => {
+          if (!createProductInstallation(settings, manifest, app_id, product)) {
+            this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
           }
         })
-
-        if (installed.status === 201 || installed.status === 200) {
-          this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
-        } else {
-          this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
-        }
+        this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
       } catch (error) {
         cli.action.stop('Failed')
         this.error(chalk.red(error))

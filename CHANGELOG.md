@@ -3,6 +3,67 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.11](https://github.com/zendesk/zcli/compare/v1.0.0-beta.10...v1.0.0-beta.11) (2021-11-21)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+# [1.0.0-beta.10](https://github.com/zendesk/zcli/compare/v1.0.0-beta.8...v1.0.0-beta.10) (2021-11-10)
+
+
+### Bug Fixes
+
+* packages/zcli-apps/package.json to reduce vulnerabilities ([9fc51a4](https://github.com/zendesk/zcli/commit/9fc51a4b9f33655c4e0ecaccefa08a948625a3fa))
+* packages/zcli/package.json to reduce vulnerabilities ([18b8d5d](https://github.com/zendesk/zcli/commit/18b8d5d80f6adb2508703ccf2332f146db6a4833))
+* packages/zcli/package.json to reduce vulnerabilities ([e763037](https://github.com/zendesk/zcli/commit/e76303702b4fa42c7b7fe13be7babd78fc576d74))
+* upgrade @oclif/plugin-autocomplete from 0.2.0 to 0.3.0 ([ad84782](https://github.com/zendesk/zcli/commit/ad84782db2d9ae58226abb79c0fc8e1fe426b3ad))
+* upgrade @oclif/plugin-update from 1.3.10 to 1.5.0 ([1b41cb0](https://github.com/zendesk/zcli/commit/1b41cb0e9dad291f9dc1f912940213b89f85775e))
+* upgrade adm-zip from 0.5.2 to 0.5.5 ([bf9bcce](https://github.com/zendesk/zcli/commit/bf9bcce5fe52334374f7d4b71107e228ec84ed52))
+* upgrade chalk from 4.1.0 to 4.1.1 ([bfc604c](https://github.com/zendesk/zcli/commit/bfc604cc5747ea5e43d1877df4ea8c52cc61e350))
+* upgrade chalk from 4.1.1 to 4.1.2 ([ac60a7d](https://github.com/zendesk/zcli/commit/ac60a7d84e127830c518f65da8138842f2135c67))
+* upgrade cli-ux from 5.5.1 to 5.6.2 ([665b08e](https://github.com/zendesk/zcli/commit/665b08e1cac5ddf11df9b8c86f38e63299e191cc))
+* upgrade form-data from 3.0.0 to 3.0.1 ([92e3011](https://github.com/zendesk/zcli/commit/92e3011a623a3b9bf6bf5c6f21dd3aeedcc499fe))
+* upgrade fs-extra from 9.0.1 to 9.1.0 ([0ad6812](https://github.com/zendesk/zcli/commit/0ad6812a8286a36abe4dfe952e19f6c324d8a5f2))
+
+
+
+
+
+# 1.0.0-beta.9 (2021-11-09)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+# [1.0.0-beta.8](https://github.com/zendesk/zcli/compare/v1.0.0-beta.7...v1.0.0-beta.8) (2021-03-13)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+# [1.0.0-beta.7](https://github.com/zendesk/zcli/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2021-03-11)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+# [1.0.0-beta.6](https://github.com/zendesk/zcli/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2021-02-14)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
 # [1.0.0-beta.5](https://github.com/zendesk/zcli/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2021-02-04)
 
 

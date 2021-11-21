@@ -27,7 +27,7 @@ export default class Auth {
     if (ZENDESK_OAUTH_TOKEN) {
       return `Bearer ${ZENDESK_OAUTH_TOKEN}`
     } else if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
-      return this.createBasicAuthToken(ZENDESK_EMAIL, `token/${ZENDESK_API_TOKEN}`)
+      return this.createBasicAuthToken(`${ZENDESK_EMAIL}/token`, ZENDESK_API_TOKEN)
     } else if (ZENDESK_EMAIL && ZENDESK_PASSWORD) {
       return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD)
     } else {

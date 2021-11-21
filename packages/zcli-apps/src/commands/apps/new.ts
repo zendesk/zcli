@@ -1,9 +1,10 @@
-import { Scaffolds, ManifestPath } from './../../types'
+import { FsExtraError, ManifestPath } from './../../types'
 import { Command, flags } from '@oclif/command'
 import { cleanDirectory } from '../../utils/fileUtils'
 import { getManifestFile, updateManifestFile } from '../../utils/manifest'
 import cli from 'cli-ux'
 import * as fs from 'fs'
+import * as fsExtra from 'fs-extra'
 import * as https from 'https'
 import * as path from 'path'
 import * as AdmZip from 'adm-zip'
@@ -28,10 +29,11 @@ export default class New extends Command {
   ]
 
   zipScaffoldPath = path.join(process.cwd(), 'scaffold.zip')
+  unzippedScaffoldPath = path.join(process.cwd(), 'app_scaffolds-master')
   EMAIL_REGEX = /^.+@.+\..+$/
 
-  async downloadScaffold (url: string) {
-    return new Promise((resolve, reject) => {
+  async downloadScaffoldsRepo (url: string) {
+    return new Promise<void>((resolve, reject) => {
       const destination = fs.createWriteStream(this.zipScaffoldPath)
 
       https.get(url, (response) => {
@@ -41,7 +43,8 @@ export default class New extends Command {
       destination.on('finish', () => {
         const zip = new AdmZip(this.zipScaffoldPath)
         const overwrite = false
-        zip.extractAllToAsync(path.join(process.cwd()), overwrite, (err) => {
+        zip.extractAllToAsync(path.join(process.cwd()), overwrite, async (err) => {
+          await cleanDirectory(this.zipScaffoldPath)
           if (err) {
             reject(err)
           }
@@ -51,16 +54,24 @@ export default class New extends Command {
     })
   }
 
-  getScaffoldDir (flagScaffold: string): string {
-    const scaffolds: Scaffolds = {
-      basic: 'apps_scaffold_basic',
-      react: 'app_scaffold'
-    }
-    const scaffoldRepo = scaffolds[flagScaffold]
-    if (!scaffoldRepo) {
-      throw new CLIError(chalk.red(`Invalid scaffold option entered ${flagScaffold}`))
-    }
-    return scaffoldRepo
+  async extractScaffoldIfExists (flagScaffold: string, directoryName: string) {
+    return new Promise<void>((resolve, reject) => {
+      fsExtra.copy(
+        path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
+        path.join(process.cwd(), directoryName),
+        { overwrite: true, errorOnExist: true }, async (err: Error) => {
+          await cleanDirectory(this.unzippedScaffoldPath)
+          if (err) {
+            const fsExtraError = err as FsExtraError
+            if (fsExtraError.code === 'ENOENT') {
+              reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
+            }
+            reject(err)
+          }
+          resolve()
+        }
+      )
+    })
   }
 
   modifyManifest (directoryName: string, appName: string, authorName: string, authorEmail: string, flagScaffold: string) {
@@ -87,24 +98,16 @@ export default class New extends Command {
       authorEmail = flags.authorEmail || await cli.prompt('Enter this app authors email')
     }
     const appName = flags.appName || await cli.prompt('Enter a name for this new app')
-    const scaffoldRepo = this.getScaffoldDir(flagScaffold)
-    const scaffoldDir = scaffoldRepo + '-master'
-
-    const scaffoldUrl = `https://codeload.github.com/zendesk/${scaffoldRepo}/zip/master`
+    const scaffoldUrl = 'https://codeload.github.com/zendesk/app_scaffolds/zip/master'
 
     try {
-      await this.downloadScaffold(scaffoldUrl)
+      await this.downloadScaffoldsRepo(scaffoldUrl)
+      await this.extractScaffoldIfExists(flagScaffold, directoryName)
     } catch (err) {
-      throw new CLIError(chalk.red('Download of scaffold structure failed'))
+      throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
     }
 
-    fs.renameSync(path.join(process.cwd(), scaffoldDir), path.join(process.cwd(), directoryName))
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold)
-    try {
-      await cleanDirectory(this.zipScaffoldPath)
-    } catch (err) {
-      console.log(chalk.yellow(`Failed to clean up ${this.zipScaffoldPath}`))
-    }
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }
