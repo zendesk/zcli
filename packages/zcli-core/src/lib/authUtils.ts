@@ -9,7 +9,7 @@
  */
 export const parseSubdomain = (subdomain: string) => {
   subdomain = subdomain.trim().toLowerCase()
-  const regex = /(?:http[s]*:\/\/)*(.*?)\.zendesk.com[\/]?$/i
+  const regex = /(?:http[s]*:\/\/)*(.*?)\.zendesk.com[/]?$/i
   const result = regex.exec(subdomain)
   return result !== null ? result[1] : subdomain
 }
