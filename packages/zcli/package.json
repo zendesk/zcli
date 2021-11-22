@@ -23,6 +23,7 @@
     "@oclif/plugin-warn-if-update-available": "1.7.0",
     "@zendesk/zcli-apps": "^1.0.0-beta.12",
     "@zendesk/zcli-core": "^1.0.0-beta.10",
+    "chalk": "4.1.2",
     "cli-ux": "^5.6.3",
     "tslib": "^1.14.1"
   },
