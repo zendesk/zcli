@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.12](https://github.com/zendesk/zcli/compare/v1.0.0-beta.11...v1.0.0-beta.12) (2021-11-22)
+
+
+### Bug Fixes
+
+* **release:** add missing next line ([d34cdab](https://github.com/zendesk/zcli/commit/d34cdabd10113580ae30eb8a3bb10380f7d88b30))
+
+
+
+
+
 # [1.0.0-beta.11](https://github.com/zendesk/zcli/compare/v1.0.0-beta.10...v1.0.0-beta.11) (2021-11-21)
 
 **Note:** Version bump only for package @zendesk/zcli-apps
