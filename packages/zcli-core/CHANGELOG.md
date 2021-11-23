@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.14](https://github.com/zendesk/zcli/compare/v1.0.0-beta.13...v1.0.0-beta.14) (2021-11-23)
+
+
+### Bug Fixes
+
+* parse subdomain even when hostname is provided ([a3e69e6](https://github.com/zendesk/zcli/commit/a3e69e6d0525a4755f8027a486647c4321c5d0a6))
+
+
+
+
+
 # [1.0.0-beta.10](https://github.com/zendesk/zcli/compare/v1.0.0-beta.8...v1.0.0-beta.10) (2021-11-10)
 
 **Note:** Version bump only for package @zendesk/zcli-core
