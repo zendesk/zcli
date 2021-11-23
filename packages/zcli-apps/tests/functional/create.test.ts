@@ -48,10 +48,10 @@ describe('apps create', function () {
           .get('/api/v2/apps/job_statuses/128')
           .reply(200, { status: 'completed', message: 'awesome', app_id: 123458 })
         api
-          .post('/api/v2/apps/installations.json', { app_id: '123456', settings: { name: 'Test App 1' } })
+          .post('/api/support/apps/installations.json', { app_id: '123456', settings: { name: 'Test App 1' } })
           .reply(200)
         api
-          .post('/api/v2/apps/installations.json', { app_id: '123458', settings: { name: 'Test App 2', salesForceId: 123 } })
+          .post('/api/support/apps/installations.json', { app_id: '123458', settings: { name: 'Test App 2', salesForceId: 123 } })
           .reply(200)
       })
       .stdout()
@@ -83,7 +83,7 @@ describe('apps create', function () {
           .get('/api/v2/apps/job_statuses/129')
           .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
         api
-          .post('/api/v2/apps/installations.json', { app_id: '123456', settings: { name: 'Test App 1' } })
+          .post('/api/support/apps/installations.json', { app_id: '123456', settings: { name: 'Test App 1' } })
           .reply(200)
       })
       .stdout()
