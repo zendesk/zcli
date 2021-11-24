@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 import { SecureStore, Auth } from '@zendesk/zcli-core'
 
 export default class Logout extends Command {

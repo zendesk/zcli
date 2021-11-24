@@ -33,7 +33,7 @@ export default class New extends Command {
   EMAIL_REGEX = /^.+@.+\..+$/
 
   async downloadScaffoldsRepo (url: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const destination = fs.createWriteStream(this.zipScaffoldPath)
 
       https.get(url, (response) => {
@@ -55,14 +55,15 @@ export default class New extends Command {
   }
 
   async extractScaffoldIfExists (flagScaffold: string, directoryName: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       fsExtra.copy(
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
         path.join(process.cwd(), directoryName),
-        { overwrite: true, errorOnExist: true }, async (err: FsExtraError) => {
+        { overwrite: true, errorOnExist: true }, async (err: Error) => {
           await cleanDirectory(this.unzippedScaffoldPath)
           if (err) {
-            if (err.code === 'ENOENT') {
+            const fsExtraError = err as FsExtraError
+            if (fsExtraError.code === 'ENOENT') {
               reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
             }
             reject(err)

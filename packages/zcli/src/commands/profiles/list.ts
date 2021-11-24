@@ -1,5 +1,5 @@
 import { Command } from '@oclif/command'
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 import { cli } from 'cli-ux'
 import { Auth, SecureStore } from '@zendesk/zcli-core'
 import { Credential, Profile } from '@zendesk/zcli-core/src/types'

@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import { Dictionary, ManifestParameter } from '../types'
+import { Dictionary, Manifest, ManifestParameter } from '../types'
 import * as FormData from 'form-data'
 import { getManifestFile } from '../utils/manifest'
 import { request } from '@zendesk/zcli-core'
@@ -49,4 +49,19 @@ export const deployApp = async (method: string, url: string, upload_id: number, 
   }
   const installationResponse = await request.requestAPI(url, installationOptions)
   return installationResponse.json()
+}
+
+export const createProductInstallation = async (settings: any, manifest: Manifest, app_id: string, product: string): Promise<boolean> => {
+  const installResponse = await request.requestAPI(`api/${product}/apps/installations.json`, {
+    method: 'POST',
+    body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  if (installResponse.status === 201 || installResponse.status === 200) {
+    return true
+  } else {
+    return false
+  }
 }

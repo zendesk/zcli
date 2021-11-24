@@ -5,6 +5,7 @@ import Config from './config'
 import fetch from 'node-fetch'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
+import { parseSubdomain } from './authUtils'
 
 export interface AuthOptions {
   secureStore: SecureStore;
@@ -54,7 +55,7 @@ export default class Auth {
   }
 
   async loginInteractively (options?: Profile) {
-    const subdomain = options?.subdomain || await cli.prompt('Subdomain')
+    const subdomain = parseSubdomain(options?.subdomain || await cli.prompt('Subdomain'))
     const email = await cli.prompt('Email')
     const password = await cli.prompt('Password', { type: 'hide' })
 
