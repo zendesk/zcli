@@ -60,15 +60,25 @@ const manifestOutputNoParams: Manifest = {
   frameworkVersion: '2.0'
 }
 
-const multiProductLocation = {
+const multiProductLocations = {
   sell: {
-    top_bar: 'assets/iframe.html'
+    top_bar: {
+      url: 'assets/iframe.html',
+      svg: 'sell/icon_top_bar.svg'
+    }
   },
   support: {
-    ticket_editor: 'assets/iframe.html',
-    nav_bar: 'assets/iframe.html'
+    ticket_editor: {
+      url: 'assets/iframe.html',
+      svg: 'support/icon_ticket_editor.svg'
+    },
+    nav_bar: {
+      url: 'assets/iframe.html',
+      svg: 'support/icon_nav_bar.svg'
+    }
   }
 }
+
 const multiProductLocationIcons = {
   sell: {
     top_bar: {
@@ -100,6 +110,19 @@ const singleProductLocation = {
   support: {
     ticket_editor: 'assets/iframe.html',
     nav_bar: 'assets/iframe.html'
+  }
+}
+
+const singleProductLocations = {
+  support: {
+    ticket_editor: {
+      url: 'assets/iframe.html',
+      svg: 'icon_ticket_editor.svg'
+    },
+    nav_bar: {
+      url: 'assets/iframe.html',
+      svg: 'icon_nav_bar.svg'
+    }
   }
 }
 
@@ -159,8 +182,7 @@ describe('getAppPayloadFromManifest', () => {
       name: 'app 1',
       id: '123',
       default_locale: 'en',
-      location: multiProductLocation,
-      location_icons: multiProductLocationIcons,
+      locations: multiProductLocations,
       asset_url_prefix: 'http://localhost:4567/123/assets/',
       version: undefined,
       single_install: true,
@@ -195,15 +217,15 @@ describe('getInstallation', () => {
         name: 'app 1',
         id: '123',
         default_locale: 'en',
-        location: singleProductLocation,
+        locations: singleProductLocations,
         asset_url_prefix: '/app/assets',
-        location_icons: singleProductLocationIcons,
         framework_version: '2.0'
       }
-      const parameters = {
-        someToken: 'fksjdhfb231435',
+      const parameters = [{
+        someToken: 'fksjdhfb231435'
+      }, {
         salesForceId: 123
-      }
+      }]
       expect(buildAppJSON.getInstallation('123', app, { plan: 'silver' }, parameters))
         .to.deep.contain({
           app_id: '123',
@@ -212,11 +234,13 @@ describe('getInstallation', () => {
           enabled: true,
           plan: 'silver',
           requirements: {},
-          settings: {
-            salesForceId: 123,
-            someToken: 'fksjdhfb231435',
+          settings: [{
             title: 'app 1'
-          },
+          }, {
+            someToken: 'fksjdhfb231435'
+          }, {
+            salesForceId: 123
+          }],
           updated_at: '2020-01-01T00:00:00.000Z'
         })
     })
@@ -254,8 +278,7 @@ describe('buildAppJSON', () => {
             asset_url_prefix: 'http://localhost:1234/234/assets/',
             default_locale: 'en',
             framework_version: '2.0',
-            location: multiProductLocation,
-            location_icons: multiProductLocationIcons,
+            locations: multiProductLocations,
             name: 'app 1',
             id: '234',
             signed_urls: false,
@@ -272,11 +295,13 @@ describe('buildAppJSON', () => {
             name: 'app 1',
             plan: 'silver',
             requirements: {},
-            settings: {
-              salesForceId: 123,
-              someToken: 'fksjdhfb231435',
-              title: 'app 1'
-            },
+            settings: [{
+              title: 'app 1'              
+            }, {
+              someToken: 'fksjdhfb231435'
+            }, {
+              salesForceId: 123
+            }],
             updated_at: '2020-01-01T00:00:00.000Z'
           }
         ]
@@ -307,8 +332,7 @@ describe('buildAppJSON', () => {
               asset_url_prefix: 'http://localhost:1234/234/assets/',
               default_locale: 'en',
               framework_version: '2.0',
-              location: multiProductLocation,
-              location_icons: multiProductLocationIcons,
+              locations: multiProductLocations,
               name: 'app 1',
               id: '234',
               signed_urls: false,
@@ -325,9 +349,9 @@ describe('buildAppJSON', () => {
               name: 'app 1',
               plan: 'silver',
               requirements: {},
-              settings: {
+              settings: [{
                 title: 'app 1'
-              },
+              }],
               updated_at: '2020-01-01T00:00:00.000Z'
             }
           ]
