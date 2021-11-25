@@ -12,15 +12,8 @@
             "private": true,
             "location": {
                 "support": {
-                    "ticket_editor": "assets/iframe.html"
-                }
-            },
-            "location_icons": {
-                "support": {
-                    "nav_bar": {
-                        "svg": "support/icon_nav_bar.svg"
-                    },
                     "ticket_editor": {
+                        "url": "assets/iframe.html",
                         "svg": "support/icon_ticket_editor.svg"
                     }
                 }
@@ -41,24 +34,15 @@
             "private": true,
             "location": {
                 "support": {
-                    "ticket_editor": "assets/iframe.html"
-                },
-                "sell": {
-                    "top_bar": "assets/iframe.html"
-                }
-            },
-            "location_icons": {
-                "sell": {
-                    "top_bar": {
-                        "svg": "sell/top_bar.svg"
+                    "ticket_editor": {
+                        "url": "assets/iframe.html",
+                        "svg": "support/icon_ticket_editor.svg"
                     }
                 },
-                "support": {
-                    "nav_bar": {
-                        "svg": "support/icon_nav_bar.svg"
-                    },
-                    "ticket_editor": {
-                        "svg": "support/icon_ticket_editor.svg"
+                "sell": {
+                    "top_bar": {
+                        "url": "assets/iframe.html",
+                        "svg": "sell/top_bar.svg"
                     }
                 }
             },
@@ -75,9 +59,9 @@
             "enabled": true,
             "id": "53eeb750-d471-47fe-9845-cc65f92e1a83",
             "requirements": {},
-            "settings": {
+            "settings": [{
                 "title": "Test App 1"
-            },
+            }],
             "updated_at": "2020-03-27T00:20:05.274Z"
         },
         {
@@ -88,10 +72,11 @@
             "id": "b3b4cc7d-b728-434d-b484-1e79bbca1097",
             "plan": "silver",
             "requirements": {},
-            "settings": {
-                "salesForceId": 123,
+            "settings": [{
                 "title": "Test App 2"
-            },
+            }, {
+                "salesForceId": 123
+            }],
             "updated_at": "2020-03-27T00:20:05.274Z"
         }
     ]
