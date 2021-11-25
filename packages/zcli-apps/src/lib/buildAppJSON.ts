@@ -9,7 +9,7 @@ import {
   LocationIcons,
   Manifest,
   ProductLocationIcons,
-  ZcliConfigFileContent,
+  ZcliConfigFileContent
 } from '../types'
 import * as path from 'path'
 import * as fs from 'fs'
@@ -49,7 +49,7 @@ export const getLocationIcons = (appPath: string, manifestLocations: Location): 
     }, {})
 }
 
-export const getInstallation = (appId: string, app: App, configFileContents: ZcliConfigFileContent, appSettings: Array<Object>): Installation => {
+export const getInstallation = (appId: string, app: App, configFileContents: ZcliConfigFileContent, appSettings: Array<Record<string, any>>): Installation => {
   const installationId = configFileContents.installation_id || uuidV4()
 
   return {
@@ -61,11 +61,36 @@ export const getInstallation = (appId: string, app: App, configFileContents: Zcl
     plan: configFileContents.plan,
     requirements: {},
     settings: [
-      {title: app.name},
+      { title: app.name },
       ...appSettings
     ],
     updated_at: new Date().toISOString()
   }
+}
+
+const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons): Location => {
+  for (const product in locationIcons) {
+    for (const locationName in locationIcons[product]) {
+      if (typeof (locations[product][locationName]) === 'string') {
+        locations[product][locationName] = {
+          url: locations[product][locationName]
+        }
+      }
+      if (locationIcons[product][locationName].svg) {
+        locations[product][locationName].svg = locationIcons[product][locationName].svg
+      }
+      if (locationIcons[product][locationName].active) {
+        locations[product][locationName].active = locationIcons[product][locationName].active
+      }
+      if (locationIcons[product][locationName].inactive) {
+        locations[product][locationName].inactive = locationIcons[product][locationName].inactive
+      }
+      if (locationIcons[product][locationName].hover) {
+        locations[product][locationName].hover = locationIcons[product][locationName].hover
+      }
+    }
+  }
+  return locations
 }
 
 export const getAppPayloadFromManifest = (appManifest: Manifest, port: number, appID: string, locationIcons: LocationIcons): App => {
@@ -82,35 +107,10 @@ export const getAppPayloadFromManifest = (appManifest: Manifest, port: number, a
   }
 }
 
-const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons): Location => {
-  for (const product in locationIcons) {
-    for (const locationName in locationIcons[product]) {
-      if (typeof(locations[product][locationName]) == "string") {
-        locations[product][locationName] = {
-          'url': locations[product][locationName]
-        }
-      }
-      if (locationIcons[product][locationName]['svg']) {
-        locations[product][locationName]['svg'] = locationIcons[product][locationName]['svg']
-      }
-      if (locationIcons[product][locationName]['active']) {
-        locations[product][locationName]['active'] = locationIcons[product][locationName]['active']
-      }
-      if (locationIcons[product][locationName]['inactive']) {
-        locations[product][locationName]['inactive'] = locationIcons[product][locationName]['inactive']
-      }
-      if (locationIcons[product][locationName]['hover']) {
-        locations[product][locationName]['hover'] = locationIcons[product][locationName]['hover']
-      }
-    }
-  }
-  return locations
-}
-
 const getSettingsArr = (appSettings: any) => {
-  const s : any[] = []
-  Object.keys(appSettings).forEach((settingName : String) => {
-    const setting : Object = {}
+  const s: any[] = []
+  Object.keys(appSettings).forEach((settingName: string) => {
+    const setting: Record<string, any> = {}
     setting[settingName.toString()] = appSettings[settingName.toString()]
     s.push(setting)
   })

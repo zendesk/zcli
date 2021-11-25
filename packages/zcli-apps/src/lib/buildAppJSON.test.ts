@@ -296,7 +296,7 @@ describe('buildAppJSON', () => {
             plan: 'silver',
             requirements: {},
             settings: [{
-              title: 'app 1'              
+              title: 'app 1'
             }, {
               someToken: 'fksjdhfb231435'
             }, {
