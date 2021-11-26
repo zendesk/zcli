@@ -84,10 +84,6 @@ export interface AppPayload {
     single_install: boolean;
 }
 
-export interface Settings {
-    title?: string;
-}
-
 export interface Installation {
     app_id: string;
     name?: string;
@@ -96,7 +92,7 @@ export interface Installation {
     id: string;
     plan?: string;
     requirements: {};
-    settings: Array<any>;
+    settings: Array<Record<string, any>>;
     updated_at: string;
 }
 

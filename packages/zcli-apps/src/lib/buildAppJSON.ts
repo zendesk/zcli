@@ -110,8 +110,8 @@ export const getAppPayloadFromManifest = (appManifest: Manifest, port: number, a
 const getSettingsArr = (appSettings: any) => {
   const s: any[] = []
   Object.keys(appSettings).forEach((settingName: string) => {
-    const setting: Record<string, any> = {}
-    setting[settingName.toString()] = appSettings[settingName.toString()]
+    const setting: Record<string, string> = {}
+    setting[settingName] = appSettings[settingName]
     s.push(setting)
   })
   return s
