@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.15](https://github.com/zendesk/zcli/compare/v1.0.0-beta.14...v1.0.0-beta.15) (2021-12-06)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
 # [1.0.0-beta.14](https://github.com/zendesk/zcli/compare/v1.0.0-beta.13...v1.0.0-beta.14) (2021-11-23)
 
 **Note:** Version bump only for package @zendesk/zcli
