@@ -13,10 +13,10 @@ export type Dictionary<T> = {
 
 // Begin AppJSON definitions
 export interface AppLocation {
-  [appLocation: string]: string;
+  [appLocation: string]: any;
 }
 
-export interface IconLocationWhitelist {
+export interface IconLocationAllowlist {
   [product: string]: Array<string>;
 }
 
@@ -58,12 +58,11 @@ export interface ProductLocationIcons {
 
 export interface App {
     asset_url_prefix: string;
-    location_icons: LocationIcons;
     id: string;
     name?: string;
     default_locale: string;
     private?: boolean;
-    location: Location;
+    locations: Location;
     version?: string;
     framework_version: string;
     single_install?: boolean;
@@ -85,10 +84,6 @@ export interface AppPayload {
     single_install: boolean;
 }
 
-export interface Settings {
-    title?: string;
-}
-
 export interface Installation {
     app_id: string;
     name?: string;
@@ -97,7 +92,7 @@ export interface Installation {
     id: string;
     plan?: string;
     requirements: {};
-    settings: Settings;
+    settings: Array<Record<string, any>>;
     updated_at: string;
 }
 
