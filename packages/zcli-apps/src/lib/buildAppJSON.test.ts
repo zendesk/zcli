@@ -64,17 +64,20 @@ const multiProductLocations = {
   sell: {
     top_bar: {
       url: 'assets/iframe.html',
-      svg: 'sell/icon_top_bar.svg'
+      svg: 'sell/icon_top_bar.svg',
+      flexible: true
     }
   },
   support: {
     ticket_editor: {
       url: 'assets/iframe.html',
-      svg: 'support/icon_ticket_editor.svg'
+      svg: 'support/icon_ticket_editor.svg',
+      flexible: true
     },
     nav_bar: {
       url: 'assets/iframe.html',
-      svg: 'support/icon_nav_bar.svg'
+      svg: 'support/icon_nav_bar.svg',
+      flexible: true
     }
   }
 }

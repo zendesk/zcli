@@ -73,7 +73,8 @@ const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons
     for (const locationName in locationIcons[product]) {
       if (typeof (locations[product][locationName]) === 'string') {
         locations[product][locationName] = {
-          url: locations[product][locationName]
+          url: locations[product][locationName],
+          flexible: true
         }
       }
       if (locationIcons[product][locationName].svg) {
@@ -87,6 +88,17 @@ const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons
       }
       if (locationIcons[product][locationName].hover) {
         locations[product][locationName].hover = locationIcons[product][locationName].hover
+      }
+    }
+  }
+  // Handle the case where an app installation location is not an object but is a string.
+  for (const product in locations) {
+    for (const locationName in locations[product]) {
+      if (typeof (locations[product][locationName]) === 'string') {
+        locations[product][locationName] = {
+          url: locations[product][locationName],
+          flexible: true
+        }
       }
     }
   }
