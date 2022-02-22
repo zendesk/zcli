@@ -67,6 +67,10 @@ This project contains multi product cli commands and contains packages per produ
 
 For a full reference, see the [documentation.](/docs)
 
+# ZAF App Scaffolding
+
+Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are avaliable at [zendesk/app_scaffolds](https://github.com/zendesk/app_scaffolds)
+
 # Releasing
 
 Running the following command will create release tags, generate change logs docs and publish to npm.
