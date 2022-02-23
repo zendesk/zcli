@@ -75,13 +75,6 @@ const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons
         locations[product][locationName] = {
           url: locations[product][locationName]
         }
-        // Default as flexible app in Support: https://support.zendesk.com/hc/en-us/articles/4409156018586-New-Flexible-Property-in-the-Manifest-File-for-Support-Apps-to-Denote-Responsiveness
-        if (product === 'support' && (locations[product][locationName] === 'ticket_sidebar' || locations[product][locationName] === 'new_ticket_sidebar')) {
-          locations[product][locationName] = {
-            flexible: true,
-            ...locations[product][locationName]
-          }
-        }
       }
       if (locationIcons[product][locationName].svg) {
         locations[product][locationName].svg = locationIcons[product][locationName].svg
@@ -103,13 +96,6 @@ const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons
       if (typeof (locations[product][locationName]) === 'string') {
         locations[product][locationName] = {
           url: locations[product][locationName]
-        }
-        // Default as flexible app in Support: https://support.zendesk.com/hc/en-us/articles/4409156018586-New-Flexible-Property-in-the-Manifest-File-for-Support-Apps-to-Denote-Responsiveness
-        if (product === 'support' && (locations[product][locationName] === 'ticket_sidebar' || locations[product][locationName] === 'new_ticket_sidebar')) {
-          locations[product][locationName] = {
-            flexible: true,
-            ...locations[product][locationName]
-          }
         }
       }
     }
