@@ -90,6 +90,16 @@ const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons
       }
     }
   }
+  // Handle the case where an app installation location is not an object but is a string,
+  for (const product in locations) {
+    for (const locationName in locations[product]) {
+      if (typeof (locations[product][locationName]) === 'string') {
+        locations[product][locationName] = {
+          url: locations[product][locationName]
+        }
+      }
+    }
+  }
   return locations
 }
 
