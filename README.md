@@ -34,14 +34,16 @@ Depending on your distribution, you will need to run one of the following comman
 
 ZCLI's credential manager has a dependency on Linux's windowing manager (X11) which will make some commands fail to run on WSL, unless you run a setup of WSL with support for X11/GUI apps. These commands include: `zcli login`, `zcli logout` and `zcli profiles`.
 
-There is a number of workarounds for this, but they are quite convoluted including:
+Features of ZCLI not dependent on ZCLI's credential manager should work in WSL2 w/o X11 support.
+
+There is a number of workarounds:
 
 * Manually starting a DBus session and unlocking the Gnome keyring with a password supplied via STDIN
 * Using X11 forwarding to be able to enable the Gnome keyring prompt to display
 
-A better approach might be to await the upcoming support for GUI apps in WSL2 that Microsoft is [working on](https://youtu.be/f8_nvJzuaSU) and that is currently in [Preview](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+**Windows 11 users**
 
-Features of ZCLI not dependent on ZCLI's credential manager should work in WSL2 w/o X11 support.
+A better approach might be to await the upcoming support for GUI apps in WSL2 that Microsoft is [working on](https://youtu.be/f8_nvJzuaSU) and that is currently in [Preview](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
 # Project structure
 
