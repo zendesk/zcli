@@ -44,6 +44,8 @@ commands are available:
 - `yarn lint` to lint your typescript code using standardjs eslint config
 - `yarn test` to run test in all the packages
 
+Running `yarn dev` or `./packages/zcli/bin/run` will run the cli locally. Alternatively, you can also run symlink your local CLI to global `zcli` binary by running `yarn run link:bin`.
+
 ## Pull Request Workflow
 
 1. Fork the repo and create a branch. Format your branch name as
@@ -66,6 +68,5 @@ commands are available:
    considered for a merge.
 
 ## License
-<!-- TODO
 By contributing to ZCLI, you agree that your contributions will be
-licensed under the [Apache License, Version 2.0](LICENSE.md). -->
+licensed under the [Apache License, Version 2.0](LICENSE.md).
