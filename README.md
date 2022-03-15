@@ -30,6 +30,21 @@ Depending on your distribution, you will need to run one of the following comman
 - Red Hat-based: `sudo yum install libsecret-devel`
 - Arch Linux: `sudo pacman -S libsecret`
 
+## Note for Windows users running Linux on WSL
+
+ZCLI's credential manager has a dependency on Linux's windowing manager (X11) which will cause some commands fail to run on WSL, unless you run a setup of WSL with support for X11/GUI apps. These commands include: `zcli login`, `zcli logout` and `zcli profiles`.
+
+Features of ZCLI not dependent on ZCLI's credential manager will work in WSL2 without X11 support.
+
+There is a number of workarounds:
+
+* Manually starting a DBus session and unlocking the Gnome keyring with a password supplied via STDIN
+* Using X11 forwarding to be able to enable the Gnome keyring prompt to display
+
+**Windows 11 users**
+
+A better approach might be to await the upcoming support for GUI apps in WSL2 that Microsoft is [working on](https://youtu.be/f8_nvJzuaSU) and that is currently in [Preview](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+
 # Commands
 
 ZCLI supports numerous commands. Further documentation on available commands can be found [here.](/docs)
