@@ -5,7 +5,7 @@
 [![npm version](https://badge.fury.io/js/%40zendesk%2Fzcli.svg)](https://www.npmjs.com/package/@zendesk/zcli)
 ![Test](https://github.com/zendesk/zcli/workflows/Test/badge.svg)
 
-ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif).
+ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif) framework.
 
 <img src="demo.gif" alt="Zendesk Logo" />
 
@@ -30,14 +30,6 @@ Depending on your distribution, you will need to run one of the following comman
 - Red Hat-based: `sudo yum install libsecret-devel`
 - Arch Linux: `sudo pacman -S libsecret`
 
-# Project structure
-
-This is a monorepo project powered by lerna and yarn workspaces. It contains multiple packages:
-
-- [packages/zcli](packages/zcli) contains base cli logic and core commands.
-- [packages/zcli-core](packages/zcli-core) contains shared libraries and utilities.
-- [packages/zcli-apps](packages/zcli-apps) contains all zendesk apps commands.
-
 # Commands
 
 ZCLI supports numerous commands. Further documentation on available commands can be found [here.](/docs)
@@ -49,23 +41,19 @@ ZCLI supports numerous commands. Further documentation on available commands can
 - [`$ zcli autocomplete`](/docs/autocomplete.md) - display autocomplete installation instructions.
 - [`$ zcli help`](/docs/help.md) - display help for zcli
 
-# Developing
+# Contribution
 
-This is a monorepo project built using yarn and lerna workspaces. In order to set this up locally, run `yarn` after cloning this repository.
+---
 
-Running `yarn dev` or `./packages/zcli/bin/run` will run the cli locally. Alternatively, you can also run symlink your local CLI to global `zcli` binary by running `yarn run link:bin`.
+**Note:** While ZCLI is in beta, we are not routinely reviewing issues and merging community-submitted pull requests. We hope to begin reviewing these again soon, but for the moment we appreciate your patience.
 
-# Project structure
+---
 
-This project contains multi product cli commands and contains packages per product. This is all powered using yarn workspaces and lerna. At the moment, this repo contains 3 packages.
+Thanks for your interest in ZCLI! Community involvement helps improve the experience for all developers using the Zendesk platform.
 
-1. [packages/zcli](/packages/zcli) contains all the core CLI code.
-2. [packages/zcli-apps](/packages/zcli-apps) contains all the apps specific cli bits and is used in the core package as a plugin.
-3. [packages/zcli-themes](/packages/zcli-themes) contains all the themes specific cli bits and is used in the core package as a plugin.
+Got issues with what you find here? You can [create an issue on Github](https://github.com/zendesk/zcli/issues/new), report the issue in the [Zendesk Developers Slack group](https://docs.google.com/forms/d/e/1FAIpQLScm_rDLWwzWnq6PpYWFOR_PwMaSBcaFft-1pYornQtBGAaiJA/viewform), or for other problems, [contact Zendesk Customer Support](https://support.zendesk.com/hc/en-us/articles/360026614173).
 
-# Documentation
-
-For a full reference, see the [documentation.](/docs)
+If you'd like to take a crack at making some changes, please refer to [our contributing guide](.github/CONTRIBUTING.md). 
 
 # Releasing
 
@@ -73,13 +61,9 @@ Running the following command will create release tags, generate change logs doc
 
 [`$ ./scripts/release.sh`](./scripts/release.sh)
 
-# Issues
-
-You can [create an issue on Github](https://github.com/zendesk/zcli/issues/new), report the issue in the [Zendesk Developers Slack group](https://docs.google.com/forms/d/e/1FAIpQLScm_rDLWwzWnq6PpYWFOR_PwMaSBcaFft-1pYornQtBGAaiJA/viewform), or for other problems, [contact Zendesk Customer Support](https://support.zendesk.com/hc/en-us/articles/360026614173).
-
 # License
 
-Copyright 2021 Zendesk, Inc.
+Copyright 2022 Zendesk, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
