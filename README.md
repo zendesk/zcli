@@ -32,11 +32,11 @@ Depending on your distribution, you will need to run one of the following comman
 
 ## Note for Windows users running Linux on WSL
 
-ZCLI's credential manager has a dependency on Linux's windowing manager (X11) which will cause some commands fail to run on WSL, unless you run a setup of WSL with support for X11/GUI apps. These commands include: `zcli login`, `zcli logout` and `zcli profiles`.
+ZCLI's credential manager has a dependency on Linux's windowing manager (X11) which will cause some commands to fail to run on WSL, unless you run a setup of WSL with support for X11/GUI apps. These commands include: `zcli login`, `zcli logout` and `zcli profiles`.
 
 Features of ZCLI not dependent on ZCLI's credential manager will work in WSL2 without X11 support.
 
-There is a number of workarounds:
+There are a number of workarounds:
 
 * Manually starting a DBus session and unlocking the Gnome keyring with a password supplied via STDIN
 * Using X11 forwarding to be able to enable the Gnome keyring prompt to display
@@ -56,7 +56,7 @@ ZCLI supports numerous commands. Further documentation on available commands can
 - [`$ zcli autocomplete`](/docs/autocomplete.md) - display autocomplete installation instructions.
 - [`$ zcli help`](/docs/help.md) - display help for zcli
 
-# Contribution
+# Contributing
 
 ---
 

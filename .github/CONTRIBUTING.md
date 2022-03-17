@@ -44,7 +44,7 @@ commands are available:
 - `yarn lint` to lint your typescript code using standardjs eslint config
 - `yarn test` to run test in all the packages
 
-Running `yarn dev` or `./packages/zcli/bin/run` will run the cli locally. Alternatively, you can also run symlink your local CLI to global `zcli` binary by running `yarn run link:bin`.
+Running `yarn dev` or `./packages/zcli/bin/run` will run the cli locally. Alternatively, you can also symlink your local CLI as a global `zcli` binary by running `yarn run link:bin`.
 
 ## Pull Request Workflow
 
