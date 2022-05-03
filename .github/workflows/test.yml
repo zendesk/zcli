@@ -34,6 +34,7 @@ jobs:
         node-version: '14.x'
     - run: yarn install
     - run: yarn lint
+    - run: yarn git:check
     - run: yarn test
     - run: yarn test:functional
     - run: yarn dev
