@@ -46,6 +46,7 @@
   "scripts": {
     "postinstall": "lerna bootstrap",
     "dev": "./packages/zcli/bin/run",
+    "git:check": "./scripts/git_check.sh",
     "link:bin": "lerna link && lerna run install:zcli",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "test": "nyc --extension .ts mocha --opts mocha.opts --forbid-only packages/**/src/**/*.test.ts",
