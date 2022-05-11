@@ -45,7 +45,7 @@
     "zcli"
   ],
   "scripts": {
-    "audit": "yarn-audit-fix",
+    "audit:fix": "yarn-audit-fix",
     "postinstall": "lerna bootstrap",
     "dev": "./packages/zcli/bin/run",
     "git:check": "./scripts/git_check.sh",
