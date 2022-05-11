@@ -35,7 +35,8 @@
     "rimraf": "3.0.2",
     "standard": "^14.3.1",
     "ts-node": "^8",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "yarn-audit-fix": "^9.3.1"
   },
   "engines": {
     "node": ">=12.10.0"
@@ -44,6 +45,7 @@
     "zcli"
   ],
   "scripts": {
+    "audit": "yarn-audit-fix",
     "postinstall": "lerna bootstrap",
     "dev": "./packages/zcli/bin/run",
     "git:check": "./scripts/git_check.sh",
