@@ -39,5 +39,5 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
     return fetch(`https://${subdomain}.zendesk.com/${url}`, options)
   }
 
-  throw new CLIError(chalk.red('Authorization Failed, try logging in!'))
+  throw new CLIError(chalk.red('Authorization Failed, try logging in via `zcli login -i`!'))
 }
