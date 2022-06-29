@@ -36,9 +36,9 @@
   },
   "devDependencies": {
     "@oclif/dev-cli": "1.22.2",
-    "@oclif/test": "^1",
+    "@oclif/test": "^2.1.0",
     "@types/adm-zip": "^0.4.33",
-    "@types/archiver": "3.1.0",
+    "@types/archiver": "5.3.1",
     "@types/chai": "^4",
     "@types/cors": "^2.8.6",
     "@types/mocha": "^5",
