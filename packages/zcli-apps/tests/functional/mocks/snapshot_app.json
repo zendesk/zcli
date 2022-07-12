@@ -58,7 +58,7 @@
             "collapsible": true,
             "enabled": true,
             "id": "53eeb750-d471-47fe-9845-cc65f92e1a83",
-            "requirements": {},
+            "requirements": [],
             "settings": [{
                 "title": "Test App 1"
             }],
@@ -71,7 +71,7 @@
             "enabled": true,
             "id": "b3b4cc7d-b728-434d-b484-1e79bbca1097",
             "plan": "silver",
-            "requirements": {},
+            "requirements": [],
             "settings": [{
                 "title": "Test App 2"
             }, {

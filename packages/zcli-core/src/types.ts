@@ -1,6 +1,6 @@
 
 // Profiles and Cred Store definitions
-export interface Credential { account: string; password: string }
+export type Credential = { account: string; password: string }
 
 export interface KeyTar {
   getPassword: (service: string, account: string) => Promise<string | null>;
