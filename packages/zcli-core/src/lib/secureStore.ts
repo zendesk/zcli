@@ -28,11 +28,13 @@ export default class SecureStore {
 
   async loadKeytar () {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       this.keytar = require(this.keytarPath) as KeyTar
     } catch (error) {
       await this.installKeytar()
 
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         this.keytar = require(this.keytarPath) as KeyTar
       } catch (error) {
         // TODO: add telemetry so we know when this fails

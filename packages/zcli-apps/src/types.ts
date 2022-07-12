@@ -1,3 +1,6 @@
+export interface ConfigParameters {
+  [parameterKey: string]: string | number | boolean;
+}
 export interface ZcliConfigFileContent {
     zat_latest?: string;
     zat_update_check?: string;
@@ -33,6 +36,18 @@ export interface FsExtraError extends Error {
     code: string;
 }
 
+export interface ManifestParameter {
+  name: string;
+  type: string;
+  secure: boolean;
+}
+
+export interface Author {
+  name: string;
+  email: string;
+  url?: string;
+}
+
 export interface Manifest {
     name?: string;
     author: Author;
@@ -46,14 +61,14 @@ export interface Manifest {
     parameters?: ManifestParameter[];
 }
 
-export interface LocationIcons {
-  [product: string]: ProductLocationIcons;
-}
-
 export interface ProductLocationIcons {
   [appLocation: string]: {
     [fileType: string]: string;
   };
+}
+
+export interface LocationIcons {
+  [product: string]: ProductLocationIcons;
 }
 
 export interface App {
@@ -91,19 +106,9 @@ export interface Installation {
     enabled: boolean;
     id: string;
     plan?: string;
-    requirements: {};
+    requirements: Array<Record<string, any>>;
     settings: Array<Record<string, any>>;
     updated_at: string;
-}
-
-export interface ConfigParameters {
-  [parameterKey: string]: string | number | boolean;
-}
-
-export interface ManifestParameter {
-    name: string;
-    type: string;
-    secure: boolean;
 }
 
 export interface AppJSONPayload {
@@ -114,12 +119,6 @@ export interface AppJSONPayload {
 export interface AppJSON {
     apps: App[];
     installations: Installation[];
-}
-
-export interface Author {
-    name: string;
-    email: string;
-    url?: string;
 }
 
 export interface AppManifest {
