@@ -233,7 +233,7 @@ describe('getInstallation', () => {
           collapsible: true,
           enabled: true,
           plan: 'silver',
-          requirements: {},
+          requirements: [],
           settings: [{
             title: 'app 1'
           }, {
@@ -294,7 +294,7 @@ describe('buildAppJSON', () => {
             id: mockId,
             name: 'app 1',
             plan: 'silver',
-            requirements: {},
+            requirements: [],
             settings: [{
               title: 'app 1'
             }, {
@@ -348,7 +348,7 @@ describe('buildAppJSON', () => {
               id: mockId,
               name: 'app 1',
               plan: 'silver',
-              requirements: {},
+              requirements: [],
               settings: [{
                 title: 'app 1'
               }],

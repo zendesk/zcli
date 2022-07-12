@@ -59,7 +59,7 @@ export const getInstallation = (appId: string, app: App, configFileContents: Zcl
     enabled: true,
     id: installationId,
     plan: configFileContents.plan,
-    requirements: {},
+    requirements: [],
     settings: [
       { title: app.name },
       ...appSettings
