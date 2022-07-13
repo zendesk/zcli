@@ -3,7 +3,7 @@ import { Dictionary, Manifest, ManifestParameter } from '../types'
 import * as FormData from 'form-data'
 import { getManifestFile } from '../utils/manifest'
 import { request } from '@zendesk/zcli-core'
-import cli from 'cli-ux'
+import { CliUx } from '@oclif/core'
 
 export const getManifestAppName = (appPath: string): string | undefined => {
   return getManifestFile(appPath).name
@@ -27,7 +27,7 @@ export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
 export const promptAndGetSettings = async (params: ManifestParameter[], appName = 'app', valuesRequired = true) => {
   const settings: Dictionary<string> = {}
   for (const param of params) {
-    const value = await cli.prompt(`Enter ${appName} setting.${param.name} value`, { type: param.secure ? 'hide' : 'normal', required: valuesRequired })
+    const value = await CliUx.ux.prompt(`Enter ${appName} setting.${param.name} value`, { type: param.secure ? 'hide' : 'normal', required: valuesRequired })
     if (value) settings[param.name] = value
   }
   return settings

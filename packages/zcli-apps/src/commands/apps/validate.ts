@@ -1,4 +1,4 @@
-import { Command } from '@oclif/command'
+import { Command } from '@oclif/core'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as chalk from 'chalk'
@@ -18,7 +18,7 @@ export default class Validate extends Command {
   ]
 
   async run () {
-    const { args } = this.parse(Validate)
+    const { args } = await this.parse(Validate)
     const { appDirectory } = args
 
     validateAppPath(appDirectory)

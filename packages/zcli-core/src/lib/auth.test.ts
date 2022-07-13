@@ -1,6 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
-import cli from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
 import Auth from './auth'
 import SecureStore from './secureStore'
@@ -89,7 +89,7 @@ describe('Auth', () => {
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
       })
-      .stub(cli, 'prompt', () => promptStub)
+      .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
       .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
@@ -112,7 +112,7 @@ describe('Auth', () => {
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
       })
-      .stub(cli, 'prompt', () => promptStub)
+      .stub(CliUx.ux, 'prompt', () => promptStub)
       .nock('https://z3ntest.zendesk.com', api => api.get('/api/v2/account/settings.json').reply(403))
       .it('should return false on login failure', async () => {
         expect(await auth.loginInteractively()).to.equal(false)

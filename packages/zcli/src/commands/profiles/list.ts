@@ -1,6 +1,6 @@
-import { Command } from '@oclif/command'
+import { Command } from '@oclif/core'
 import * as chalk from 'chalk'
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { Auth, SecureStore } from '@zendesk/zcli-core'
 import { Credential, Profile } from '@zendesk/zcli-core/src/types'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
@@ -13,7 +13,7 @@ export default class List extends Command {
   ]
 
   renderProfiles (profiles: Credential[], loggedInProfile: Profile | undefined) {
-    cli.table(profiles, {
+    CliUx.ux.table(profiles, {
       account: {
         header: 'Subdomains',
         get: row => {

@@ -1,4 +1,4 @@
-import { Command, flags } from '@oclif/command'
+import { Command, Flags } from '@oclif/core'
 import * as chalk from 'chalk'
 import { SecureStore, Auth } from '@zendesk/zcli-core'
 
@@ -6,8 +6,8 @@ export default class Logout extends Command {
   static description = 'removes an authentication token for an active profile'
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    subdomain: flags.string({ char: 's', default: '', description: 'Zendesk Subdomain' })
+    help: Flags.help({ char: 'h' }),
+    subdomain: Flags.string({ char: 's', default: '', description: 'Zendesk Subdomain' })
   }
 
   static examples = [

@@ -1,4 +1,4 @@
-import { Command } from '@oclif/command'
+import { Command } from '@oclif/Core'
 import * as chalk from 'chalk'
 import { SecureStore, Auth } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
@@ -15,7 +15,7 @@ export default class Remove extends Command {
   ]
 
   async run () {
-    const { args } = this.parse(Remove)
+    const { args } = await this.parse(Remove)
     const { subdomain } = args
 
     const secureStore = new SecureStore()

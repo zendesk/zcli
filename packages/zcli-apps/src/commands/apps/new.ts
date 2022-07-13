@@ -1,8 +1,8 @@
 import { FsExtraError, ManifestPath } from './../../types'
-import { Command, flags } from '@oclif/command'
+import { Command, Flags } from '@oclif/core'
 import { cleanDirectory } from '../../utils/fileUtils'
 import { getManifestFile, updateManifestFile } from '../../utils/manifest'
-import cli from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import * as fs from 'fs'
 import * as fsExtra from 'fs-extra'
 import * as https from 'https'
@@ -15,11 +15,11 @@ export default class New extends Command {
   static description = 'generates a bare bones app locally for development'
 
   static flags = {
-    scaffold: flags.string({ default: 'basic', description: 'Choose from open-source Zendesk app scaffold structures' }),
-    path: flags.string({ description: 'Path of your new app' }),
-    authorName: flags.string({ description: 'Name of app author' }),
-    authorEmail: flags.string({ description: 'Email of app author' }),
-    appName: flags.string({ description: 'Name of the app' })
+    scaffold: Flags.string({ default: 'basic', description: 'Choose from open-source Zendesk app scaffold structures' }),
+    path: Flags.string({ description: 'Path of your new app' }),
+    authorName: Flags.string({ description: 'Name of app author' }),
+    authorEmail: Flags.string({ description: 'Email of app author' }),
+    appName: Flags.string({ description: 'Name of the app' })
   }
 
   static examples = [
@@ -88,16 +88,16 @@ export default class New extends Command {
   }
 
   async run () {
-    const { flags } = this.parse(New)
+    const { flags } = await this.parse(New)
     const flagScaffold = flags.scaffold
-    const directoryName = flags.path || await cli.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
-    const authorName = flags.authorName || await cli.prompt('Enter this app authors name')
-    let authorEmail = flags.authorEmail || await cli.prompt('Enter this app authors email')
+    const directoryName = flags.path || await CliUx.ux.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
+    const authorName = flags.authorName || await CliUx.ux.prompt('Enter this app authors name')
+    let authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
     while (!this.EMAIL_REGEX.test(authorEmail)) {
       console.log(chalk.red('Invalid email, please try again'))
-      authorEmail = flags.authorEmail || await cli.prompt('Enter this app authors email')
+      authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
     }
-    const appName = flags.appName || await cli.prompt('Enter a name for this new app')
+    const appName = flags.appName || await CliUx.ux.prompt('Enter a name for this new app')
     const scaffoldUrl = 'https://codeload.github.com/zendesk/app_scaffolds/zip/master'
 
     try {

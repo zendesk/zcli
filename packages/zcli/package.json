@@ -14,8 +14,6 @@
     "@oclif/dev-cli": "1.22.2"
   },
   "dependencies": {
-    "@oclif/command": "^1.6.1",
-    "@oclif/config": "^1",
     "@oclif/plugin-autocomplete": "^1.3.0",
     "@oclif/plugin-help": "^5.1.12",
     "@oclif/plugin-not-found": "^2.3.1",
