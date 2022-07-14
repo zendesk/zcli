@@ -2,7 +2,7 @@ import { CLIError } from '@oclif/errors'
 import * as chalk from 'chalk'
 import { CliUx } from '@oclif/core'
 import Config from './config'
-import fetch from 'node-fetch'
+import axios from 'axios'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
 import { parseSubdomain } from './authUtils'
@@ -60,7 +60,12 @@ export default class Auth {
     const password = await CliUx.ux.prompt('Password', { type: 'hide' })
 
     const authToken = this.createBasicAuthToken(email, password)
-    const testAuth = await fetch(`https://${subdomain}.zendesk.com/api/v2/account/settings.json`, { headers: { Authorization: authToken } })
+    const testAuth = await axios.get(
+      `https://${subdomain}.zendesk.com/api/v2/account/settings.json`,
+      {
+        headers: { Authorization: authToken },
+        validateStatus: function (status) { return status < 500 }
+      })
 
     if (testAuth.status === 200 && this.secureStore) {
       await this.secureStore.setPassword(subdomain, authToken)

@@ -5,8 +5,8 @@ import { Manifest, Installations, ZcliConfigFileContent } from '../types'
 
 export const getUploadJobStatus = async (job_id: string, appPath: string, pollAfter = 1000) => new Promise((resolve, reject) => {
   const polling = setInterval(async () => {
-    const res = await request.requestAPI(`api/v2/apps/job_statuses/${job_id}`)
-    const { status, message, app_id } = await res.json()
+    const res = await request.requestAPI(`api/v2/apps/job_statuses/${job_id}`, { method: 'GET' })
+    const { status, message, app_id } = await res.data
 
     if (status === 'completed') {
       clearInterval(polling)
@@ -20,7 +20,8 @@ export const getUploadJobStatus = async (job_id: string, appPath: string, pollAf
 })
 
 export const updateProductInstallation = async (appConfig: ZcliConfigFileContent, manifest: Manifest, app_id: string, product: string): Promise<boolean> => {
-  const installations: Installations = await request.requestAPI(`/api/${product}/apps/installations.json`, {}, true)
+  const installationResp = await request.requestAPI(`/api/${product}/apps/installations.json`, {}, true)
+  const installations: Installations = installationResp.data
 
   const configParams = appConfig?.parameters || {} // if there are no parameters in the config, just attach an empty object
   const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
@@ -28,7 +29,7 @@ export const updateProductInstallation = async (appConfig: ZcliConfigFileContent
 
   const updated = await request.requestAPI(`/api/${product}/apps/installations/${installation_id}.json`, {
     method: 'PUT',
-    body: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
+    data: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
     headers: {
       'Content-Type': 'application/json'
     }

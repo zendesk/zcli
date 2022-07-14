@@ -1,7 +1,7 @@
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as http from 'http'
-import fetch from 'node-fetch'
+import axios from 'axios'
 import * as fs from 'fs'
 import { omit } from 'lodash'
 import ServerCommand from '../../src/commands/apps/server'
@@ -24,11 +24,11 @@ describe('apps server', function () {
     test
       .it('should serve assets on custom port', async () => {
         const appHost = 'http://localhost:1234'
-        const appJSON = await fetch(`${appHost}/app.json`)
-        const { installations } = await appJSON.json()
+        const appJSON = await axios.get(`${appHost}/app.json`)
+        const { installations } = await appJSON.data
         expect(appJSON.status).to.eq(200)
-        expect((await fetch(`${appHost}/${installations[0].app_id}/assets/logo-small.png`)).status).to.eq(200)
-        expect((await fetch(`${appHost}/${installations[0].app_id}/assets/iframe.html`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${installations[0].app_id}/assets/logo-small.png`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${installations[0].app_id}/assets/iframe.html`)).status).to.eq(200)
       })
   })
 
@@ -37,8 +37,8 @@ describe('apps server', function () {
     before(async () => {
       server = await ServerCommand.run([singleProductApp, multiProductApp])
       appHost = 'http://localhost:4567'
-      const response = await fetch(`${appHost}/app.json`)
-      appJSON = await response.json()
+      const response = await axios.get(`${appHost}/app.json`)
+      appJSON = await response.data
     })
 
     after(() => server.close())
@@ -47,19 +47,19 @@ describe('apps server', function () {
       .it('should serve assets for single_product_app', async () => {
         const singleProductApp = appJSON.apps[0]
 
-        expect((await fetch(`${appHost}/${singleProductApp.id}/assets/logo-small.png`)).status).to.eq(200)
-        expect((await fetch(`${appHost}/${singleProductApp.id}/assets/iframe.html`)).status).to.eq(200)
-        expect((await fetch(`${appHost}/${singleProductApp.id}/assets/icon_nav_bar.svg`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${singleProductApp.id}/assets/logo-small.png`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${singleProductApp.id}/assets/iframe.html`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${singleProductApp.id}/assets/icon_nav_bar.svg`)).status).to.eq(200)
       })
 
     test
       .it('should serve assets for multi_product_app', async () => {
         const multiProductApp = appJSON.apps[1]
 
-        expect((await fetch(`${appHost}/${multiProductApp.id}/assets/support/logo-small.png`)).status).to.eq(200)
-        expect((await fetch(`${appHost}/${multiProductApp.id}/assets/support/icon_nav_bar.svg`)).status).to.eq(200)
-        expect((await fetch(`${appHost}/${multiProductApp.id}/assets/sell/icon_top_bar.svg`)).status).to.eq(200)
-        expect((await fetch(`${appHost}/${multiProductApp.id}/assets/iframe.html`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${multiProductApp.id}/assets/support/logo-small.png`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${multiProductApp.id}/assets/support/icon_nav_bar.svg`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${multiProductApp.id}/assets/sell/icon_top_bar.svg`)).status).to.eq(200)
+        expect((await axios.get(`${appHost}/${multiProductApp.id}/assets/iframe.html`)).status).to.eq(200)
       })
 
     test
@@ -108,8 +108,8 @@ describe('apps server', function () {
           // Modifed manifest.json
           fs.writeFileSync(manifestPath, JSON.stringify(manifest))
           await wait()
-          const response = await fetch(`${appHost}/app.json`)
-          appsJSON = await response.json()
+          const response = await axios.get(`${appHost}/app.json`)
+          appsJSON = await response.data
           const appJSON = appsJSON.apps[index]
           expect(appJSON.name).to.eq(`${appName} modified`)
           // Restored manifest.json

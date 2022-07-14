@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import axios from 'axios'
 import SecureStore from './secureStore'
 import Auth from './auth'
 import { CLIError } from '@oclif/errors'
@@ -31,12 +31,12 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
   }
 
   if (authToken && subdomain) {
-    if (json) {
-      const response = await fetch(`https://${subdomain}.zendesk.com/${url}`, options)
-      return response.json()
-    }
-
-    return fetch(`https://${subdomain}.zendesk.com/${url}`, options)
+    return axios.request({
+      baseURL: `https://${subdomain}.zendesk.com`,
+      url: url,
+      validateStatus: function (status) { return status < 500 },
+      ...options
+    })
   }
 
   throw new CLIError(chalk.red('Authorization Failed, try logging in via `zcli login -i`!'))

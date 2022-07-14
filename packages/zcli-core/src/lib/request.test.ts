@@ -14,12 +14,12 @@ describe('requestAPI', () => {
       api
         .get('/api/v2/me')
         .reply(function () {
-          expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
+          expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
           return [200]
         })
     })
     .do(async () => {
-      await requestAPI('api/v2/me')
+      await requestAPI('api/v2/me', { method: 'GET' })
     })
     .it('should make a request with Auth token')
 
@@ -34,14 +34,15 @@ describe('requestAPI', () => {
       api
         .get('/api/v2/me')
         .reply(function () {
-          expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
-          expect(this.req.headers.foo[0]).to.equal('bar')
+          expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
+          expect(this.req.headers.foo).to.equal('bar')
           return [200]
         })
     })
     .do(async () => {
       await requestAPI('api/v2/me', {
-        headers: { foo: 'bar' }
+        headers: { foo: 'bar' },
+        method: 'GET'
       })
     })
     .it('should be able to attach extra headers to request')

@@ -47,11 +47,11 @@ export const validatePkg = async (pkgPath: string) => {
   form.append('file', fs.createReadStream(pkgPath))
   const res = await request.requestAPI('api/v2/apps/validate', {
     method: 'POST',
-    body: form
+    data: form
   })
 
   if (res.status !== 200) {
-    const { description } = await res.json()
+    const { description } = await res.data
     throw new CLIError(description)
   }
 
