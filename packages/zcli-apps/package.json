@@ -17,6 +17,7 @@
     "type:check": "tsc"
   },
   "dependencies": {
+    "@oclif/command": "^1.8.16",
     "adm-zip": "0.5.6",
     "archiver": "5.3.1",
     "chalk": "4.1.2",
