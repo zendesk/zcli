@@ -1,4 +1,4 @@
-import { Command } from '@oclif/Core'
+import { Command } from '@oclif/core'
 import * as chalk from 'chalk'
 import { SecureStore, Auth } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
