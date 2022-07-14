@@ -1,6 +1,5 @@
-import { Command } from '@oclif/core'
+import { Command, CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
-import { CliUx } from '@oclif/core'
 import { Auth, SecureStore } from '@zendesk/zcli-core'
 import { Credential, Profile } from '@zendesk/zcli-core/src/types'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
