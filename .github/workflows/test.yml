@@ -43,7 +43,7 @@ jobs:
         CI: true
 
   build-windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
     - uses: zendesk/checkout@v2
     - name: Use Node.js
