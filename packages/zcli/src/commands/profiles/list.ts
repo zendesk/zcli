@@ -24,7 +24,7 @@ export default class List extends Command {
         }
       }
     }, {
-      printLine: this.log
+      printLine: this.log.bind(this)
     })
   }
 
