@@ -32,7 +32,6 @@
     "uuid": "8.3.2"
   },
   "devDependencies": {
-    "@oclif/dev-cli": "1.26.10",
     "@oclif/test": "^2.1.0",
     "@types/adm-zip": "^0.4.33",
     "@types/archiver": "5.3.1",
