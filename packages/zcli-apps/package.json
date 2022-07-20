@@ -28,7 +28,7 @@
     "morgan": "^1.10.0",
     "rimraf": "^3.0.2",
     "semver": "^7.3.2",
-    "tslib": "^1",
+    "tslib": "^2.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
