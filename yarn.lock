@@ -1242,7 +1242,7 @@
     is-wsl "^2.1.1"
     tslib "^2.3.1"
 
-"@oclif/core@^1.0.8", "@oclif/core@^1.1.1", "@oclif/core@^1.2.0", "@oclif/core@^1.2.1", "@oclif/core@^1.3.0", "@oclif/core@^1.3.1", "@oclif/core@^1.3.6", "@oclif/core@^1.7.0":
+"@oclif/core@^1.0.8", "@oclif/core@^1.2.0", "@oclif/core@^1.2.1", "@oclif/core@^1.3.0", "@oclif/core@^1.3.1", "@oclif/core@^1.3.6", "@oclif/core@^1.7.0":
   version "1.9.5"
   resolved "https://registry.yarnpkg.com/@oclif/core/-/core-1.9.5.tgz#4dd00f35fceb89906245da791b14bd503103771a"
   integrity sha512-C605Cr4RhHTMXYApLxdVt/PL6IA5cguN6MPvsMjxkvBppk2Fvcsj05dtRdDqShskRpZzHtu65emG1tHy8TWPWQ==
@@ -1483,7 +1483,7 @@
     lodash "^4.17.21"
     semver "^7.3.2"
 
-"@oclif/screen@^1.0.4", "@oclif/screen@^1.0.4 ":
+"@oclif/screen@^1.0.4":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@oclif/screen/-/screen-1.0.4.tgz#b740f68609dfae8aa71c3a6cab15d816407ba493"
   integrity sha512-60CHpq+eqnTxLZQ4PGHYNwUX572hgpMHGPtTWMjdTMsAvlm69lZV/4ly6O3sAYkomo4NggGcomrDpBe34rxUqw==
@@ -2851,37 +2851,6 @@ cli-ux@5.6.7:
     chalk "^4.1.0"
     clean-stack "^3.0.0"
     cli-progress "^3.4.0"
-    extract-stack "^2.0.0"
-    fs-extra "^8.1"
-    hyperlinker "^1.0.0"
-    indent-string "^4.0.0"
-    is-wsl "^2.2.0"
-    js-yaml "^3.13.1"
-    lodash "^4.17.21"
-    natural-orderby "^2.0.1"
-    object-treeify "^1.1.4"
-    password-prompt "^1.1.2"
-    semver "^7.3.2"
-    string-width "^4.2.0"
-    strip-ansi "^6.0.0"
-    supports-color "^8.1.0"
-    supports-hyperlinks "^2.1.0"
-    tslib "^2.0.0"
-
-cli-ux@^6.0.9:
-  version "6.0.9"
-  resolved "https://registry.yarnpkg.com/cli-ux/-/cli-ux-6.0.9.tgz#b5ab690314348b45b2c7458dad7621ae1be7c61d"
-  integrity sha512-0Ku29QLf+P6SeBNWM7zyoJ49eKKOjxZBZ4OH2aFeRtC0sNXU3ftdJxQPKJ1SJ+axX34I1NsfTFahpXdnxklZgA==
-  dependencies:
-    "@oclif/core" "^1.1.1"
-    "@oclif/linewrap" "^1.0.0"
-    "@oclif/screen" "^1.0.4 "
-    ansi-escapes "^4.3.0"
-    ansi-styles "^4.2.0"
-    cardinal "^2.1.1"
-    chalk "^4.1.0"
-    clean-stack "^3.0.0"
-    cli-progress "^3.10.0"
     extract-stack "^2.0.0"
     fs-extra "^8.1"
     hyperlinker "^1.0.0"
