@@ -39,7 +39,7 @@
     "@types/cors": "^2.8.6",
     "@types/mocha": "^9.1.1",
     "@types/morgan": "^1.9.0",
-    "@types/rimraf": "^2.0.3",
+    "@types/rimraf": "^3.0.2",
     "@types/uuid": "^8.3.4",
     "chai": "^4",
     "eslint": "^8.18.0",
