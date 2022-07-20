@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@oclif/test": "^2.1.0",
-    "@types/adm-zip": "^0.4.33",
+    "@types/adm-zip": "^0.5.0",
     "@types/archiver": "^5.3.1",
     "@types/chai": "^4",
     "@types/cors": "^2.8.6",

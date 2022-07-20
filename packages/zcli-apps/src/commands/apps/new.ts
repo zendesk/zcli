@@ -42,7 +42,7 @@ export default class New extends Command {
       destination.on('finish', () => {
         const zip = new AdmZip(this.zipScaffoldPath)
         const overwrite = false
-        zip.extractAllToAsync(path.join(process.cwd()), overwrite, async (err) => {
+        zip.extractAllToAsync(path.join(process.cwd()), overwrite, true, async (err) => {
           await cleanDirectory(this.zipScaffoldPath)
           if (err) {
             reject(err)
