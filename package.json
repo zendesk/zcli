@@ -45,7 +45,7 @@
   "scripts": {
     "audit:fix": "yarn-audit-fix",
     "postinstall": "lerna bootstrap",
-    "dev": "./packages/zcli/bin/run",
+    "dev": "ts-node ./packages/zcli/bin/run",
     "git:check": "./scripts/git_check.sh",
     "link:bin": "lerna link && lerna run install:zcli",
     "lint": "eslint . --ext .ts --config .eslintrc",
