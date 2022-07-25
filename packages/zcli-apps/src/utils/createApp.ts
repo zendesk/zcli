@@ -44,6 +44,7 @@ export const deployApp = async (method: string, url: string, upload_id: number, 
     data: JSON.stringify(installationPayload),
     method,
     headers: {
+      Accept: 'application/json',
       'Content-Type': 'application/json'
     }
   }
