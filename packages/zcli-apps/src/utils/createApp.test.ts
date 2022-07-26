@@ -1,16 +1,13 @@
 import * as createApp from './createApp'
 import { expect, test } from '@oclif/test'
-import * as sinon from 'sinon'
 import { request } from '@zendesk/zcli-core'
 import * as manifest from '../utils/manifest'
 
 describe('deployApp', () => {
   test
-    .stub(request, 'requestAPI', () => {
-      return { json: sinon.fake.returns({ job_id: 123 }) }
-    })
+    .stub(request, 'requestAPI', () => Promise.resolve({ status: 200, data: { job_id: 123 } }))
     .it('should return a job_id', async () => {
-      expect(await createApp.deployApp('POST', 'https://awesome.url', 123, 'awesomeName')).to.deep.equal({ job_id: 123 })
+      expect(await createApp.deployApp('POST', 'api/v2/apps.json', 123, 'awesomeName')).to.deep.equal({ job_id: 123 })
     })
 })
 

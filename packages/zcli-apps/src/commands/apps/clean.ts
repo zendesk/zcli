@@ -1,4 +1,4 @@
-import { Command } from '@oclif/command'
+import { Command } from '@oclif/core'
 import { cleanDirectory } from '../../utils/fileUtils'
 import * as path from 'path'
 import * as chalk from 'chalk'
@@ -17,7 +17,7 @@ export default class Clean extends Command {
 
   async run () {
     const tmpDirectoryPath = path.join(process.cwd(), 'tmp')
-    const { args } = this.parse(Clean)
+    const { args } = await this.parse(Clean)
     const appPath = args.appPath || './'
 
     validateAppPath(appPath)

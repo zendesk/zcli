@@ -10,7 +10,7 @@ readme="./packages/$dirname/README.md"
 
 cd "./packages/$dirname/"
 echo "Generating docs for $dirname"
-npx oclif-dev readme --dir ../../docs --multi
+npx oclif readme --dir ../../docs --multi
 echo "✅ Done"
 cd ../..
 

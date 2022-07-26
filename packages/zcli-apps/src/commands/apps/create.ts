@@ -1,8 +1,7 @@
-import { Command } from '@oclif/command'
+import { Command, CliUx } from '@oclif/core'
 import { uploadAppPkg, deployApp, createProductInstallation } from '../../utils/createApp'
 import * as chalk from 'chalk'
 import { getUploadJobStatus } from '../../utils/uploadApp'
-import cli from 'cli-ux'
 import { getManifestFile } from '../../utils/manifest'
 import { createAppPkg } from '../../lib/package'
 import { validateAppPath } from '../../lib/appPath'
@@ -24,29 +23,29 @@ export default class Create extends Command {
   static strict = false
 
   async run () {
-    const { argv: appDirectories } = this.parse(Create)
+    const { argv: appDirectories } = await this.parse(Create)
 
     for (const appPath of appDirectories) {
       validateAppPath(appPath)
 
-      cli.action.start('Uploading app')
+      CliUx.ux.action.start('Uploading app')
 
       const manifest = getManifestFile(appPath)
       const pkgPath = await createAppPkg(appPath)
       const { id: upload_id } = await uploadAppPkg(pkgPath)
 
       if (!upload_id) {
-        cli.action.stop('Failed')
+        CliUx.ux.action.stop('Failed')
         this.error(`Failed to upload app ${manifest.name}`)
       }
 
-      cli.action.stop('Uploaded')
-      cli.action.start('Deploying app')
+      CliUx.ux.action.stop('Uploaded')
+      CliUx.ux.action.start('Deploying app')
       const { job_id } = await deployApp('POST', 'api/apps.json', upload_id, manifest.name)
 
       try {
         const { app_id }: any = await getUploadJobStatus(job_id, appPath)
-        cli.action.stop('Deployed')
+        CliUx.ux.action.stop('Deployed')
 
         const allConfigs = getAllConfigs(appPath)
         const configParams = allConfigs?.parameters || {} // if there are no parameters in the config, just attach an empty object
@@ -59,7 +58,7 @@ export default class Create extends Command {
         })
         this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
       } catch (error) {
-        cli.action.stop('Failed')
+        CliUx.ux.action.stop('Failed')
         this.error(chalk.red(error))
       }
     }

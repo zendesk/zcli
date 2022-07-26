@@ -1,4 +1,4 @@
-import { Command } from '@oclif/command'
+import { Command } from '@oclif/core'
 import * as path from 'path'
 import * as chalk from 'chalk'
 import { createAppPkg, validatePkg } from '../../lib/package'
@@ -17,7 +17,7 @@ export default class Package extends Command {
   ]
 
   async run () {
-    const { args } = this.parse(Package)
+    const { args } = await this.parse(Package)
     const { appDirectory } = args
 
     validateAppPath(appDirectory)

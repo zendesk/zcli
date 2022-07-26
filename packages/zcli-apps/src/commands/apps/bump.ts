@@ -1,4 +1,4 @@
-import { Command, flags } from '@oclif/command'
+import { Command, Flags } from '@oclif/core'
 import * as chalk from 'chalk'
 import * as semver from 'semver'
 import { getManifestFile, updateManifestFile } from '../../utils/manifest'
@@ -19,13 +19,13 @@ export default class Bump extends Command {
   ]
 
   static flags = {
-    major: flags.boolean({ char: 'M', description: 'Increments the major version by 1' }),
-    minor: flags.boolean({ char: 'm', description: 'Increments the minor version by 1' }),
-    patch: flags.boolean({ char: 'p', description: 'Increments the patch version by 1' })
+    major: Flags.boolean({ char: 'M', description: 'Increments the major version by 1' }),
+    minor: Flags.boolean({ char: 'm', description: 'Increments the minor version by 1' }),
+    patch: Flags.boolean({ char: 'p', description: 'Increments the patch version by 1' })
   }
 
   async run () {
-    const { args, flags } = this.parse(Bump)
+    const { args, flags } = await this.parse(Bump)
     const { major, minor } = flags
     const appPath = args.appPath || './'
 

@@ -1,8 +1,8 @@
 import { CLIError } from '@oclif/errors'
 import * as chalk from 'chalk'
-import cli from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import Config from './config'
-import fetch from 'node-fetch'
+import axios from 'axios'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
 import { parseSubdomain } from './authUtils'
@@ -55,12 +55,17 @@ export default class Auth {
   }
 
   async loginInteractively (options?: Profile) {
-    const subdomain = parseSubdomain(options?.subdomain || await cli.prompt('Subdomain'))
-    const email = await cli.prompt('Email')
-    const password = await cli.prompt('Password', { type: 'hide' })
+    const subdomain = parseSubdomain(options?.subdomain || await CliUx.ux.prompt('Subdomain'))
+    const email = await CliUx.ux.prompt('Email')
+    const password = await CliUx.ux.prompt('Password', { type: 'hide' })
 
     const authToken = this.createBasicAuthToken(email, password)
-    const testAuth = await fetch(`https://${subdomain}.zendesk.com/api/v2/account/settings.json`, { headers: { Authorization: authToken } })
+    const testAuth = await axios.get(
+      `https://${subdomain}.zendesk.com/api/v2/account/settings.json`,
+      {
+        headers: { Authorization: authToken },
+        validateStatus: function (status) { return status < 500 }
+      })
 
     if (testAuth.status === 200 && this.secureStore) {
       await this.secureStore.setPassword(subdomain, authToken)

@@ -1,8 +1,7 @@
-import { Command } from '@oclif/command'
+import { Command, CliUx } from '@oclif/core'
 import { getAllConfigs } from '../../utils/appConfig'
 import { CLIError } from '@oclif/errors'
 import * as chalk from 'chalk'
-import cli from 'cli-ux'
 import { getUploadJobStatus, updateProductInstallation } from '../../utils/uploadApp'
 import { uploadAppPkg, deployApp } from '../../utils/createApp'
 import { getManifestFile } from '../../utils/manifest'
@@ -27,12 +26,12 @@ export default class Update extends Command {
   }
 
   async installApp (appConfig: ZcliConfigFileContent, uploadId: number, appPath: string, manifest: Manifest) {
-    cli.action.start('Deploying app')
+    CliUx.ux.action.start('Deploying app')
     const { job_id } = await deployApp('PUT', `api/v2/apps/${appConfig.app_id}`, uploadId)
 
     try {
       const { app_id }: any = await getUploadJobStatus(job_id, appPath)
-      cli.action.stop('Deployed')
+      CliUx.ux.action.stop('Deployed')
 
       Object.keys(manifest.location).forEach(async product => {
         if (!updateProductInstallation(appConfig, manifest, app_id, product)) {
@@ -41,29 +40,29 @@ export default class Update extends Command {
       })
       this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id}`))
     } catch (error) {
-      cli.action.stop('Failed')
+      CliUx.ux.action.stop('Failed')
       this.error(chalk.red(error))
     }
   }
 
   async run () {
-    const { argv: appDirectories } = this.parse(Update)
+    const { argv: appDirectories } = await this.parse(Update)
 
     for (const appPath of appDirectories) {
       validateAppPath(appPath)
 
-      cli.action.start('Uploading app')
+      CliUx.ux.action.start('Uploading app')
       const appConfig = getAllConfigs(appPath) || {}
       const manifest = getManifestFile(appPath)
       const pkgPath = await createAppPkg(appPath)
       const { id: upload_id } = await uploadAppPkg(pkgPath)
 
       if (!upload_id) {
-        cli.action.stop('Failed')
+        CliUx.ux.action.stop('Failed')
         this.error(`Failed to upload app ${manifest.name}`)
       }
 
-      cli.action.stop('Uploaded')
+      CliUx.ux.action.stop('Uploaded')
       try {
         await this.installApp(appConfig, upload_id, appPath, manifest)
       } catch (error) {

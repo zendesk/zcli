@@ -14,7 +14,7 @@ describe('package', () => {
 
     test
       .stub(fs, 'pathExistsSync', () => true)
-      .stub(request, 'requestAPI', () => Promise.resolve({ status: 400, json: () => Promise.resolve({ description: 'invalid location' }) }))
+      .stub(request, 'requestAPI', () => Promise.resolve({ status: 400, data: { description: 'invalid location' } }))
       .do(async () => {
         await validatePkg('./app-path')
       })

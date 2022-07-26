@@ -1,4 +1,4 @@
-import { Command, flags } from '@oclif/command'
+import { Command, Flags } from '@oclif/core'
 import * as express from 'express'
 import * as morgan from 'morgan'
 import * as chalk from 'chalk'
@@ -16,10 +16,10 @@ export default class Server extends Command {
   static description = 'serves apps in development mode'
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    bind: flags.string({ default: 'localhost', description: 'Bind apps server to a specific host' }),
-    port: flags.string({ default: '4567', description: 'Port for the http server to use' }),
-    logs: flags.boolean({ default: false, description: 'Tail logs' })
+    help: Flags.help({ char: 'h' }),
+    bind: Flags.string({ default: 'localhost', description: 'Bind apps server to a specific host' }),
+    port: Flags.string({ default: '4567', description: 'Port for the http server to use' }),
+    logs: Flags.boolean({ default: false, description: 'Tail logs' })
     // TODO: custom file is not supported for other commands,
     // lets come back to this in near future
     // config: flags.string({ default: 'zcli.apps.config.json', description: 'Configuration file for zcli::apps' })
@@ -37,10 +37,10 @@ export default class Server extends Command {
   static strict = false
 
   async run () {
-    const { flags } = this.parse(Server)
+    const { flags } = await this.parse(Server)
     const port = parseInt(flags.port)
     const { logs: tailLogs, bind: host } = flags
-    const { argv: appDirectories } = this.parse(Server)
+    const { argv: appDirectories } = await this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
     let appJSON = await buildAppJSON(appPaths, port)

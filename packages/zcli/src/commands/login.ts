@@ -1,4 +1,4 @@
-import { Command, flags } from '@oclif/command'
+import { Command, Flags } from '@oclif/core'
 import * as chalk from 'chalk'
 import { SecureStore, Auth } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../utils/helpMessage'
@@ -7,9 +7,9 @@ export default class Login extends Command {
   static description = 'creates and/or saves an authentication token for the specified subdomain'
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    subdomain: flags.string({ char: 's', default: '', description: 'Zendesk Subdomain' }),
-    interactive: flags.boolean({ char: 'i', default: false, description: 'Use Terminal based login' })
+    help: Flags.help({ char: 'h' }),
+    subdomain: Flags.string({ char: 's', default: '', description: 'Zendesk Subdomain' }),
+    interactive: Flags.boolean({ char: 'i', default: false, description: 'Use Terminal based login' })
   }
 
   static examples = [
@@ -25,7 +25,7 @@ export default class Login extends Command {
       return
     }
 
-    const { flags } = this.parse(Login)
+    const { flags } = await this.parse(Login)
     const { interactive, subdomain } = flags
 
     if (interactive) {
