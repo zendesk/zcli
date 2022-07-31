@@ -1,0 +1,21 @@
+name: Pack
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: zendesk/checkout@v2
+    - name: Use Node.js
+      uses: zendesk/setup-node@v2.1.2
+      with:
+        node-version: '14.x'
+    - run: yarn pack && npm install -g file:/home/runner/work/zcli/zcli/zcli-monorepo-v0.0.1.tgz
+    - run: zcli-monorepo -v
+      env:
+        CI: true
