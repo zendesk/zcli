@@ -1,4 +1,4 @@
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { CliUx } from '@oclif/core'
 import Config from './config'

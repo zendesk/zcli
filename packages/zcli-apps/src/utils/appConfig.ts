@@ -3,7 +3,7 @@ import { ZcliConfigFileContent } from '../types'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import * as chalk from 'chalk'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 import { DEFAULT_APPS_CONFIG_FILE } from '../constants'
 
 export const getAllConfigs = (appPath: string, configFileName: string = DEFAULT_APPS_CONFIG_FILE): ZcliConfigFileContent | undefined => {

@@ -8,7 +8,7 @@ import * as https from 'https'
 import * as path from 'path'
 import * as AdmZip from 'adm-zip'
 import * as chalk from 'chalk'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 
 export default class New extends Command {
   static description = 'generates a bare bones app locally for development'

@@ -2,7 +2,7 @@ import * as rimraf from 'rimraf'
 import * as utils from 'util'
 import * as fs from 'fs'
 import * as chalk from 'chalk'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 
 const removeDirectory = utils.promisify(rimraf)
 
