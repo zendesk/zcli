@@ -4,6 +4,11 @@
   "description": "ZCLI core libraries and services",
   "main": "src/index.ts",
   "npmRegistry": "https://registry.npmjs.org",
+  "keywords": [
+    "zcli",
+    "zendesk",
+    "command"
+  ],
   "publishConfig": {
     "access": "public"
   },

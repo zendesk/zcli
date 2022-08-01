@@ -30,7 +30,8 @@
   ],
   "keywords": [
     "zcli",
-    "zendesk"
+    "zendesk",
+    "command"
   ],
   "license": "MIT",
   "main": "src/index.js",
