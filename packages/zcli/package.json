@@ -29,7 +29,8 @@
     "/npm-shrinkwrap.json"
   ],
   "keywords": [
-    "zcli"
+    "zcli",
+    "zendesk"
   ],
   "license": "MIT",
   "main": "src/index.js",

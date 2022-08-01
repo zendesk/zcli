@@ -39,7 +39,8 @@
     "node": ">=14.17.3"
   },
   "keywords": [
-    "zcli"
+    "zcli",
+    "zendesk"
   ],
   "scripts": {
     "audit:fix": "yarn-audit-fix",
