@@ -1,7 +1,7 @@
 import axios from 'axios'
 import SecureStore from './secureStore'
 import Auth from './auth'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
 import { getSubdomain } from './requestUtils'

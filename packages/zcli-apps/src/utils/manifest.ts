@@ -3,7 +3,7 @@ import { validatePath } from './fileUtils'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as chalk from 'chalk'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 
 export const getManifestFile = (appPath: string): Manifest => {
   const manifestFilePath = path.join(appPath, 'manifest.json')

@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import * as FormData from 'form-data'
 import { request } from '@zendesk/zcli-core'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 import * as archiver from 'archiver'
 import { validateAppPath } from './appPath'
 

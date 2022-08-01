@@ -1,6 +1,6 @@
 import { Command } from '@oclif/core'
 import * as chalk from 'chalk'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 import { SecureStore } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
 

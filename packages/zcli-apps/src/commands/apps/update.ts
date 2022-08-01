@@ -1,6 +1,6 @@
 import { Command, CliUx } from '@oclif/core'
 import { getAllConfigs } from '../../utils/appConfig'
-import { CLIError } from '@oclif/errors'
+import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { getUploadJobStatus, updateProductInstallation } from '../../utils/uploadApp'
 import { uploadAppPkg, deployApp } from '../../utils/createApp'
