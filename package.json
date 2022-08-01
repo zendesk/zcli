@@ -41,7 +41,8 @@
   "keywords": [
     "zcli",
     "zendesk",
-    "command"
+    "command",
+    "cli"
   ],
   "scripts": {
     "audit:fix": "yarn-audit-fix",
