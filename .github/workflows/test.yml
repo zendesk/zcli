@@ -25,7 +25,7 @@ jobs:
         CI: true
 
   build-mac:
-    runs-on: macos-10.15
+    runs-on: macos-latest
     steps:
     - uses: zendesk/checkout@v2
     - name: Use Node.js
