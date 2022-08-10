@@ -11,6 +11,6 @@ yarn install
 # ./scripts/generate_dev_docs.sh
 
 # Remove beta once we are out of it
-npx lerna publish --conventional-commits --yes --preid 'beta' --@zendesk:registry=https://npmjs.com
+npx lerna publish --conventional-commits --yes --preid 'beta'
 echo "✅ Done"
 exit 0
