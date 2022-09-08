@@ -70,6 +70,10 @@ Got issues with what you find here? You can [create an issue on Github](https://
 
 If you'd like to take a crack at making some changes, please refer to [our contributing guide](.github/CONTRIBUTING.md). 
 
+# Local development
+
+You can run `yarn --cwd /path/to/zcli dev` in a development environment without transpiling ZCLI into JavaScript.
+
 # ZAF App Scaffolding
 
 Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are avaliable at [zendesk/app_scaffolds](https://github.com/zendesk/app_scaffolds)

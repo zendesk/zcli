@@ -60,7 +60,6 @@
     }
   },
   "scripts": {
-    "install:zcli": "rimraf package-lock.json && npm link",
     "prepack": "tsc && ../../scripts/prepack.sh",
     "postpack": "rm -f oclif.manifest.json npm-shrinkwrap.json && rm -rf ./dist && git checkout ./package.json",
     "type:check": "tsc"
