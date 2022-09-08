@@ -74,6 +74,17 @@ If you'd like to take a crack at making some changes, please refer to [our contr
 
 You can run `yarn --cwd /path/to/zcli dev` in a development environment without transpiling ZCLI into JavaScript.
 
+For example, to test `zcli apps:server` on [v2 REPL](https://github.com/zendesk/v2_repl_app):
+
+```sh
+cd /path/to/v2_repl_app
+# make sure we are using the same Node.js version
+ln -s /path/to/zcli/.node-version
+# please build v2 REPL in advance
+# see https://github.com/zendesk/v2_repl_app for details
+yarn --cwd /path/to/zcli dev apps:server "$PWD/dist"
+```
+
 # ZAF App Scaffolding
 
 Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are avaliable at [zendesk/app_scaffolds](https://github.com/zendesk/app_scaffolds)
