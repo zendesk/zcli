@@ -4,6 +4,11 @@ set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 JAVASCRIPT_ENTRYPOINT_PATH="$DIR/../packages/zcli/bin/run"
+if [[ "$OSTYPE" == "cygwin" ]]; then
+    # Cygwin relies on foreign Node.js installations, which recognise Windows paths
+    # shellcheck disable=1003
+    JAVASCRIPT_ENTRYPOINT_PATH="$(cygpath -wa "$JAVASCRIPT_ENTRYPOINT_PATH" | tr '\\' '/')"
+fi
 
 # link zcli-core & zcli-apps into ./packages/zcli/node_modules/@zendesk/
 npx lerna link
