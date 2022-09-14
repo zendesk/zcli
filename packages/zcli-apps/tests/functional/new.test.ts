@@ -3,6 +3,8 @@ import NewCommand from '../../src/commands/apps/new'
 import { cleanDirectory } from '../../src/utils/fileUtils'
 import * as path from 'path'
 import * as fs from 'fs'
+import { env } from 'process'
+import { url } from 'inspector'
 
 describe('apps new', () => {
   const dirName = 'myDir'
@@ -10,10 +12,45 @@ describe('apps new', () => {
   const authorEmail = 'test@email.com'
   const appName = 'testName'
   const dirPath = path.join(process.cwd(), dirName)
+  let authorURL = 'https://test.com'
+
+  describe('valid authorURL inputs', () => {
+    test.it('valid authorURLs were accepted', async () => {
+      let authorURLTests: string[] = ['', ' ', '    ', 'https://t.test.com/a/b/c', 'test.com' ]
+      for(var i=1; i<authorURLTests.length; i++){
+        before(async () => {
+          await NewCommand.run(['--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', authorURLTests[i]])
+        })
+        after(async () => {
+          await cleanDirectory(dirPath)
+        })
+      }
+    }) 
+  })
+
+  describe('manifest params', () => {
+      before(async () => {
+        await NewCommand.run(['--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', '\x0D'])
+      })
+  
+      afterEach(async () => {
+        await cleanDirectory(dirPath)
+      })
+  
+      test.it('authorURL field is not populated if user skips input ', async () => {
+        const manifestPath = path.join(process.cwd(), dirName, 'manifest.json')
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+  
+        console.log('' + manifest.author.url + '' + " : URL ")
+
+          expect(manifest.author.url).to.eq(undefined)
+      })
+  })
+
 
   describe('--scaffold', () => {
     before(async () => {
-      await NewCommand.run(['--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName])
+      await NewCommand.run(['--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', authorURL])
     })
 
     after(async () => {
@@ -38,7 +75,7 @@ describe('apps new', () => {
 
   describe('--scaffold=basic', () => {
     before(async () => {
-      await NewCommand.run(['--scaffold', 'basic', '--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName])
+      await NewCommand.run(['--scaffold', 'basic', '--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', authorURL])
     })
 
     after(async () => {
@@ -57,7 +94,9 @@ describe('apps new', () => {
       expect(manifest.name).to.eq(appName)
       expect(manifest.author.name).to.eq(authorName)
       expect(manifest.author.email).to.eq(authorEmail)
+      expect(manifest.author.url).to.eq(authorURL)
     })
+
   })
 
   describe('--scaffold=react', () => {
@@ -65,7 +104,7 @@ describe('apps new', () => {
     const dirPath = path.join(process.cwd(), dirName)
 
     before(async () => {
-      await NewCommand.run(['--scaffold', 'react', '--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName])
+      await NewCommand.run(['--scaffold', 'react', '--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', authorURL])
     })
 
     after(async () => {
@@ -84,6 +123,7 @@ describe('apps new', () => {
       expect(manifest.name).to.eq(appName)
       expect(manifest.author.name).to.eq(authorName)
       expect(manifest.author.email).to.eq(authorEmail)
+      expect(manifest.author.url).to.eq(authorURL)
     })
   })
 })
