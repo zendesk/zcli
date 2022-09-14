@@ -56,6 +56,20 @@ ZCLI supports numerous commands. Further documentation on available commands can
 - [`$ zcli autocomplete`](/docs/autocomplete.md) - display autocomplete installation instructions.
 - [`$ zcli help`](/docs/help.md) - display help for zcli
 
+# Local development
+
+To run your development copy of ZCLI locally, execute `yarn link:bin`.
+
+Under macOS if you are using a version manager like [`asdf`](https://asdf-vm.com), it can additionally set up the global `/usr/local/bin/zcli`.
+Note you need global Node.js and [`ts-node`](https://github.com/TypeStrong/ts-node) for this as well.
+
+```sh
+brew install --formula node yarn
+yarn global add ts-node
+```
+
+Under Windows this can only be used in WSL2 or [Cygwin](https://www.cygwin.com).
+
 # Contributing
 
 ---
