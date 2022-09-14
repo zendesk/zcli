@@ -7,7 +7,7 @@ import * as fsExtra from 'fs-extra'
 import * as https from 'https'
 import * as path from 'path'
 import * as AdmZip from 'adm-zip'
-import * as chalk from 'chalk' // import chalk from 'chalk' does not give error for me, neither does chalk.default.colour(cmd)
+import * as chalk from 'chalk' 
 import { CLIError } from '@oclif/core/lib/errors'
 
 export default class New extends Command {
