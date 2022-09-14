@@ -103,12 +103,12 @@ export default class New extends Command {
     const directoryName = flags.path || await CliUx.ux.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
     const authorName = flags.authorName || await CliUx.ux.prompt('Enter this app authors name')
     let authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
-    
+
     while (!this.EMAIL_REGEX.test(authorEmail)) {
       console.log(chalk.red('Invalid email, please try again'))
       authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
     }
-    // Prompt user for authorURL
+
     let authorURL = flags.authorURL || await CliUx.ux.prompt('Enter this apps URL (Optional)', { required: false })
     
     while (authorURL.trim() && !this.URL_REGEX.test(authorURL)) {
@@ -128,6 +128,5 @@ export default class New extends Command {
 
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, authorURL)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
-
   }
 }
