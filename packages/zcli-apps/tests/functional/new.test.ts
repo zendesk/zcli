@@ -10,7 +10,7 @@ describe('apps new', () => {
   const authorEmail = 'test@email.com'
   const appName = 'testName'
   const dirPath = path.join(process.cwd(), dirName)
-  let authorURL = 'https://test.com'
+  const authorURL = 'https://test.com'
 
   describe('--scaffold', () => {
     before(async () => {
