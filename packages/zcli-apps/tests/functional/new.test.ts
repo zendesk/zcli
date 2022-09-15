@@ -3,8 +3,6 @@ import NewCommand from '../../src/commands/apps/new'
 import { cleanDirectory } from '../../src/utils/fileUtils'
 import * as path from 'path'
 import * as fs from 'fs'
-import { env } from 'process'
-import { url } from 'inspector'
 
 describe('apps new', () => {
   const dirName = 'myDir'
@@ -62,7 +60,6 @@ describe('apps new', () => {
       expect(manifest.author.email).to.eq(authorEmail)
       expect(manifest.author.url).to.eq(authorURL)
     })
-
   })
 
   describe('--scaffold=react', () => {
@@ -93,33 +90,19 @@ describe('apps new', () => {
     })
   })
 
-  describe('valid authorURL inputs', () => {
-    test.it('valid authorURLs were accepted', async () => {
-      let authorURLTests: string[] = ['', ' ', '    ', 'https://t.test.com/a/b/c', 'test.com' ]
-      for(var i=1; i<authorURLTests.length; i++){
-        before(async () => {
-          await NewCommand.run(['--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', authorURLTests[i]])
-        })
-        after(async () => {
-          await cleanDirectory(dirPath)
-        })
-      }
-    }) 
-  })
-
   describe('authorURL correctly populated in manifest', () => {
-      test.it('authorURL field is not populated if user skips input ', async () => {
-        before(async () => {
-          await NewCommand.run(['--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', '\x0D'])
-        })
-    
-        afterEach(async () => {
-          await cleanDirectory(dirPath)
-        })
-        const manifestPath = path.join(process.cwd(), dirName, 'manifest.json')
-        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+    before(async () => {
+      await NewCommand.run(['--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', '\x0D'])
+    })
 
-          expect(manifest.author.url).to.eq(undefined)
-      })
+    afterEach(async () => {
+      await cleanDirectory(dirPath)
+    })
+    test.it('authorURL field is not populated if user skips input ', async () => {
+      const manifestPath = path.join(process.cwd(), dirName, 'manifest.json')
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+
+      expect(manifest.author.url).to.eq(undefined)
+    })
   })
 })
