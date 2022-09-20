@@ -31,7 +31,7 @@ export default class New extends Command {
   zipScaffoldPath = path.join(process.cwd(), 'scaffold.zip')
   unzippedScaffoldPath = path.join(process.cwd(), 'app_scaffolds-master')
   EMAIL_REGEX = /^.+@.+\..+$/
-  URL_REGEX = /[(http(s)?):(www)?a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)/
+  URL_REGEX = /^http(s)?:\/\/?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
 
   async downloadScaffoldsRepo (url: string) {
     return new Promise<void>((resolve, reject) => {
@@ -108,10 +108,10 @@ export default class New extends Command {
       authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
     }
 
-    let authorURL = flags.authorURL || await CliUx.ux.prompt('Enter this apps URL (Optional)', { required: false })
+    let authorURL = flags.authorURL || await CliUx.ux.prompt('Enter this app authors website (optional)', { required: false })
 
     while (authorURL.trim() && !this.URL_REGEX.test(authorURL)) {
-      console.log(chalk.red('Invalid URL, please try again (Press enter to skip)'))
+      console.log(chalk.red('Invalid URL. Please make sure your website begins with "http://" or "https://" and try again (Enter to skip)'))
       authorURL = await CliUx.ux.prompt('Enter this apps URL', { required: false })
     }
 
