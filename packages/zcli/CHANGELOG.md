@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.24](https://github.com/zendesk/zcli/compare/v1.0.0-beta.23...v1.0.0-beta.24) (2022-09-20)
+
+
+### Bug Fixes
+
+* Set up local ts-node stub for development ([c5d0933](https://github.com/zendesk/zcli/commit/c5d09335c487794f1a2377517c5c3a1805f295c0))
+
+
+
+
+
 # [1.0.0-beta.23](https://github.com/zendesk/zcli/compare/v1.0.0-beta.22...v1.0.0-beta.23) (2022-08-01)
 
 **Note:** Version bump only for package @zendesk/zcli

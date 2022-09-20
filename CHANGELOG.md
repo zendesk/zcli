@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.24](https://github.com/zendesk/zcli/compare/v1.0.0-beta.23...v1.0.0-beta.24) (2022-09-20)
+
+
+### Bug Fixes
+
+* Pin TypeScript to <4.8 to avoid oclif/core error ([0a7a2bb](https://github.com/zendesk/zcli/commit/0a7a2bbf600a8768871bd226131df94db6956c79))
+* Set up local ts-node stub for development ([c5d0933](https://github.com/zendesk/zcli/commit/c5d09335c487794f1a2377517c5c3a1805f295c0))
+* Tweak yarn link:bin for Cygwin ([8961db8](https://github.com/zendesk/zcli/commit/8961db8eff7d2482b14f9f182c618374c86e2a2a))
+
+
+### Reverts
+
+* Revert "Always publish to npmjs.com main public registry (#132)" (#134) ([c58ffb0](https://github.com/zendesk/zcli/commit/c58ffb033cea0a75c76ffb0c2353e17146c8d5d4)), closes [#132](https://github.com/zendesk/zcli/issues/132) [#134](https://github.com/zendesk/zcli/issues/134)
+
+
+
+
+
 # [1.0.0-beta.23](https://github.com/zendesk/zcli/compare/v1.0.0-beta.22...v1.0.0-beta.23) (2022-08-01)
 
 **Note:** Version bump only for package zcli-monorepo
