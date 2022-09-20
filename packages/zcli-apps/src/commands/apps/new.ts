@@ -75,7 +75,6 @@ export default class New extends Command {
     })
   }
 
-  // Added optional "authorURL param to object"
   modifyManifest (directoryName: string, appName: string, authorName: string, authorEmail: string, flagScaffold: string, authorURL?: string) {
     const manifestPath: ManifestPath = {
       basic: path.join(process.cwd(), directoryName),
