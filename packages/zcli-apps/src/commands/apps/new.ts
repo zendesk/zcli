@@ -31,7 +31,7 @@ export default class New extends Command {
   zipScaffoldPath = path.join(process.cwd(), 'scaffold.zip')
   unzippedScaffoldPath = path.join(process.cwd(), 'app_scaffolds-master')
   EMAIL_REGEX = /^.+@.+\..+$/
-  URL_REGEX = /^http(s)?:\/\/?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
+  URL_REGEX = /^http(s)?:\/\/?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+$/
 
   async downloadScaffoldsRepo (url: string) {
     return new Promise<void>((resolve, reject) => {
