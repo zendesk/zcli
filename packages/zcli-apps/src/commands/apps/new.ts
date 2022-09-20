@@ -18,7 +18,8 @@ export default class New extends Command {
     path: Flags.string({ description: 'Path of your new app' }),
     authorName: Flags.string({ description: 'Name of app author' }),
     authorEmail: Flags.string({ description: 'Email of app author' }),
-    appName: Flags.string({ description: 'Name of the app' })
+    appName: Flags.string({ description: 'Name of the app' }),
+    authorURL: Flags.string({ description: 'URL of the app author' })
   }
 
   static examples = [
@@ -30,6 +31,7 @@ export default class New extends Command {
   zipScaffoldPath = path.join(process.cwd(), 'scaffold.zip')
   unzippedScaffoldPath = path.join(process.cwd(), 'app_scaffolds-master')
   EMAIL_REGEX = /^.+@.+\..+$/
+  URL_REGEX = /^http(s)?:\/\/?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+$/
 
   async downloadScaffoldsRepo (url: string) {
     return new Promise<void>((resolve, reject) => {
@@ -73,7 +75,7 @@ export default class New extends Command {
     })
   }
 
-  modifyManifest (directoryName: string, appName: string, authorName: string, authorEmail: string, flagScaffold: string) {
+  modifyManifest (directoryName: string, appName: string, authorName: string, authorEmail: string, flagScaffold: string, authorURL?: string) {
     const manifestPath: ManifestPath = {
       basic: path.join(process.cwd(), directoryName),
       react: path.join(process.cwd(), directoryName, 'src')
@@ -83,6 +85,13 @@ export default class New extends Command {
     manifest.name = appName
     manifest.author.name = authorName
     manifest.author.email = authorEmail
+
+    if (authorURL?.trim()) {
+      manifest.author.url = authorURL
+    } else {
+      delete manifest.author.url
+    }
+
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
@@ -92,10 +101,19 @@ export default class New extends Command {
     const directoryName = flags.path || await CliUx.ux.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
     const authorName = flags.authorName || await CliUx.ux.prompt('Enter this app authors name')
     let authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
+
     while (!this.EMAIL_REGEX.test(authorEmail)) {
       console.log(chalk.red('Invalid email, please try again'))
       authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
     }
+
+    let authorURL = flags.authorURL || await CliUx.ux.prompt('Enter this app authors website (optional)', { required: false })
+
+    while (authorURL.trim() && !this.URL_REGEX.test(authorURL)) {
+      console.log(chalk.red('Invalid URL. Please make sure your website begins with "http://" or "https://" and try again (Enter to skip)'))
+      authorURL = await CliUx.ux.prompt('Enter this apps URL', { required: false })
+    }
+
     const appName = flags.appName || await CliUx.ux.prompt('Enter a name for this new app')
     const scaffoldUrl = 'https://codeload.github.com/zendesk/app_scaffolds/zip/master'
 
@@ -106,7 +124,7 @@ export default class New extends Command {
       throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
     }
 
-    this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold)
+    this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, authorURL)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }
