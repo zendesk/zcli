@@ -87,20 +87,13 @@ describe('zcliignore', function () {
     .stdout()
     .command(['apps:package', appPath])
     .it('should not include certain files as specified in .zcliignore', async () => {
-      var single_product_ignore_package = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ""))
+      var package_path = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ""))
       var zip = new jsZip()
-      let counter = 0
-      try {
-        const zipFileBytes = fs.readFileSync(single_product_ignore_package, 'utf8')
+        const zipFileBytes = fs.readFileSync(package_path)
         const zipPackage = await zip.loadAsync(zipFileBytes)
         Object.keys(zipPackage.files).forEach(function (filename) {
           expect(ignoreArr.includes(filename)).to.eq(false)
-          counter = counter + 1
         })
-        console.log(counter)
-      } catch(err) {
-        console.log(err)
-      }
     })
 })
 
