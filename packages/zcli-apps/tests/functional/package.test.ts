@@ -1,4 +1,5 @@
 import { expect, test } from '@oclif/test'
+import { files } from 'jszip'
 import * as path from 'path'
 import { dirname } from 'path'
 
@@ -38,13 +39,13 @@ describe('package', function () {
     .it('should display error message if package fails to create')
 
 })
+
 describe('zcliignore', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_ignore')
-  console.log(dirname)
-  console.log(appPath)
+
   const fs = require('fs');
   var jsZip = require('jszip')
-  const packagePath = path.join(appPath, "tmp")
+  const tmpPath = path.join(appPath, "tmp")
   const readline = require('readline');
 
   const file = readline.createInterface({
@@ -52,12 +53,23 @@ describe('zcliignore', function () {
     output: process.stdout,
     terminal: false
   })
-  
+
   const ignoreArr: string[] = [] //array that holds each line of the .ignore file
 
   file.on('line', (line) => {
-    console.log(line)
     ignoreArr.push(line) //add to array dynamically
+  })
+
+  after(async () => {
+    fs.readdir(tmpPath, (err, files) => {
+      if (err) throw err;
+
+      for (const file of files) {
+        fs.unlink(path.join(tmpPath, file), (err) => {
+          if (err) throw err;
+        })
+      }
+    })
   })
 
   test
@@ -73,20 +85,17 @@ describe('zcliignore', function () {
     })
     .stdout()
     .command(['apps:package', appPath])
-    .it('should not include certain files as specified in .zcliignore', ctx => {
-      const pkgPath = path.join(path.relative(process.cwd(), appPath), 'tmp', 'app')
-      fs.readFile(appPath, function (err, data) {
-        if (!err) {
-          var zip = new jsZip()
-          zip.loadAsync(data).then(function (contents) {
-            Object.keys(contents.files).forEach(function (filename) {
-              console.log(filename)
-              expect(!(ignoreArr.includes(filename)))
-          })
+    .it('should not include certain files as specified in .zcliignore', async () => {
+      var single_product_ignore_package = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ""))
+      var zip = new jsZip()
+      let counter = 0
+      zip.loadAsync(single_product_ignore_package).then(function(zip) {
+        Object.keys(zip.files).forEach(function (filename) {
+          expect(ignoreArr.includes(filename)).to.eq(false)
+          counter = counter + 1;
         })
-        }
       })
+      console.log(counter)
     })
 })
-
 
