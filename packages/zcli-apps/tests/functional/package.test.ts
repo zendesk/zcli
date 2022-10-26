@@ -1,8 +1,5 @@
 import { expect, test } from '@oclif/test'
-import { files } from 'jszip'
 import * as path from 'path'
-import * as fs from 'fs'
-import { dirname } from 'path'
 
 describe('package', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_app')
@@ -38,16 +35,14 @@ describe('package', function () {
     .command(['apps:package', path.join(__dirname, 'mocks/single_product_app')])
     .catch(err => expect(err.message).to.contain('Error: invalid location'))
     .it('should display error message if package fails to create')
-
 })
 
 describe('zcliignore', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_ignore')
-
-  const fs = require('fs');
-  var jsZip = require('jszip')
-  const tmpPath = path.join(appPath, "tmp")
-  const readline = require('readline');
+  const fs = require('fs')
+  const JsZip = require('jszip')
+  const readline = require('readline')
+  const tmpPath = path.join(appPath, 'tmp')
 
   const file = readline.createInterface({
     input: fs.createReadStream(path.join(appPath, '.zcliignore')),
@@ -55,19 +50,19 @@ describe('zcliignore', function () {
     terminal: false
   })
 
-  const ignoreArr: string[] = [] //array that holds each line of the .ignore file
+  const ignoreArr: string[] = [] // array that holds each line of the .ignore file
 
   file.on('line', (line) => {
-    ignoreArr.push(line) //add to array dynamically
+    ignoreArr.push(line) // add to array dynamically
   })
 
   after(async () => {
     fs.readdir(tmpPath, (err, files) => {
-      if (err) throw err;
+      if (err) throw err
 
       for (const file of files) {
         fs.unlink(path.join(tmpPath, file), (err) => {
-          if (err) throw err;
+          if (err) throw err
         })
       }
     })
@@ -87,13 +82,12 @@ describe('zcliignore', function () {
     .stdout()
     .command(['apps:package', appPath])
     .it('should not include certain files as specified in .zcliignore', async () => {
-      var package_path = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ""))
-      var zip = new jsZip()
-        const zipFileBytes = fs.readFileSync(package_path)
-        const zipPackage = await zip.loadAsync(zipFileBytes)
-        Object.keys(zipPackage.files).forEach(function (filename) {
-          expect(ignoreArr.includes(filename)).to.eq(false)
-        })
+      const package_path = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ''))
+      const zip = new JsZip()
+      const zipFileBytes = fs.readFileSync(package_path)
+      const zipPackage = await zip.loadAsync(zipFileBytes)
+      Object.keys(zipPackage.files).forEach(function (filename) {
+        expect(ignoreArr.includes(filename)).to.eq(false)
+      })
     })
 })
-

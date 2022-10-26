@@ -24,18 +24,14 @@ export const createAppPkg = async (
 
   archive.pipe(output)
 
-  // Check for existance of .zcliignore file & add to the array of items to ignore during packaging
-
   let archive_ignore = ['tmp/**']
 
   if (fs.pathExistsSync(`${appPath}/.zcliignore`)) {
     archive_ignore = archive_ignore.concat(fs.readFileSync(`${appPath}/.zcliignore`).toString().replace(/\r\n/g, '\n').split('\n').filter((item) => {
       return (item.trim().startsWith('#') ? null : item.trim())
     }))
-    console.log("Ignore files specified: " + archive_ignore)
   }
 
- // ignore tmp dir & .zcliignore entries if found
   archive.glob('**', {
     cwd: appPath,
     ignore: archive_ignore
