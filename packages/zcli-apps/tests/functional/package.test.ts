@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import { files } from 'jszip'
 import * as path from 'path'
+import * as fs from 'fs'
 import { dirname } from 'path'
 
 describe('package', function () {
@@ -89,13 +90,17 @@ describe('zcliignore', function () {
       var single_product_ignore_package = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ""))
       var zip = new jsZip()
       let counter = 0
-      zip.loadAsync(single_product_ignore_package).then(function(zip) {
-        Object.keys(zip.files).forEach(function (filename) {
+      try {
+        const zipFileBytes = fs.readFileSync(single_product_ignore_package, 'utf8')
+        const zipPackage = await zip.loadAsync(zipFileBytes)
+        Object.keys(zipPackage.files).forEach(function (filename) {
           expect(ignoreArr.includes(filename)).to.eq(false)
-          counter = counter + 1;
+          counter = counter + 1
         })
-      })
-      console.log(counter)
+        console.log(counter)
+      } catch(err) {
+        console.log(err)
+      }
     })
 })
 
