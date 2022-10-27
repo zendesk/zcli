@@ -24,7 +24,7 @@ export default class Package extends Command {
 
     const appPath = path.resolve(appDirectory)
     const pkgPath = await createAppPkg(appPath)
-    
+
     try {
       await validatePkg(pkgPath)
       this.log(chalk.green(`Package created at ${path.relative(process.cwd(), pkgPath)}`))
