@@ -1,6 +1,10 @@
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
 
+import * as fs from 'fs'
+import * as JsZip from 'jszip'
+import * as readline from 'readline'
+
 describe('package', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_app')
   test
@@ -39,9 +43,6 @@ describe('package', function () {
 
 describe('zcliignore', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_ignore')
-  const fs = require('fs')
-  const JsZip = require('jszip')
-  const readline = require('readline')
   const tmpPath = path.join(appPath, 'tmp')
 
   const file = readline.createInterface({
