@@ -1,9 +1,8 @@
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
-
 import * as fs from 'fs'
-import * as JsZip from 'jszip'
 import * as readline from 'readline'
+import * as AdmZip from 'adm-zip'
 
 describe('package', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_app')
@@ -83,12 +82,10 @@ describe('zcliignore', function () {
     .stdout()
     .command(['apps:package', appPath])
     .it('should not include certain files as specified in .zcliignore', async () => {
-      const package_path = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ''))
-      const zip = new JsZip()
-      const zipFileBytes = fs.readFileSync(package_path)
-      const zipPackage = await zip.loadAsync(zipFileBytes)
-      Object.keys(zipPackage.files).forEach(function (filename) {
-        expect(ignoreArr.includes(filename)).to.eq(false)
-      })
+      const packagePath = path.join(tmpPath, (fs.readdirSync(tmpPath).filter(fn => fn.startsWith('app')) + ''))
+      const zip = new AdmZip(packagePath)
+      for (const zipEntry of zip.getEntries()) {
+        expect(ignoreArr.includes(zipEntry.name)).to.eq(false)
+      }
     })
 })
