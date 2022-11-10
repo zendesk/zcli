@@ -3,6 +3,17 @@
 
 zcli apps commands helps with managing Zendesk apps workflow.
 
+* [`zcli apps:bump [APPPATH]`](#zcli-appsbump-apppath)
+* [`zcli apps:clean [APPPATH]`](#zcli-appsclean-apppath)
+* [`zcli apps:create APPDIRECTORIES`](#zcli-appscreate-appdirectories)
+* [`zcli apps:new`](#zcli-appsnew)
+* [`zcli apps:package APPDIRECTORY`](#zcli-appspackage-appdirectory)
+* [`zcli apps:server APPDIRECTORIES`](#zcli-appsserver-appdirectories)
+* [`zcli apps:update APPDIRECTORIES`](#zcli-appsupdate-appdirectories)
+* [`zcli apps:validate APPDIRECTORY`](#zcli-appsvalidate-appdirectory)
+
+## Configuration
+
 NOTE: You can set your apps config/settings in `zcli.apps.config.json` at the root of your app directory ie
 
 ```
@@ -20,14 +31,12 @@ NOTE: You can set your apps config/settings in `zcli.apps.config.json` at the ro
 
 See [these mock apps](https://github.com/zendesk/zcli/tree/master/packages/zcli-apps/tests/functional/mocks) for more references of `zcli.apps.config.json`.
 
-* [`zcli apps:bump [APPPATH]`](#zcli-appsbump-apppath)
-* [`zcli apps:clean [APPPATH]`](#zcli-appsclean-apppath)
-* [`zcli apps:create APPDIRECTORIES`](#zcli-appscreate-appdirectories)
-* [`zcli apps:new`](#zcli-appsnew)
-* [`zcli apps:package APPDIRECTORY`](#zcli-appspackage-appdirectory)
-* [`zcli apps:server APPDIRECTORIES`](#zcli-appsserver-appdirectories)
-* [`zcli apps:update APPDIRECTORIES`](#zcli-appsupdate-appdirectories)
-* [`zcli apps:validate APPDIRECTORY`](#zcli-appsvalidate-appdirectory)
+If you wish to specify files/folders to be ignored as part of the packaging process, create a .zcliignore file in your apps root directory. Patterns following the gitignore specification included in a .zcliignore file will be excluded from packaging when any of the following commands are executed:
+
+* zcli apps:package
+* zcli apps:create
+* zcli apps:update
+* zcli apps:validate
 
 ## `zcli apps:bump [APPPATH]`
 
