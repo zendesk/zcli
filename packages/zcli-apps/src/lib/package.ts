@@ -24,19 +24,11 @@ export const createAppPkg = async (
 
   archive.pipe(output)
 
-  let archiveIgnore = ['tmp/**']
-
-  if (fs.pathExistsSync(`${appPath}/.zcliignore`)) {
-    archiveIgnore = archiveIgnore.concat(fs.readFileSync(`${appPath}/.zcliignore`).toString().replace(/\r\n/g, '\n').split('\n').filter((item) => {
-      return (item.trim().startsWith('#') ? null : item.trim())
-    }))
-  }
-
+  // ignore tmp dir
   archive.glob('**', {
     cwd: appPath,
-    ignore: archiveIgnore
+    ignore: ['tmp/**']
   })
-
   await archive.finalize()
 
   if (!fs.pathExistsSync(pkgPath)) {
