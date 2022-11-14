@@ -82,7 +82,7 @@ describe('zcliignore', function () {
     .stdout()
     .command(['apps:package', appPath])
     .it('should not include certain files as specified in .zcliignore', async () => {
-      const packagePath = path.join(tmpPath, (fs.readdirSync(tmpPath).find(fn => fn.startsWith('app'))) + '')
+      const packagePath = path.join(tmpPath, fs.readdirSync(tmpPath).find(fn => fn.startsWith('app')) || '')
       const zip = new AdmZip(packagePath)
       for (const zipEntry of zip.getEntries()) {
         expect(ignoreArr.includes(zipEntry.name)).to.eq(false)
