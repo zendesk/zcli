@@ -308,6 +308,48 @@ describe('buildAppJSON', () => {
       })
     })
 
+  describe('for non private apps', () => {
+    test
+      .stub(appPath, 'validateAppPath', () => {}) // eslint-disable-line @typescript-eslint/no-empty-function
+      .stub(manifest, 'getManifestFile', () => manifestOutputNoParams)
+      .stub(uuid, 'uuidV4', () => mockId)
+      .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
+      .it('should set appID to zero', async () => {
+        const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234)
+
+        expect(appJSON).to.deep.include({
+          apps: [
+            {
+              asset_url_prefix: 'http://localhost:1234/0/assets/',
+              default_locale: 'en',
+              framework_version: '2.0',
+              locations: multiProductLocations,
+              name: 'app 1',
+              id: '0',
+              signed_urls: false,
+              single_install: true,
+              version: undefined
+            }
+          ],
+          installations: [
+            {
+              app_id: '0',
+              collapsible: true,
+              enabled: true,
+              id: mockId,
+              name: 'app 1',
+              plan: undefined,
+              requirements: [],
+              settings: [{
+                title: 'app 1'
+              }],
+              updated_at: '2020-01-01T00:00:00.000Z'
+            }
+          ]
+        })
+      })
+  })
+
   describe('with no params attribute on manifest file', () => {
     test
       .stub(appPath, 'validateAppPath', () => {}) // eslint-disable-line @typescript-eslint/no-empty-function
