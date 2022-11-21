@@ -9,6 +9,15 @@ if [[ "$(yarn config get @zendesk:registry)" == *'jfrog'* ]]; then
     exit 1
 fi
 
+if [[ "$(git branch --show-current)" != "master" ]]; then
+    printf 'Your are not on master branch at the moment. Really continue? [y/n] '
+    read -n1 -r; printf '\n'
+    if [[ "$REPLY" != 'y' ]]; then
+        printf 'Aborted\n'
+        exit 0
+    fi
+fi
+
 echo '🔄 Generate tag, update docs and changelog'
 yarn install
 
