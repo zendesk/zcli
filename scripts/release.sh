@@ -1,7 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # exit when any command fails
 set -e
+
+if [[ "$(yarn config get @zendesk:registry)" == *'jfrog'* ]]; then
+    # https://github.com/yarnpkg/yarn/issues/5310
+    printf 'Please remove Artifactory configurations from ~/.npmrc first\n'
+    exit 1
+fi
 
 echo '🔄 Generate tag, update docs and changelog'
 yarn install
