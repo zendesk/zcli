@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.26](https://github.com/zendesk/zcli/compare/v1.0.0-beta.24...v1.0.0-beta.26) (2022-11-21)
+
+
+### Reverts
+
+* Revert "Revert "Zcli package ignore" (#144)" ([75e859c](https://github.com/zendesk/zcli/commit/75e859cf85a6f706085f194883a242217430e525)), closes [#144](https://github.com/zendesk/zcli/issues/144)
+
+
+
+
+
 # [1.0.0-beta.25](https://github.com/zendesk/zcli/compare/v1.0.0-beta.24...v1.0.0-beta.25) (2022-11-21)
 
 
