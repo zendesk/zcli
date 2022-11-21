@@ -1,6 +1,6 @@
 {
   "name": "@zendesk/zcli-core",
-  "version": "1.0.0-beta.27",
+  "version": "1.0.0-beta.28",
   "description": "ZCLI core libraries and services",
   "main": "src/index.ts",
   "npmRegistry": "https://registry.npmjs.org",
