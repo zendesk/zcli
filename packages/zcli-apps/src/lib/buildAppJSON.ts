@@ -135,7 +135,7 @@ export const buildAppJSON = async (appPaths: string[], port: number): Promise<Ap
     const manifest = getManifestFile(appPath)
     const zcliConfigFile = getAllConfigs(appPath) || {}
 
-    const appId = zcliConfigFile.app_id?.toString() || uuidV4()
+    const appId = zcliConfigFile.app_id?.toString() || '0'
     const configParams = zcliConfigFile.parameters || {} // if there are no parameters in the config, just attach an empty object
 
     const appSettings = await getAppSettings(manifest, configParams)
