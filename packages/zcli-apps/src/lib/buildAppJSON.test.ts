@@ -314,7 +314,7 @@ describe('buildAppJSON', () => {
       .stub(manifest, 'getManifestFile', () => manifestOutputNoParams)
       .stub(uuid, 'uuidV4', () => mockId)
       .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
-      .it('should set appID to zero', async () => {
+      .it('should set appID to 0', async () => {
         const appJSON = await buildAppJSON.buildAppJSON(['./app1'], 1234)
 
         expect(appJSON).to.deep.include({
