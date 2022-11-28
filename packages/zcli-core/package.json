@@ -33,6 +33,6 @@
     "postpack": "rm -rf ./dist && git checkout ./package.json",
     "type:check": "tsc"
   },
-  "author": "",
+  "author": "@vegemite",
   "license": "ISC"
 }
