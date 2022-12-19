@@ -9,6 +9,11 @@ if [[ "$(yarn config get @zendesk:registry)" == *'jfrog'* ]]; then
     exit 1
 fi
 
+if ! npm whoami &> /dev/null; then
+  printf 'Please make sure you are logged into NPM\n'
+  exit 1
+fi
+
 if [[ "$(git branch --show-current)" != "master" ]]; then
     printf 'Your are not on master branch at the moment. Really continue? [y/n] '
     read -n1 -r; printf '\n'
