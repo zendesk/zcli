@@ -9,6 +9,7 @@ import * as packageUtil from '../../src/lib/package'
 describe('apps create', function () {
   const singleProductApp = path.join(__dirname, 'mocks/single_product_app')
   const multiProductApp = path.join(__dirname, 'mocks/multi_product_app')
+  const requirementsOnlyApp = path.join(__dirname, 'mocks/requirements_only_app')
   const successMessage = 'Successfully installed app'
   const uploadAppPkgStub = sinon.stub(createAppUtils, 'uploadAppPkg')
   const createAppPkgStub = sinon.stub()
@@ -56,8 +57,6 @@ describe('apps create', function () {
       })
       .stdout()
       .command(['apps:create', singleProductApp, multiProductApp])
-      // TODO: use fake timers
-      .timeout(5000)
       .it('should create said apps', async ctx => {
         expect(ctx.stdout).to.contain(successMessage)
       })
@@ -88,8 +87,33 @@ describe('apps create', function () {
       })
       .stdout()
       .command(['apps:create', singleProductApp])
-      // TODO: use fake timers
-      .timeout(5000)
+      .it('should create said apps', async ctx => {
+        expect(ctx.stdout).to.contain(successMessage)
+      })
+  })
+
+  describe('with requirements-only app', () => {
+    test
+      .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_EMAIL: 'admin@z3ntest.com',
+        ZENDESK_PASSWORD: '123456' // the universal password
+      })
+      .do(() => {
+        createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
+        uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
+      })
+      .nock('https://z3ntest.zendesk.com/', api => {
+        api
+          .post('/api/apps.json', { upload_id: 819, name: 'Test App 1' })
+          .reply(200, { job_id: 129 })
+        api
+          .get('/api/v2/apps/job_statuses/129')
+          .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
+      })
+      .stdout()
+      .command(['apps:create', requirementsOnlyApp])
       .it('should create said apps', async ctx => {
         expect(ctx.stdout).to.contain(successMessage)
       })
