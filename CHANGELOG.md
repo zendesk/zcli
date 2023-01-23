@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.29](https://github.com/zendesk/zcli/compare/v1.0.0-beta.28...v1.0.0-beta.29) (2023-01-23)
+
+
+### Bug Fixes
+
+* Pin [@oclif](https://github.com/oclif) plugins' minor versions ([3c73b53](https://github.com/zendesk/zcli/commit/3c73b5334e5604ba5c3ed40eb8eb76a758b3c0c3)), closes [/github.com/oclif/plugin-plugins/blob/ee03e0f7ead2f1e6bf0ac03694314080367bbfd9/package.json#L9](https://github.com//github.com/oclif/plugin-plugins/blob/ee03e0f7ead2f1e6bf0ac03694314080367bbfd9/package.json/issues/L9)
+
+
+
+
+
 # [1.0.0-beta.28](https://github.com/zendesk/zcli/compare/v1.0.0-beta.27...v1.0.0-beta.28) (2022-11-28)
 
 **Note:** Version bump only for package zcli-monorepo
