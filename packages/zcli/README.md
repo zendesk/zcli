@@ -1,6 +1,6 @@
 # Usage <!-- usage -->
 ```sh-session
-$ npm install -g @zendesk/zcli
+$ yarn global add @zendesk/zcli
 $ zcli COMMAND
 running command...
 $ zcli --version
