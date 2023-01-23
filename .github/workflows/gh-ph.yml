@@ -1,0 +1,19 @@
+name: Pull request history
+
+on:
+  pull_request:
+
+jobs:
+  gh-ph:
+    name: Add commit history to pull request description
+    runs-on: ubuntu-latest
+    steps:
+      - uses: zendesk/checkout@v3
+        with:
+          fetch-depth: 100
+      - run: |
+          git remote set-branches origin '*'
+          git fetch --depth 100
+      - uses: zendesk/gh-ph@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
