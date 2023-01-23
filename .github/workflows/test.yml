@@ -2,59 +2,59 @@ name: Test
 
 on:
   push:
-    branches: master
+    branches:
+      - master
   pull_request:
-    branches: master
 
 jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: zendesk/checkout@v2
-    - name: Use Node.js
-      uses: zendesk/setup-node@v2.1.2
-      with:
-        node-version: '14.x'
-    - run: yarn install
-    - run: yarn lint
-    - run: yarn test
-    - run: yarn test:functional
-    - run: yarn dev
-    - run: yarn type:check
-      env:
-        CI: true
+      - uses: zendesk/checkout@v3
+      - name: Use Node.js
+        uses: zendesk/setup-node@v3
+        with:
+          node-version: "14.x"
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn test
+      - run: yarn test:functional
+      - run: yarn dev
+      - run: yarn type:check
+        env:
+          CI: true
 
   build-mac:
     runs-on: macos-latest
     steps:
-    - uses: zendesk/checkout@v2
-    - name: Use Node.js
-      uses: zendesk/setup-node@v2.1.2
-      with:
-        node-version: '14.x'
-    - run: yarn install
-    - run: yarn lint
-    - run: yarn git:check
-    - run: yarn test
-    - run: yarn test:functional
-    - run: yarn dev
-    - run: yarn type:check
-      env:
-        CI: true
+      - uses: zendesk/checkout@v3
+      - name: Use Node.js
+        uses: zendesk/setup-node@v3
+        with:
+          node-version: "14.x"
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn git:check
+      - run: yarn test
+      - run: yarn test:functional
+      - run: yarn dev
+      - run: yarn type:check
+        env:
+          CI: true
 
   build-windows:
     runs-on: windows-latest
     steps:
-    - uses: zendesk/checkout@v2
-    - name: Use Node.js
-      uses: zendesk/setup-node@v2.1.2
-      with:
-        node-version: '14.x'
-    - run: yarn install
-    - run: yarn lint
-    - run: yarn test
-    - run: yarn test:functional
-    - run: yarn dev
-    - run: yarn type:check
-      env:
-        CI: true
+      - uses: zendesk/checkout@v3
+      - name: Use Node.js
+        uses: zendesk/setup-node@v3
+        with:
+          node-version: "14.x"
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn test
+      - run: yarn test:functional
+      - run: yarn dev
+      - run: yarn type:check
+        env:
+          CI: true
