@@ -7,49 +7,21 @@ on:
   pull_request:
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  build-and-check:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        node-version: ["14.x"]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: zendesk/checkout@v3
       - name: Use Node.js
         uses: zendesk/setup-node@v3
         with:
-          node-version: "14.x"
-      - run: yarn install
-      - run: yarn lint
-      - run: yarn test
-      - run: yarn test:functional
-      - run: yarn dev
-      - run: yarn type:check
-        env:
-          CI: true
-
-  build-mac:
-    runs-on: macos-latest
-    steps:
-      - uses: zendesk/checkout@v3
-      - name: Use Node.js
-        uses: zendesk/setup-node@v3
-        with:
-          node-version: "14.x"
-      - run: yarn install
-      - run: yarn lint
-      - run: yarn git:check
-      - run: yarn test
-      - run: yarn test:functional
-      - run: yarn dev
-      - run: yarn type:check
-        env:
-          CI: true
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: zendesk/checkout@v3
-      - name: Use Node.js
-        uses: zendesk/setup-node@v3
-        with:
-          node-version: "14.x"
+          node-version: "${{ matrix.node-version }}"
       - run: yarn install
       - run: yarn lint
       - run: yarn test
