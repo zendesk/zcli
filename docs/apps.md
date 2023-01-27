@@ -130,16 +130,14 @@ USAGE
 
 OPTIONS
   -h, --help       show CLI help
-  --bind=bind      [default: localhost] Bind apps server to a specific host
   --logs           Tail logs
-  --port=port      [default: 4567] Port for the http server to use
 
 EXAMPLES
   $ zcli apps:server ./repl-app2
   $ zcli apps:server ./repl-app2 ./knowledge-capture-app
 ```
 
-After server is running, add `?zcli_apps=true` to the end of your Zendesk URL to load from the locally served apps. `?zat=true` will *not* work with ZCLI.  
+After server is running, add `?zcli_apps=true` to the end of your Zendesk URL to load from the locally served apps. `?zat=true` will *not* work with ZCLI.
 
 ## `zcli apps:update APPDIRECTORIES`
 
