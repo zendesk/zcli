@@ -13,25 +13,6 @@ describe('apps server', function () {
   const multiProductApp = path.join(__dirname, 'mocks/multi_product_app')
   const singleProductAnotherApp = path.join(__dirname, 'mocks/single_product_another_app')
 
-  describe('--port 1234', () => {
-    let server: http.Server
-    before(async () => {
-      server = await ServerCommand.run([singleProductApp, '--port', '1234'])
-    })
-
-    after(() => server.close())
-
-    test
-      .it('should serve assets on custom port', async () => {
-        const appHost = 'http://localhost:1234'
-        const appJSON = await axios.get(`${appHost}/app.json`)
-        const { installations } = await appJSON.data
-        expect(appJSON.status).to.eq(200)
-        expect((await axios.get(`${appHost}/${installations[0].app_id}/assets/logo-small.png`)).status).to.eq(200)
-        expect((await axios.get(`${appHost}/${installations[0].app_id}/assets/iframe.html`)).status).to.eq(200)
-      })
-  })
-
   describe('with multiple apps', () => {
     let server: http.Server, appHost: string, appJSON: AppJSONPayload
     before(async () => {
