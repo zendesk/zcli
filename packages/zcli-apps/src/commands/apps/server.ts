@@ -17,8 +17,6 @@ export default class Server extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    bind: Flags.string({ default: 'localhost', description: 'Bind apps server to a specific host' }),
-    port: Flags.string({ default: '4567', description: 'Port for the http server to use' }),
     logs: Flags.boolean({ default: false, description: 'Tail logs' })
     // TODO: custom file is not supported for other commands,
     // lets come back to this in near future
@@ -38,8 +36,9 @@ export default class Server extends Command {
 
   async run () {
     const { flags } = await this.parse(Server)
-    const port = parseInt(flags.port)
-    const { logs: tailLogs, bind: host } = flags
+    const port = 4567
+    const host = 'localhost'
+    const { logs: tailLogs } = flags
     const { argv: appDirectories } = await this.parse(Server)
 
     const appPaths = getAppPaths(appDirectories)
