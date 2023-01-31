@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.30](https://github.com/zendesk/zcli/compare/v1.0.0-beta.29...v1.0.0-beta.30) (2023-01-31)
+
+
+### Bug Fixes
+
+* Pin all oclif dependencies to exact versions ([622553f](https://github.com/zendesk/zcli/commit/622553fa07625d79cbd67537253431c42841b1c0))
+
+
+
+
+
 # [1.0.0-beta.28](https://github.com/zendesk/zcli/compare/v1.0.0-beta.27...v1.0.0-beta.28) (2022-11-28)
 
 **Note:** Version bump only for package @zendesk/zcli-apps
