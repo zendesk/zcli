@@ -59,6 +59,7 @@ export interface Manifest {
     singleInstall?: boolean;
     signedUrls?: boolean;
     parameters?: ManifestParameter[];
+    requirementsOnly?: boolean;
 }
 
 export interface ProductLocationIcons {
