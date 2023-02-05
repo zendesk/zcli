@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.31](https://github.com/zendesk/zcli/compare/v1.0.0-beta.30...v1.0.0-beta.31) (2023-02-05)
+
+
+### Bug Fixes
+
+* Do not check manifest.location for requirements-only apps ([97be95f](https://github.com/zendesk/zcli/commit/97be95f5e2ef8706fccf0fd77a53d4ba6c86e3c0))
+
+
+
+
+
 # [1.0.0-beta.30](https://github.com/zendesk/zcli/compare/v1.0.0-beta.29...v1.0.0-beta.30) (2023-01-31)
 
 
