@@ -190,6 +190,24 @@ describe('getAppPayloadFromManifest', () => {
       framework_version: '2.0'
     })
   })
+
+  it('generate requirements-only app payload from manifest without locaitons', () => {
+    const manifest = { ...manifestOutput }
+    manifest.requirementsOnly = true
+    delete manifest.location
+
+    const appPayload = buildAppJSON.getAppPayloadFromManifest(manifest, 4567, '123', {})
+    expect(appPayload).to.deep.equal({
+      name: 'app 1',
+      id: '123',
+      default_locale: 'en',
+      asset_url_prefix: 'http://localhost:4567/123/assets/',
+      version: undefined,
+      single_install: true,
+      signed_urls: false,
+      framework_version: '2.0'
+    })
+  })
 })
 
 describe('getLocationIcons', () => {

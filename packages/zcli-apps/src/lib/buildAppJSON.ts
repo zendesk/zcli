@@ -40,7 +40,7 @@ export const getIconsByProduct = (product: string, locations: AppLocation, manif
     return productLocationIcons
   }, {})
 
-export const getLocationIcons = (appPath: string, manifestLocations: Location): LocationIcons => {
+export const getLocationIcons = (appPath: string, manifestLocations: Location = {}): LocationIcons => {
   return Object
     .entries(manifestLocations)
     .reduce((locationIcons: LocationIcons, [product, locations]) => {
@@ -104,17 +104,22 @@ const mergeLocationAndIcons = (locations: Location, locationIcons: LocationIcons
 }
 
 export const getAppPayloadFromManifest = (appManifest: Manifest, port: number, appID: string, locationIcons: LocationIcons): App => {
-  return {
+  const appPayload: App = {
     name: appManifest.name,
     id: appID,
     default_locale: appManifest.defaultLocale,
-    locations: mergeLocationAndIcons(appManifest.location, locationIcons),
     asset_url_prefix: getAppAssetsURLPrefix(port, appID),
     single_install: appManifest.singleInstall,
     signed_urls: appManifest.signedUrls,
     version: appManifest.version,
     framework_version: appManifest.frameworkVersion
   }
+
+  if (!appManifest.requirementsOnly && appManifest.location) {
+    appPayload.locations = mergeLocationAndIcons(appManifest.location, locationIcons)
+  }
+
+  return appPayload
 }
 
 const getSettingsArr = (appSettings: any) => {

@@ -53,7 +53,7 @@ export interface Manifest {
     author: Author;
     defaultLocale: string;
     private?: boolean;
-    location: Location;
+    location?: Location;
     version?: string;
     frameworkVersion: string;
     singleInstall?: boolean;
@@ -78,7 +78,7 @@ export interface App {
     name?: string;
     default_locale: string;
     private?: boolean;
-    locations: Location;
+    locations?: Location;
     version?: string;
     framework_version: string;
     single_install?: boolean;

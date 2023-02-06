@@ -33,7 +33,7 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
   if (authToken && subdomain) {
     return axios.request({
       baseURL: `https://${subdomain}.zendesk.com`,
-      url: url,
+      url,
       validateStatus: function (status) { return status < 500 },
       ...options
     })

@@ -51,7 +51,7 @@ export default class Create extends Command {
         const configParams = allConfigs?.parameters || {} // if there are no parameters in the config, just attach an empty object
 
         const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
-        if (!manifest.requirementsOnly) {
+        if (!manifest.requirementsOnly && manifest.location) {
           Object.keys(manifest.location).forEach(async product => {
             if (!createProductInstallation(settings, manifest, app_id, product)) {
               this.error(chalk.red(`Failed to install ${manifest.name} with app_id: ${app_id}`))
