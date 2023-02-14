@@ -32,12 +32,13 @@ export default class Update extends Command {
     try {
       const { app_id }: any = await getUploadJobStatus(job_id, appPath)
       CliUx.ux.action.stop('Deployed')
-
-      Object.keys(manifest.location).forEach(async product => {
-        if (!updateProductInstallation(appConfig, manifest, app_id, product)) {
-          this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id}`))
-        }
-      })
+      if (!manifest.requirementsOnly && manifest.location) {
+        Object.keys(manifest.location).forEach(async product => {
+          if (!updateProductInstallation(appConfig, manifest, app_id, product)) {
+            this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id}`))
+          }
+        })
+      }
       this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id}`))
     } catch (error) {
       CliUx.ux.action.stop('Failed')
