@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.32](https://github.com/zendesk/zcli/compare/v1.0.0-beta.31...v1.0.0-beta.32) (2023-02-14)
+
+
+### Bug Fixes
+
+* Fix apps:update and apps:server for requirements-only apps ([72ea302](https://github.com/zendesk/zcli/commit/72ea3026afe78d8f66d80e6183bfed0aedc86ead))
+
+
+
+
+
 # [1.0.0-beta.31](https://github.com/zendesk/zcli/compare/v1.0.0-beta.30...v1.0.0-beta.31) (2023-02-05)
 
 
