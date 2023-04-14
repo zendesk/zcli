@@ -1,0 +1,60 @@
+{
+  "name": "@zendesk/zcli-theme",
+  "description": "zcli theme commands live here",
+  "version": "1.0.0-beta.32",
+  "author": "@zendesk/vikings",
+  "npmRegistry": "https://registry.npmjs.org",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "zcli-theme": "./bin/run"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepack": "tsc && ../../scripts/prepack.sh",
+    "postpack": "rm -f oclif.manifest.json npm-shrinkwrap.json && rm -rf ./dist && git checkout ./package.json",
+    "type:check": "tsc"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "chalk": "^4.1.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "glob": "^9.3.2",
+    "sass": "^1.60.0"
+  },
+  "devDependencies": {
+    "@oclif/test": "=2.1.0",
+    "@types/chai": "^4",
+    "@types/cors": "^2.8.6",
+    "@types/mocha": "^9.1.1",
+    "@types/sinon": "^10.0.13",
+    "chai": "^4",
+    "eslint": "^8.18.0",
+    "eslint-config-oclif": "^4.0.0",
+    "eslint-config-oclif-typescript": "^1.0.2",
+    "lerna": "^5.1.8",
+    "mocha": "^10.0.0",
+    "sinon": "^14.0.0"
+  },
+  "files": [
+    "/bin",
+    "/dist",
+    "/oclif.manifest.json",
+    "/npm-shrinkwrap.json"
+  ],
+  "keywords": [
+    "zcli",
+    "zendesk",
+    "cli",
+    "command"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "oclif": {
+    "commands": "./src/commands",
+    "bin": "zcli-theme"
+  },
+  "types": "lib/index.d.ts"
+}
