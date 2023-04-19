@@ -61,7 +61,7 @@ describe('getRuntimeContext', () => {
           password: '123456'
         }))
 
-      const context = await getRuntimeContext('theme/path', flags)
+      const context = await getRuntimeContext('theme/path', baseFlags)
 
       expect(context).to.deep.equal({
         bind: 'localhost',
@@ -106,7 +106,7 @@ describe('getRuntimeContext', () => {
             .resolves('123')
         })
         .stub(CliUx.ux, 'prompt', () => promptStub)
-        .it('should return true on login success', async () => {
+        .it('should generate the context based on the prompt input', async () => {
           expect(await await getRuntimeContext('theme/path', baseFlags)).to.deep.equal({
             bind: 'localhost',
             host: 'localhost',

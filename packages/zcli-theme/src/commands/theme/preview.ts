@@ -40,8 +40,7 @@ export default class Server extends Command {
   static strict = false
 
   async run () {
-    const { flags } = await this.parse(Server)
-    const { argv: [themeDirectory] } = await this.parse(Server)
+    const { flags, argv: [themeDirectory] } = await this.parse(Server)
     const themePath = path.resolve(themeDirectory)
     const context = await getRuntimeContext(themePath, flags)
     const { logs: tailLogs, port, host, origin } = context

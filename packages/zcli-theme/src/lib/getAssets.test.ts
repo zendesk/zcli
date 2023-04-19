@@ -19,7 +19,7 @@ describe('getAssets', () => {
     sinon.restore()
   })
 
-  it('returns an array of tupples containing the parsed path and url for each asset', () => {
+  it('returns an array of tuples containing the parsed path and url for each asset', () => {
     const readdirSyncStub = sinon.stub(fs, 'readdirSync')
 
     readdirSyncStub.returns(['.gitkeep', 'foo.png', 'bar.png'] as any)

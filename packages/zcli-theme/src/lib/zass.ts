@@ -6,7 +6,7 @@ import * as sass from 'sass'
 // defined in the manifest.json file and also the URLs of files placed
 // in the assets folder. Read more about it in the article:
 // https://support.zendesk.com/hc/en-us/articles/4408846524954-Customizing-the-Settings-panel#using-settings-in-manifest-json-as-variables
-// Apart from variable syntax, we also also 'lighten' and 'darken' functions
+// Apart from variable syntax, we also also support 'lighten' and 'darken' functions
 export default function zass (source: string, variables: Variable[], assets: [path.ParsedPath, string][]) {
   let output
 

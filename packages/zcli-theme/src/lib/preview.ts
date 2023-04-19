@@ -70,7 +70,6 @@ export default async function preview (themePath: string, context: RuntimeContex
     }
   } catch (error) {
     console.log(chalk.bold.red('Error'), 'Something went wrong')
-    // console.log('HERE', error)
     throw (error)
   }
 }
