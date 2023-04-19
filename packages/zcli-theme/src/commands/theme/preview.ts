@@ -20,7 +20,6 @@ export default class Server extends Command {
   static description = 'preview a theme in development mode'
 
   static flags = {
-    help: Flags.help({ char: 'h' }),
     bind: Flags.string({ default: 'localhost', description: 'Bind theme server to a specific host' }),
     port: Flags.integer({ default: 4567, description: 'Port for the http server to use' }),
     logs: Flags.boolean({ default: false, description: 'Tail logs' }),
