@@ -7,7 +7,7 @@ import * as chalk from 'chalk'
 import axios from 'axios'
 import { CLIError } from '@oclif/core/lib/errors'
 
-export default async function preview (themePath: string, context: RuntimeContext): Promise<void> {
+export default async function preview (themePath: string, context: RuntimeContext): Promise<boolean | void> | never {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
   const variables = getVariables(themePath, manifest.settings, context)
@@ -54,6 +54,7 @@ export default async function preview (themePath: string, context: RuntimeContex
 
     if (response.status === 200) {
       console.log(chalk.bold.green('Uploading'), 'OK')
+      return true
     } else if (response.status === 403) {
       throw new CLIError('Invalid username and password')
     } else {
@@ -62,11 +63,12 @@ export default async function preview (themePath: string, context: RuntimeContex
       Object.entries(data.template_errors as TemplateErrors).forEach(([template, errors]) => {
         errors.forEach((error) => {
           console.log(
-            chalk.bold.red('Error'),
+            chalk.bold.red('Validation error'),
             `${template} L${error.line}:${error.column}: ${error.description}`
           )
         })
       })
+      return false
     }
   } catch (error) {
     console.log(chalk.bold.red('Error'), 'Something went wrong')

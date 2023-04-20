@@ -69,7 +69,7 @@ describe('preview', () => {
       statusText: 'OK'
     }) as axios.AxiosPromise)
 
-    await preview('theme/path', context)
+    expect(await preview('theme/path', context)).to.equal(true)
 
     expect(axiosStub.calledWith(sinon.match({
       method: 'put',
@@ -131,20 +131,20 @@ describe('preview', () => {
 
     const consoleLogStub = sinon.stub(console, 'log')
 
-    await preview('theme/path', context)
+    expect(await preview('theme/path', context)).to.equal(false)
 
     expect(consoleLogStub.calledWith(
-      chalk.bold.red('Error'),
+      chalk.bold.red('Validation error'),
       'home_page L10:6: \'searcsh\' does not exist')
     ).to.equal(true)
 
     expect(consoleLogStub.calledWith(
-      chalk.bold.red('Error'),
+      chalk.bold.red('Validation error'),
       'home_page L1:33: not possible to access `help_centerr` in `help_centerr.name`')
     ).to.equal(true)
 
     expect(consoleLogStub.calledWith(
-      chalk.bold.red('Error'),
+      chalk.bold.red('Validation error'),
       'footer L6:12: \'alternative_loccales\' does not exist')
     ).to.equal(true)
   })

@@ -1,4 +1,5 @@
 import { Command, Flags } from '@oclif/core'
+import { CLIError } from '@oclif/core/lib/errors'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as express from 'express'
@@ -44,7 +45,9 @@ export default class Server extends Command {
     const context = await getRuntimeContext(themePath, flags)
     const { logs: tailLogs, port, host, origin } = context
 
-    await preview(themePath, context)
+    if (!await preview(themePath, context)) {
+      throw new CLIError('Unable to start preview')
+    }
 
     const app = express()
     app.use(cors())
@@ -84,9 +87,9 @@ export default class Server extends Command {
 
     // Keep references of watchers for unwatching later
     const watchers = monitoredPaths.map(path =>
-      fs.watch(path, { recursive: true }, (eventType, filename) => {
+      fs.watch(path, { recursive: true }, async (eventType, filename) => {
         console.log(chalk.bold.gray('Change'), filename)
-        preview(themePath, context)
+        await preview(themePath, context)
       }))
 
     return {
