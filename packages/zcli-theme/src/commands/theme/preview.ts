@@ -6,6 +6,7 @@ import * as express from 'express'
 import * as morgan from 'morgan'
 import * as chalk from 'chalk'
 import * as cors from 'cors'
+import * as chokidar from 'chokidar'
 import getRuntimeContext from '../../lib/getRuntimeContext'
 import preview from '../../lib/preview'
 import getManifest from '../../lib/getManifest'
@@ -85,17 +86,15 @@ export default class Server extends Command {
       `${themePath}/templates`
     ]
 
-    // Keep references of watchers for unwatching later
-    const watchers = monitoredPaths.map(path =>
-      fs.watch(path, { recursive: true }, async (eventType, filename) => {
-        console.log(chalk.bold.gray('Change'), filename)
-        await preview(themePath, context)
-      }))
+    const watcher = chokidar.watch(monitoredPaths).on('change', async (path) => {
+      console.log(chalk.bold.gray('Change'), path)
+      await preview(themePath, context)
+    })
 
     return {
       close: () => {
         // Stop watching file changes before terminating the server
-        watchers.forEach(watcher => watcher.close())
+        watcher.close()
         server.close()
       }
     }

@@ -14,7 +14,7 @@ describe('theme preview', function () {
     let server
     before(async () => {
       nock('https://z3ntest.zendesk.com').persist().put('/hc/api/internal/theming/local_preview').reply(200)
-      server = await PreviewCommand.run([baseThemePath, '--bind', '0.0.0.0', '--port', '1234'])
+      server = await PreviewCommand.run([baseThemePath, '--bind', '0.0.0.0', '--port', '9999'])
     })
 
     after(() => {
@@ -24,18 +24,18 @@ describe('theme preview', function () {
 
     test
       .it('should serve assets on de defined host and port', async () => {
-        expect((await axios.get('http://0.0.0.0:1234/guide/style.css')).status).to.eq(200)
-        expect((await axios.get('http://0.0.0.0:1234/guide/script.js')).status).to.eq(200)
-        expect((await axios.get('http://0.0.0.0:1234/guide/settings/logo.png')).status).to.eq(200)
-        expect((await axios.get('http://0.0.0.0:1234/guide/assets/bike.png')).status).to.eq(200)
+        expect((await axios.get('http://0.0.0.0:9999/guide/style.css')).status).to.eq(200)
+        expect((await axios.get('http://0.0.0.0:9999/guide/script.js')).status).to.eq(200)
+        expect((await axios.get('http://0.0.0.0:9999/guide/settings/logo.png')).status).to.eq(200)
+        expect((await axios.get('http://0.0.0.0:9999/guide/assets/bike.png')).status).to.eq(200)
       })
 
     test
       .it('should serve a compiled stylesheet', async () => {
-        const stylesheet = (await axios.get('http://0.0.0.0:1234/guide/style.css')).data
+        const stylesheet = (await axios.get('http://0.0.0.0:9999/guide/style.css')).data
         expect(stylesheet).to.contain('color: #17494D;')
-        expect(stylesheet).to.contain('background: url("http://0.0.0.0:1234/guide/settings/logo.png");')
-        expect(stylesheet).to.contain('cursor: url("http://0.0.0.0:1234/guide/assets/bike.png"), pointer;')
+        expect(stylesheet).to.contain('background: url("http://0.0.0.0:9999/guide/settings/logo.png");')
+        expect(stylesheet).to.contain('cursor: url("http://0.0.0.0:9999/guide/assets/bike.png"), pointer;')
         expect(stylesheet).to.contain('width: 12px;')
       })
 
@@ -48,7 +48,7 @@ describe('theme preview', function () {
         const clonedManifest = cloneDeep(manifest)
         clonedManifest.settings[0].variables[1].value = '#000000'
         fs.writeFileSync(manifestPath, JSON.stringify(clonedManifest))
-        expect((await axios.get('http://0.0.0.0:1234/guide/style.css')).data).to.contain('color: #000000;')
+        expect((await axios.get('http://0.0.0.0:9999/guide/style.css')).data).to.contain('color: #000000;')
         // Restore manifest.json
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
       })
