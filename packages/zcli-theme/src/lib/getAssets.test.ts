@@ -20,7 +20,12 @@ describe('getAssets', () => {
   })
 
   it('returns an array of tuples containing the parsed path and url for each asset', () => {
+    const existsSyncStub = sinon.stub(fs, 'existsSync')
     const readdirSyncStub = sinon.stub(fs, 'readdirSync')
+
+    existsSyncStub
+      .withArgs('theme/path/assets')
+      .returns(true)
 
     readdirSyncStub.returns(['.gitkeep', 'foo.png', 'bar.png'] as any)
 
@@ -39,7 +44,12 @@ describe('getAssets', () => {
   })
 
   it('throws and error when an asset has illegal characters in its name', () => {
+    const existsSyncStub = sinon.stub(fs, 'existsSync')
     const readdirSyncStub = sinon.stub(fs, 'readdirSync')
+
+    existsSyncStub
+      .withArgs('theme/path/assets')
+      .returns(true)
 
     readdirSyncStub.returns(['unsuported file name.png'] as any)
 

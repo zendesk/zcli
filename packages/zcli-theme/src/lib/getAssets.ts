@@ -4,7 +4,8 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 export default function getAssets (themePath: string, context: RuntimeContext): [path.ParsedPath, string][] {
-  const filenames = fs.readdirSync(`${themePath}/assets`)
+  const assetsPath = `${themePath}/assets`
+  const filenames = fs.existsSync(assetsPath) ? fs.readdirSync(assetsPath) : []
   const assets: [path.ParsedPath, string][] = []
 
   filenames.forEach(filename => {

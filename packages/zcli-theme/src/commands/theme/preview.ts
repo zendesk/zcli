@@ -83,7 +83,9 @@ export default class Server extends Command {
 
     const monitoredPaths = [
       `${themePath}/manifest.json`,
-      `${themePath}/templates`
+      `${themePath}/templates`,
+      `${themePath}/settings`,
+      `${themePath}/assets`
     ]
 
     const watcher = chokidar.watch(monitoredPaths).on('change', async (path) => {
