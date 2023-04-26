@@ -35,7 +35,7 @@ export default class Server extends Command {
   ]
 
   static examples = [
-    '$ zcli theme:preview ./copenhagen_theme'
+    '$ zcli themes:preview ./copenhagen_theme'
   ]
 
   static strict = false

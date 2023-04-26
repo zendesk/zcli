@@ -1,13 +1,13 @@
-import type { Manifest } from '../../../zcli-theme/src/types'
+import type { Manifest } from '../../../zcli-themes/src/types'
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as nock from 'nock'
 import axios from 'axios'
 import { cloneDeep } from 'lodash'
-import PreviewCommand from '../../src/commands/theme/preview'
+import PreviewCommand from '../../src/commands/themes/preview'
 
-describe('theme preview', function () {
+describe('themes:preview', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
 
   describe('successful preview', () => {

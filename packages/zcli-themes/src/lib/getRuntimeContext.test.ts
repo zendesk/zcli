@@ -44,17 +44,17 @@ describe('getRuntimeContext', () => {
     })
   })
 
-  context('using a zcli.theme.config.json file', () => {
+  context('using a zcli.themes.config.json file', () => {
     it('uses the config file to generate the context over the flags', async () => {
       const existsSyncStub = sinon.stub(fs, 'existsSync')
       const readFileSyncStub = sinon.stub(fs, 'readFileSync')
 
       existsSyncStub
-        .withArgs('theme/path/zcli.theme.config.json')
+        .withArgs('theme/path/zcli.themes.config.json')
         .returns(true)
 
       readFileSyncStub
-        .withArgs('theme/path/zcli.theme.config.json')
+        .withArgs('theme/path/zcli.themes.config.json')
         .returns(JSON.stringify({
           subdomain: 'z3n',
           username: 'admin@zendesk.com',
@@ -79,7 +79,7 @@ describe('getRuntimeContext', () => {
         const readFileSyncStub = sinon.stub(fs, 'readFileSync')
 
         existsSyncStub
-          .withArgs('theme/path/zcli.theme.config.json')
+          .withArgs('theme/path/zcli.themes.config.json')
           .returns(true)
 
         readFileSyncStub
@@ -88,7 +88,7 @@ describe('getRuntimeContext', () => {
 
         expect(async () => {
           await getRuntimeContext('theme/path', flags)
-        }).to.throw('zcli configuration file was malformed at path: "theme/path/zcli.theme.config.json"')
+        }).to.throw('zcli configuration file was malformed at path: "theme/path/zcli.themes.config.json"')
       })
     })
 

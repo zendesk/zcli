@@ -5,7 +5,7 @@ import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 
 export default async function getRuntimeContext (themePath: string, flags: Flags): Promise<RuntimeContext> {
-  const configFilePath = `${themePath}/zcli.theme.config.json`
+  const configFilePath = `${themePath}/zcli.themes.config.json`
   let config = {
     subdomain: undefined,
     username: undefined,

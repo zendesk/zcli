@@ -1,5 +1,5 @@
 {
-  "name": "@zendesk/zcli-theme",
+  "name": "@zendesk/zcli-themes",
   "description": "zcli theme commands live here",
   "version": "1.0.0-beta.32",
   "author": "@zendesk/vikings",
@@ -8,7 +8,7 @@
     "access": "public"
   },
   "bin": {
-    "zcli-theme": "./bin/run"
+    "zcli-themes": "./bin/run"
   },
   "scripts": {
     "build": "tsc",
@@ -56,7 +56,7 @@
   "main": "src/index.js",
   "oclif": {
     "commands": "./src/commands",
-    "bin": "zcli-theme"
+    "bin": "zcli-themes"
   },
   "types": "lib/index.d.ts"
 }
