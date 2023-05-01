@@ -8,6 +8,7 @@ const baseFlags = {
   bind: 'localhost',
   port: 1000,
   logs: true,
+  livereload: true,
   host: 'localhost'
 }
 
@@ -35,6 +36,7 @@ describe('getRuntimeContext', () => {
         bind: 'localhost',
         host: 'localhost',
         logs: true,
+        livereload: true,
         origin: 'https://z3n.zendesk.com',
         port: 1000,
         subdomain: 'z3n',
@@ -67,6 +69,7 @@ describe('getRuntimeContext', () => {
         bind: 'localhost',
         host: 'localhost',
         logs: true,
+        livereload: true,
         origin: 'https://z3n.zendesk.com',
         password: '123456',
         port: 1000,
@@ -111,6 +114,7 @@ describe('getRuntimeContext', () => {
             bind: 'localhost',
             host: 'localhost',
             logs: true,
+            livereload: true,
             origin: 'https://z3n.zendesk.com',
             port: 1000,
             subdomain: 'https://z3n.zendesk.com',

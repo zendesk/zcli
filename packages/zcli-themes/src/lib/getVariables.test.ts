@@ -15,6 +15,7 @@ const context = {
   bind: 'localhost',
   port: 1000,
   logs: true,
+  livereload: true,
   host: 'localhost',
   subdomain: 'z3n',
   username: 'admin@zendesk.com',

@@ -6,7 +6,7 @@ import * as getVariables from './getVariables'
 import * as getAssets from './getAssets'
 import * as axios from 'axios'
 import * as chalk from 'chalk'
-import preview from './preview'
+import preview, { livereloadScript } from './preview'
 
 const manifest = {
   name: 'Copenhagen theme',
@@ -25,6 +25,7 @@ const context = {
   bind: 'localhost',
   port: 1000,
   logs: true,
+  livereload: true,
   host: 'localhost',
   subdomain: 'z3n',
   username: 'admin@zendesk.com',
@@ -89,6 +90,7 @@ describe('preview', () => {
             <link rel="stylesheet" href="http://localhost:1000/guide/style.css">
             <meta charset="utf-8">
             <script src="http://localhost:1000/guide/script.js"></script>
+            ${livereloadScript(context.host, context.port)}
           `,
           assets: { 'background.png': 'http://localhost:1000/guide/assets/background.png' },
           variables: { color: '#999', logo: 'http://localhost:1000/guide/settings/logo.png' },

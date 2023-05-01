@@ -9,6 +9,7 @@ export type Flags = {
   bind: string,
   port: number,
   logs: boolean,
+  livereload: boolean,
   subdomain?: string,
   username?: string,
   password?: string

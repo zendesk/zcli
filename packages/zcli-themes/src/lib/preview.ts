@@ -7,6 +7,13 @@ import * as chalk from 'chalk'
 import axios from 'axios'
 import { CLIError } from '@oclif/core/lib/errors'
 
+export const livereloadScript = (host: string, port: number) => `<script>(() => {
+  const socket = new WebSocket('ws://${host}:${port}/livereload');
+  socket.onopen = () => console.log('Listening to theme changes');
+  socket.onmessage = e => e.data === 'reload' && location.reload();
+})()</script>
+`
+
 export default async function preview (themePath: string, context: RuntimeContext): Promise<boolean | void> | never {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
@@ -44,6 +51,7 @@ export default async function preview (themePath: string, context: RuntimeContex
             <link rel="stylesheet" href="http://${context.host}:${context.port}/guide/style.css">
             ${templates.document_head}
             <script src="http://${context.host}:${context.port}/guide/script.js"></script>
+            ${context.livereload ? livereloadScript(context.host, context.port) : ''}
           `,
           assets: assetsPayload,
           variables: variablesPayload,

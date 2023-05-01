@@ -3,6 +3,8 @@ import { CLIError } from '@oclif/core/lib/errors'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as express from 'express'
+import * as http from 'http'
+import * as WebSocket from 'ws'
 import * as morgan from 'morgan'
 import * as chalk from 'chalk'
 import * as cors from 'cors'
@@ -25,6 +27,7 @@ export default class Server extends Command {
     bind: Flags.string({ default: 'localhost', description: 'Bind theme server to a specific host' }),
     port: Flags.integer({ default: 4567, description: 'Port for the http server to use' }),
     logs: Flags.boolean({ default: false, description: 'Tail logs' }),
+    livereload: Flags.boolean({ default: true, description: 'Enable or disable live-reloading the preview when a change is made', allowNo: true }),
     subdomain: Flags.string({ description: 'Account subdomain or full URL (including protocol)' }),
     username: Flags.string({ description: 'Account username (email)' }),
     password: Flags.string({ description: 'Account password' })
@@ -51,6 +54,9 @@ export default class Server extends Command {
     }
 
     const app = express()
+    const server = http.createServer(app)
+    const wss = new WebSocket.Server({ server, path: '/livereload' })
+
     app.use(cors())
     tailLogs && app.use(logMiddleware)
 
@@ -75,22 +81,30 @@ export default class Server extends Command {
       res.send(compiled)
     })
 
-    const server = app.listen(port, host, () => {
+    server.listen(port, host, () => {
       console.log(chalk.bold.green('Ready', chalk.blueBright(`${origin}/hc/admin/local_preview/start`, '🚀')))
       console.log(`You can exit preview mode in the UI or by visiting ${origin}/hc/admin/local_preview/stop`)
       tailLogs && this.log(chalk.bold('Tailing logs'))
     })
 
     const monitoredPaths = [
-      `${themePath}/manifest.json`,
-      `${themePath}/templates`,
+      `${themePath}/assets`,
       `${themePath}/settings`,
-      `${themePath}/assets`
+      `${themePath}/templates`,
+      `${themePath}/manifest.json`,
+      `${themePath}/script.js`,
+      `${themePath}/style.css`
     ]
 
     const watcher = chokidar.watch(monitoredPaths).on('change', async (path) => {
       console.log(chalk.bold.gray('Change'), path)
-      await preview(themePath, context)
+      if (await preview(themePath, context)) {
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send('reload')
+          }
+        })
+      }
     })
 
     return {
@@ -98,6 +112,7 @@ export default class Server extends Command {
         // Stop watching file changes before terminating the server
         watcher.close()
         server.close()
+        wss.close()
       }
     }
   }
