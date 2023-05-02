@@ -77,7 +77,7 @@ describe('getRuntimeContext', () => {
         username: 'admin@zendesk.com'
       })
 
-      it('throws and error when the config file is malformed', () => {
+      it('throws an error when the config file is malformed', () => {
         const existsSyncStub = sinon.stub(fs, 'existsSync')
         const readFileSyncStub = sinon.stub(fs, 'readFileSync')
 

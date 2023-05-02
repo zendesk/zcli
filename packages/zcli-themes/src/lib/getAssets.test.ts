@@ -44,7 +44,7 @@ describe('getAssets', () => {
     ])
   })
 
-  it('throws and error when an asset has illegal characters in its name', () => {
+  it('throws an error when an asset has illegal characters in its name', () => {
     const existsSyncStub = sinon.stub(fs, 'existsSync')
     const readdirSyncStub = sinon.stub(fs, 'readdirSync')
 

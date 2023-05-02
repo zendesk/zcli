@@ -23,7 +23,7 @@ describe('themes:preview', function () {
     })
 
     test
-      .it('should serve assets on de defined host and port', async () => {
+      .it('should serve assets on the defined host and port', async () => {
         expect((await axios.get('http://0.0.0.0:9999/guide/style.css')).status).to.eq(200)
         expect((await axios.get('http://0.0.0.0:9999/guide/script.js')).status).to.eq(200)
         expect((await axios.get('http://0.0.0.0:9999/guide/settings/logo.png')).status).to.eq(200)
@@ -40,7 +40,7 @@ describe('themes:preview', function () {
       })
 
     test
-      .it('should watch for changes in the manifest.json', async () => {
+      .it('should watch for changes in the manifest.json file', async () => {
         // Read manifest.json
         const manifestPath = path.join(baseThemePath, 'manifest.json')
         const manifest: Manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))

@@ -9,7 +9,7 @@ import { CLIError } from '@oclif/core/lib/errors'
 
 export const livereloadScript = (host: string, port: number) => `<script>(() => {
   const socket = new WebSocket('ws://${host}:${port}/livereload');
-  socket.onopen = () => console.log('Listening to theme changes');
+  socket.onopen = () => console.log('Listening to theme changes...');
   socket.onmessage = e => e.data === 'reload' && location.reload();
 })()</script>
 `

@@ -14,7 +14,7 @@ export default function getVariables (themePath: string, settings: Setting[], co
         const file = filenames.find(filename => path.parse(filename).name === variable.identifier)
         if (!file) {
           throw new CLIError(
-            `The setting "${variable.identifier}" of type "file" does not a matching file within the "settings" folder`
+            `The setting "${variable.identifier}" of type "file" does not have a matching file within the "settings" folder`
           )
         }
         variable.value = file && `http://${context.host}:${context.port}/guide/settings/${file}`

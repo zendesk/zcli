@@ -31,7 +31,7 @@ describe('getManifest', () => {
     expect(getManifest('theme/path')).to.deep.equal(manifest)
   })
 
-  it('throws and error when it can\'t find a manifest.json file', () => {
+  it('throws an error when it can\'t find a manifest.json file', () => {
     const existsSyncStub = sinon.stub(fs, 'existsSync')
 
     existsSyncStub
@@ -43,7 +43,7 @@ describe('getManifest', () => {
     }).to.throw('Couldn\'t find a manifest.json file at path: "theme/path/manifest.json"')
   })
 
-  it('throws and error when the manifest.json file is malformed', () => {
+  it('throws an error when the manifest.json file is malformed', () => {
     const existsSyncStub = sinon.stub(fs, 'existsSync')
     const readFileSyncStub = sinon.stub(fs, 'readFileSync')
 

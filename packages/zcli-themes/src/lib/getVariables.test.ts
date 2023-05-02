@@ -57,6 +57,6 @@ describe('getVariables', () => {
 
     expect(() => {
       getVariables('theme/path', settings, context)
-    }).to.throw('The setting "favicon" of type "file" does not a matching file within the "settings" folder')
+    }).to.throw('The setting "favicon" of type "file" does not have a matching file within the "settings" folder')
   })
 })

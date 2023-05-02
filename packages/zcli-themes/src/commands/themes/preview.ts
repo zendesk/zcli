@@ -20,7 +20,7 @@ const logMiddleware = morgan((tokens, req, res) =>
   `${chalk.green(tokens.method(req, res))} ${tokens.url(req, res)} ${chalk.bold(tokens.status(req, res))}`
 )
 
-export default class Server extends Command {
+export default class Preview extends Command {
   static description = 'preview a theme in development mode'
 
   static flags = {
@@ -44,7 +44,7 @@ export default class Server extends Command {
   static strict = false
 
   async run () {
-    const { flags, argv: [themeDirectory] } = await this.parse(Server)
+    const { flags, argv: [themeDirectory] } = await this.parse(Preview)
     const themePath = path.resolve(themeDirectory)
     const context = await getRuntimeContext(themePath, flags)
     const { logs: tailLogs, port, host, origin } = context

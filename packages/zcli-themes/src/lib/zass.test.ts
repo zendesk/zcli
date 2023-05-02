@@ -13,7 +13,7 @@ describe('zass', () => {
   })
 
   describe('variables', () => {
-    it('replaces all the instance of the variable with its value', () => {
+    it('replaces all instances of the variable with its value', () => {
       const source = `
         .header {
           color: $font_color;
