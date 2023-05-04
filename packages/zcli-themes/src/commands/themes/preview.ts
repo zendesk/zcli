@@ -9,7 +9,7 @@ import * as morgan from 'morgan'
 import * as chalk from 'chalk'
 import * as cors from 'cors'
 import * as chokidar from 'chokidar'
-import getRuntimeContext from '../../lib/getRuntimeContext'
+import { Auth } from '@zendesk/zcli-core'
 import preview from '../../lib/preview'
 import getManifest from '../../lib/getManifest'
 import getVariables from '../../lib/getVariables'
@@ -27,10 +27,7 @@ export default class Preview extends Command {
     bind: Flags.string({ default: 'localhost', description: 'Bind theme server to a specific host' }),
     port: Flags.integer({ default: 4567, description: 'Port for the http server to use' }),
     logs: Flags.boolean({ default: false, description: 'Tail logs' }),
-    livereload: Flags.boolean({ default: true, description: 'Enable or disable live-reloading the preview when a change is made', allowNo: true }),
-    subdomain: Flags.string({ description: 'Account subdomain or full URL (including protocol)' }),
-    username: Flags.string({ description: 'Account username (email)' }),
-    password: Flags.string({ description: 'Account password' })
+    livereload: Flags.boolean({ default: true, description: 'Enable or disable live-reloading the preview when a change is made', allowNo: true })
   }
 
   static args = [
@@ -46,10 +43,9 @@ export default class Preview extends Command {
   async run () {
     const { flags, argv: [themeDirectory] } = await this.parse(Preview)
     const themePath = path.resolve(themeDirectory)
-    const context = await getRuntimeContext(themePath, flags)
-    const { logs: tailLogs, port, host, origin } = context
+    const { logs: tailLogs, bind: host, port } = flags
 
-    if (!await preview(themePath, context)) {
+    if (!await preview(themePath, flags)) {
       throw new CLIError('Unable to start preview')
     }
 
@@ -74,16 +70,19 @@ export default class Preview extends Command {
       const style = path.resolve(`${themePath}/style.css`)
       const source = fs.readFileSync(style, 'utf8')
       const manifest = getManifest(themePath)
-      const variables = getVariables(themePath, manifest.settings, context)
-      const assets = getAssets(themePath, context)
+      const variables = getVariables(themePath, manifest.settings, flags)
+      const assets = getAssets(themePath, flags)
       const compiled = zass(source, variables, assets)
       res.header('Content-Type', 'text/css')
       res.send(compiled)
     })
 
-    server.listen(port, host, () => {
-      console.log(chalk.bold.green('Ready', chalk.blueBright(`${origin}/hc/admin/local_preview/start`, '🚀')))
-      console.log(`You can exit preview mode in the UI or by visiting ${origin}/hc/admin/local_preview/stop`)
+    server.listen(port, host, async () => {
+      // preview requires authentication so we're sure
+      // to have a logged in profile at this point
+      const { subdomain } = await new Auth().getLoggedInProfile()
+      console.log(chalk.bold.green('Ready', chalk.blueBright(`https://${subdomain}.zendesk.com/hc/admin/local_preview/start`, '🚀')))
+      console.log(`You can exit preview mode in the UI or by visiting https://${subdomain}.zendesk.com/hc/admin/local_preview/stop`)
       tailLogs && this.log(chalk.bold('Tailing logs'))
     })
 
@@ -98,7 +97,7 @@ export default class Preview extends Command {
 
     const watcher = chokidar.watch(monitoredPaths).on('change', async (path) => {
       console.log(chalk.bold.gray('Change'), path)
-      if (await preview(themePath, context)) {
+      if (await preview(themePath, flags)) {
         wss.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN) {
             client.send('reload')

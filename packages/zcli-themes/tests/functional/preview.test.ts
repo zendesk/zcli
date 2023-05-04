@@ -12,17 +12,28 @@ describe('themes:preview', function () {
 
   describe('successful preview', () => {
     let server
-    before(async () => {
-      nock('https://z3ntest.zendesk.com').persist().put('/hc/api/internal/theming/local_preview').reply(200)
-      server = await PreviewCommand.run([baseThemePath, '--bind', '0.0.0.0', '--port', '9999'])
-    })
 
-    after(() => {
+    const preview = test
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_EMAIL: 'admin@z3ntest.com',
+        ZENDESK_PASSWORD: '123456' // the universal password
+      })
+      .nock('https://z3ntest.zendesk.com', api => {
+        api
+          .put('/hc/api/internal/theming/local_preview')
+          .reply(200)
+      })
+      .do(async () => {
+        server = await PreviewCommand.run([baseThemePath, '--bind', '0.0.0.0', '--port', '9999'])
+      })
+
+    afterEach(() => {
       server.close()
       nock.cleanAll()
     })
 
-    test
+    preview
       .it('should serve assets on the defined host and port', async () => {
         expect((await axios.get('http://0.0.0.0:9999/guide/style.css')).status).to.eq(200)
         expect((await axios.get('http://0.0.0.0:9999/guide/script.js')).status).to.eq(200)
@@ -30,7 +41,7 @@ describe('themes:preview', function () {
         expect((await axios.get('http://0.0.0.0:9999/guide/assets/bike.png')).status).to.eq(200)
       })
 
-    test
+    preview
       .it('should serve a compiled stylesheet', async () => {
         const stylesheet = (await axios.get('http://0.0.0.0:9999/guide/style.css')).data
         expect(stylesheet).to.contain('color: #17494D;')
@@ -39,7 +50,7 @@ describe('themes:preview', function () {
         expect(stylesheet).to.contain('width: 12px;')
       })
 
-    test
+    preview
       .it('should watch for changes in the manifest.json file', async () => {
         // Read manifest.json
         const manifestPath = path.join(baseThemePath, 'manifest.json')
@@ -57,6 +68,11 @@ describe('themes:preview', function () {
   describe('validation errors', () => {
     test
       .stdout()
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_EMAIL: 'admin@z3ntest.com',
+        ZENDESK_PASSWORD: '123456' // the universal password
+      })
       .it('should report template errors', async (ctx) => {
         nock('https://z3ntest.zendesk.com').put('/hc/api/internal/theming/local_preview').reply(400, {
           template_errors: {

@@ -11,16 +11,11 @@ const settings = [{
   ]
 }]
 
-const context = {
+const flags = {
   bind: 'localhost',
   port: 1000,
   logs: true,
-  livereload: true,
-  host: 'localhost',
-  subdomain: 'z3n',
-  username: 'admin@zendesk.com',
-  password: '123456',
-  origin: 'https://z3n.zendesk.com'
+  livereload: true
 }
 
 describe('getVariables', () => {
@@ -38,7 +33,7 @@ describe('getVariables', () => {
 
     readdirSyncStub.returns(['logo.png', 'favicon.png'] as any)
 
-    expect(getVariables('theme/path', settings, context)).to.deep.equal([
+    expect(getVariables('theme/path', settings, flags)).to.deep.equal([
       { identifier: 'color', type: 'color', value: '#999' },
       { identifier: 'logo', type: 'file', value: 'http://localhost:1000/guide/settings/logo.png' },
       { identifier: 'favicon', type: 'file', value: 'http://localhost:1000/guide/settings/favicon.png' }
@@ -56,7 +51,7 @@ describe('getVariables', () => {
     readdirSyncStub.returns(['logo.png'] as any)
 
     expect(() => {
-      getVariables('theme/path', settings, context)
+      getVariables('theme/path', settings, flags)
     }).to.throw('The setting "favicon" of type "file" does not have a matching file within the "settings" folder')
   })
 })

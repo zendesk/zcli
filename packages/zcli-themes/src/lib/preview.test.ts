@@ -5,6 +5,7 @@ import * as getTemplates from './getTemplates'
 import * as getVariables from './getVariables'
 import * as getAssets from './getAssets'
 import * as axios from 'axios'
+import { request } from '@zendesk/zcli-core'
 import * as chalk from 'chalk'
 import preview, { livereloadScript } from './preview'
 
@@ -21,16 +22,11 @@ const manifest = {
   }]
 }
 
-const context = {
+const flags = {
   bind: 'localhost',
   port: 1000,
   logs: true,
-  livereload: true,
-  host: 'localhost',
-  subdomain: 'z3n',
-  username: 'admin@zendesk.com',
-  password: '123456',
-  origin: 'https://z3n.zendesk.com'
+  livereload: true
 }
 
 describe('preview', () => {
@@ -43,7 +39,7 @@ describe('preview', () => {
     const getTemplatesStub = sinon.stub(getTemplates, 'default')
     const getVariablesStub = sinon.stub(getVariables, 'default')
     const getAssetsStub = sinon.stub(getAssets, 'default')
-    const axiosStub = sinon.stub(axios, 'default')
+    const requestStub = sinon.stub(request, 'requestAPI')
 
     getManifestStub.withArgs('theme/path').returns(manifest)
     getTemplatesStub.withArgs('theme/path').returns({
@@ -53,32 +49,27 @@ describe('preview', () => {
       'custom_pages/faq': '<h1>FAQ</h1>'
     })
 
-    getVariablesStub.withArgs('theme/path', manifest.settings, context).returns([
+    getVariablesStub.withArgs('theme/path', manifest.settings, flags).returns([
       { identifier: 'color', type: 'color', value: '#999' },
       { identifier: 'logo', type: 'file', value: 'http://localhost:1000/guide/settings/logo.png' }
     ])
 
-    getAssetsStub.withArgs('theme/path', context).returns([
+    getAssetsStub.withArgs('theme/path', flags).returns([
       [
         { base: 'background.png', dir: '', ext: '.png', name: 'background', root: '' },
         'http://localhost:1000/guide/assets/background.png'
       ]
     ])
 
-    axiosStub.returns(Promise.resolve({
+    requestStub.returns(Promise.resolve({
       status: 200,
       statusText: 'OK'
     }) as axios.AxiosPromise)
 
-    expect(await preview('theme/path', context)).to.equal(true)
+    expect(await preview('theme/path', flags)).to.equal(true)
 
-    expect(axiosStub.calledWith(sinon.match({
+    expect(requestStub.calledWith('/hc/api/internal/theming/local_preview', sinon.match({
       method: 'put',
-      url: 'https://z3n.zendesk.com/hc/api/internal/theming/local_preview',
-      auth: {
-        username: 'admin@zendesk.com',
-        password: '123456'
-      },
       data: {
         templates: {
           home_page: '<h1>Home</h1>',
@@ -90,7 +81,7 @@ describe('preview', () => {
             <link rel="stylesheet" href="http://localhost:1000/guide/style.css">
             <meta charset="utf-8">
             <script src="http://localhost:1000/guide/script.js"></script>
-            ${livereloadScript(context.host, context.port)}
+            ${livereloadScript(flags.bind, flags.port)}
           `,
           assets: { 'background.png': 'http://localhost:1000/guide/assets/background.png' },
           variables: { color: '#999', logo: 'http://localhost:1000/guide/settings/logo.png' },
@@ -106,7 +97,7 @@ describe('preview', () => {
     sinon.stub(getVariables, 'default').returns([])
     sinon.stub(getAssets, 'default').returns([])
 
-    sinon.stub(axios, 'default').returns(Promise.resolve({
+    sinon.stub(request, 'requestAPI').returns(Promise.resolve({
       status: 400,
       data: {
         template_errors: {
@@ -133,7 +124,7 @@ describe('preview', () => {
 
     const consoleLogStub = sinon.stub(console, 'log')
 
-    expect(await preview('theme/path', context)).to.equal(false)
+    expect(await preview('theme/path', flags)).to.equal(false)
 
     expect(consoleLogStub.calledWith(
       chalk.bold.red('Validation error'),

@@ -1,10 +1,10 @@
-import type { RuntimeContext, TemplateErrors } from '../types'
+import type { Flags, TemplateErrors } from '../types'
 import getManifest from './getManifest'
 import getTemplates from './getTemplates'
 import getVariables from './getVariables'
 import getAssets from './getAssets'
 import * as chalk from 'chalk'
-import axios from 'axios'
+import { request } from '@zendesk/zcli-core'
 import { CLIError } from '@oclif/core/lib/errors'
 
 export const livereloadScript = (host: string, port: number) => `<script>(() => {
@@ -14,11 +14,12 @@ export const livereloadScript = (host: string, port: number) => `<script>(() => 
 })()</script>
 `
 
-export default async function preview (themePath: string, context: RuntimeContext): Promise<boolean | void> | never {
+export default async function preview (themePath: string, flags: Flags): Promise<boolean | void> | never {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
-  const variables = getVariables(themePath, manifest.settings, context)
-  const assets = getAssets(themePath, context)
+  const variables = getVariables(themePath, manifest.settings, flags)
+  const assets = getAssets(themePath, flags)
+  const { bind: host, port, livereload } = flags
 
   const variablesPayload = variables.reduce((payload, variable) => ({
     ...payload,
@@ -34,24 +35,19 @@ export default async function preview (themePath: string, context: RuntimeContex
 
   try {
     console.log(chalk.bold.green('Uploading'), 'Uploading theme')
-    const response = await axios({
+    const response = await request.requestAPI('/hc/api/internal/theming/local_preview', {
       method: 'put',
-      url: `${context.origin}/hc/api/internal/theming/local_preview`,
       validateStatus: null,
-      auth: {
-        username: context.username,
-        password: context.password
-      },
       data: {
         templates: {
           ...templates,
           css: '',
           js: '',
           document_head: `
-            <link rel="stylesheet" href="http://${context.host}:${context.port}/guide/style.css">
+            <link rel="stylesheet" href="http://${host}:${port}/guide/style.css">
             ${templates.document_head}
-            <script src="http://${context.host}:${context.port}/guide/script.js"></script>
-            ${context.livereload ? livereloadScript(context.host, context.port) : ''}
+            <script src="http://${host}:${port}/guide/script.js"></script>
+            ${livereload ? livereloadScript(host, port) : ''}
           `,
           assets: assetsPayload,
           variables: variablesPayload,
@@ -63,8 +59,6 @@ export default async function preview (themePath: string, context: RuntimeContex
     if (response.status === 200) {
       console.log(chalk.bold.green('Uploading'), 'OK')
       return true
-    } else if (response.status === 403) {
-      throw new CLIError('Invalid username and password')
     } else {
       const data = response.data
       if (!data.template_errors) throw new CLIError(response.statusText)

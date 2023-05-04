@@ -3,16 +3,11 @@ import * as fs from 'fs'
 import { expect } from '@oclif/test'
 import getAssets from './getAssets'
 
-const context = {
+const flags = {
   bind: 'localhost',
   port: 1000,
   logs: true,
-  livereload: true,
-  host: 'localhost',
-  subdomain: 'z3n',
-  username: 'admin@zendesk.com',
-  password: '123456',
-  origin: 'https://z3n.zendesk.com'
+  livereload: true
 }
 
 describe('getAssets', () => {
@@ -30,7 +25,7 @@ describe('getAssets', () => {
 
     readdirSyncStub.returns(['.gitkeep', 'foo.png', 'bar.png'] as any)
 
-    const assets = getAssets('theme/path', context)
+    const assets = getAssets('theme/path', flags)
 
     expect(assets).to.deep.equal([
       [
@@ -55,7 +50,7 @@ describe('getAssets', () => {
     readdirSyncStub.returns(['unsuported file name.png'] as any)
 
     expect(() => {
-      getAssets('theme/path', context)
+      getAssets('theme/path', flags)
     }).to.throw('The asset "unsuported file name.png" has illegal characters in its name. Filenames should only have alpha-numerical characters, ., _, -, and +')
   })
 })

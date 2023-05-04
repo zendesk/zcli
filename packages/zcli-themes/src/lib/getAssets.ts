@@ -1,12 +1,13 @@
-import type { RuntimeContext } from '../types'
+import type { Flags } from '../types'
 import { CLIError } from '@oclif/core/lib/errors'
 import * as fs from 'fs'
 import * as path from 'path'
 
-export default function getAssets (themePath: string, context: RuntimeContext): [path.ParsedPath, string][] {
+export default function getAssets (themePath: string, flags: Flags): [path.ParsedPath, string][] {
   const assetsPath = `${themePath}/assets`
   const filenames = fs.existsSync(assetsPath) ? fs.readdirSync(assetsPath) : []
   const assets: [path.ParsedPath, string][] = []
+  const { bind: host, port } = flags
 
   filenames.forEach(filename => {
     const parsedPath = path.parse(filename)
@@ -17,7 +18,7 @@ export default function getAssets (themePath: string, context: RuntimeContext): 
       )
     }
     if (!name.startsWith('.')) {
-      assets.push([parsedPath, `http://${context.host}:${context.port}/guide/assets/${filename}`])
+      assets.push([parsedPath, `http://${host}:${port}/guide/assets/${filename}`])
     }
   })
 
