@@ -128,17 +128,23 @@ describe('preview', () => {
 
     expect(consoleLogStub.calledWith(
       chalk.bold.red('Validation error'),
-      'home_page L10:6: \'searcsh\' does not exist')
+      'theme/path/templates/home_page.hbs:10:6',
+      '\n',
+      '\'searcsh\' does not exist'
+    )).to.equal(true)
+
+    expect(consoleLogStub.calledWith(
+      chalk.bold.red('Validation error'),
+      'theme/path/templates/home_page.hbs:1:33',
+      '\n',
+      'not possible to access `help_centerr` in `help_centerr.name`')
     ).to.equal(true)
 
     expect(consoleLogStub.calledWith(
       chalk.bold.red('Validation error'),
-      'home_page L1:33: not possible to access `help_centerr` in `help_centerr.name`')
-    ).to.equal(true)
-
-    expect(consoleLogStub.calledWith(
-      chalk.bold.red('Validation error'),
-      'footer L6:12: \'alternative_loccales\' does not exist')
+      'theme/path/templates/footer.hbs:6:12',
+      '\n',
+      '\'alternative_loccales\' does not exist')
     ).to.equal(true)
   })
 })

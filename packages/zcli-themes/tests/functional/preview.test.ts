@@ -88,7 +88,8 @@ describe('themes:preview', function () {
         try {
           await PreviewCommand.run([baseThemePath])
         } catch {
-          expect(ctx.stdout).to.contain("Validation error home_page L10:6: 'searcsh' does not exist")
+          expect(ctx.stdout).to.contain(`Validation error ${baseThemePath}/templates/home_page.hbs:10:6`)
+          expect(ctx.stdout).to.contain("'searcsh' does not exist")
         } finally {
           nock.cleanAll()
         }
