@@ -39,6 +39,9 @@ export default async function preview (themePath: string, flags: Flags): Promise
     const response = await request.requestAPI('/hc/api/internal/theming/local_preview', {
       method: 'put',
       validateStatus: null,
+      headers: {
+        'X-Zendesk-Request-Originator': 'zcli themes:preview'
+      },
       data: {
         templates: {
           ...templates,
