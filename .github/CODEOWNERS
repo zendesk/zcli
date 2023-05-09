@@ -1,0 +1,8 @@
+# This is a CODEOWNERS file. See https://help.github.com/articles/about-codeowners/
+# Last path that matches wins. Rules need to run from most general to most specific
+
+# These owners will be the default owners for everything in the repo.
+*                         @zendesk/vegemite
+
+# Themes
+/packages/zcli-themes/    @zendesk/vikings
