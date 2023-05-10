@@ -18,7 +18,7 @@ includes:
 - `└─── packages/` – the folder that contains individual packages which are published to the npm registry.<br>
   &nbsp;&nbsp;&nbsp;&nbsp;`├── zcli/` – contains the main package and is published as `@zendesk/zcli`<br>
   &nbsp;&nbsp;&nbsp;&nbsp;`├── zcli-apps/` - contains apps related commands as a npm plugin<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;`├── zcli-themes/` - contains apps related commands as a npm plugin<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;`├── zcli-themes/` - contains themes related commands as a npm plugin<br>
 
 ## Versioning Workflow
 

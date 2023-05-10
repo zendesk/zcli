@@ -60,7 +60,7 @@ export default class New extends Command {
       fsExtra.copy(
         path.join(process.cwd(), '/', 'app_scaffolds-master/packages/', flagScaffold),
         path.join(process.cwd(), directoryName),
-        { overwrite: true, errorOnExist: true }, async (err: Error) => {
+        { overwrite: true, errorOnExist: true }, async (err) => {
           await cleanDirectory(this.unzippedScaffoldPath)
           if (err) {
             const fsExtraError = err as FsExtraError

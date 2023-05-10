@@ -1,0 +1,6 @@
+.test {
+  background: url($logo);
+  color: $brand_color;
+  cursor: url($assets-bike-png), pointer;
+  width: #{$font_size}px;
+}
