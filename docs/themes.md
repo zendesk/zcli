@@ -31,3 +31,28 @@ EXAMPLES
   $ zcli themes:preview ./copenhagen_theme --port=9999
   $ zcli themes:preview ./copenhagen_theme --no-livereload
 ```
+
+* [`zcli themes:import [THEMEDIRECTORY]`](#zcli-themesimport-themedirectory)
+
+## Configuration
+
+NOTE: import requires login so make sure to first run `zcli login -i`
+
+## `zcli themes:import [THEMEDIRECTORY]`
+
+imports a theme in your desired target account and brand
+
+```
+USAGE
+  $ zcli themes:import [THEMEDIRECTORY]
+
+ARGUMENTS
+  THEMEDIRECTORY  [default: .] theme path where manifest.json exists
+
+OPTIONS
+  --brandId       The id of the brand where the theme should be imported to
+
+EXAMPLES
+  $ zcli themes:import ./copenhagen_theme
+  $ zcli themes:import ./copenhagen_theme --brandId=123456789100
+```
