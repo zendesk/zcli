@@ -1,5 +1,4 @@
 import { Command, Flags } from '@oclif/core'
-import { CLIError } from '@oclif/core/lib/errors'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as express from 'express'
@@ -45,9 +44,7 @@ export default class Preview extends Command {
     const themePath = path.resolve(themeDirectory)
     const { logs: tailLogs, bind: host, port } = flags
 
-    if (!await preview(themePath, flags)) {
-      throw new CLIError('Unable to start preview')
-    }
+    await preview(themePath, flags)
 
     const app = express()
     const server = http.createServer(app)
@@ -81,8 +78,8 @@ export default class Preview extends Command {
       // preview requires authentication so we're sure
       // to have a logged in profile at this point
       const { subdomain } = await new Auth().getLoggedInProfile()
-      console.log(chalk.bold.green('Ready', chalk.blueBright(`https://${subdomain}.zendesk.com/hc/admin/local_preview/start`, '🚀')))
-      console.log(`You can exit preview mode in the UI or by visiting https://${subdomain}.zendesk.com/hc/admin/local_preview/stop`)
+      this.log(chalk.bold.green('Ready', chalk.blueBright(`https://${subdomain}.zendesk.com/hc/admin/local_preview/start`, '🚀')))
+      this.log(`You can exit preview mode in the UI or by visiting https://${subdomain}.zendesk.com/hc/admin/local_preview/stop`)
       tailLogs && this.log(chalk.bold('Tailing logs'))
     })
 
@@ -96,13 +93,16 @@ export default class Preview extends Command {
     ]
 
     const watcher = chokidar.watch(monitoredPaths).on('change', async (path) => {
-      console.log(chalk.bold.gray('Change'), path)
-      if (await preview(themePath, flags)) {
+      this.log(chalk.bold('Change'), path)
+      try {
+        await preview(themePath, flags)
         wss.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN) {
             client.send('reload')
           }
         })
+      } catch (e: any) {
+        this.error(e, { exit: false })
       }
     })
 

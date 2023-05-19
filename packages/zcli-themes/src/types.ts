@@ -29,7 +29,7 @@ export type ValidationError = {
 }
 
 export type ValidationErrors = {
-  [path: string]: ValidationError[]
+  [path: `templates/${string}.hbs`]: ValidationError[]
 }
 
 export type Brand = {

@@ -3,6 +3,7 @@ import { CliUx } from '@oclif/core'
 import { error } from '@oclif/core/lib/errors'
 import { request } from '@zendesk/zcli-core'
 import * as chalk from 'chalk'
+import validationErrorsToString from './validationErrorsToString'
 
 export default async function pollJobStatus (themePath: string, jobId: string, interval = 1000, retries = 10): Promise<void> {
   CliUx.ux.action.start('Polling job status')
@@ -51,16 +52,4 @@ function handleJobError (themePath: string, jobError: JobError): void {
   }
 
   error(`${title}\n${details}`)
-}
-
-export function validationErrorsToString (themePath: string, validationErrors: ValidationErrors): string {
-  let string = ''
-
-  for (const [template, errors] of Object.entries(validationErrors)) {
-    for (const { line, column, description } of errors) {
-      string += `\n${chalk.bold('Validation error')} ${themePath}/${template}${line && column ? `:${line}:${column}` : ''}\n ${description}\n`
-    }
-  }
-
-  return string
 }
