@@ -1,4 +1,4 @@
-import type { Flags, TemplateErrors } from '../types'
+import type { Flags, ValidationErrors } from '../types'
 import getManifest from './getManifest'
 import getTemplates from './getTemplates'
 import getVariables from './getVariables'
@@ -67,7 +67,7 @@ export default async function preview (themePath: string, flags: Flags): Promise
       CliUx.ux.action.stop('Failed')
       const data = response.data
       if (!data.template_errors) throw new CLIError(response.statusText)
-      Object.entries(data.template_errors as TemplateErrors).forEach(([template, errors]) => {
+      Object.entries(data.template_errors as ValidationErrors).forEach(([template, errors]) => {
         errors.forEach(({ line, column, description }) => {
           console.log(
             chalk.bold.red('Validation error'),

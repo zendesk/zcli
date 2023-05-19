@@ -21,13 +21,55 @@ export type Manifest = {
   settings: Setting[]
 }
 
-type TemplateError = {
+export type ValidationError = {
   description: string,
-  line: number,
-  column: number,
-  length: number
+  line?: number,
+  column?: number,
+  length?: number
 }
 
-export type TemplateErrors = {
-  [key: string]: TemplateError[]
+export type ValidationErrors = {
+  [path: string]: ValidationError[]
 }
+
+export type Brand = {
+  id: number,
+  name: string,
+}
+
+export type JobError = {
+  title: string,
+  code: string,
+  message: string,
+  meta: object
+}
+
+type JobData = {
+  theme_id: string,
+  upload: {
+    url: string,
+    parameters: {
+      [key: string]: string
+    }
+  }
+}
+
+export type PendingJob = {
+  id: string,
+  status: 'pending',
+  data: JobData
+}
+
+export type CompletedJob = {
+  id: string,
+  status: 'completed',
+  data: JobData
+}
+
+export type FailedJob = {
+  id: string,
+  status: 'failed',
+  errors: JobError[]
+}
+
+export type Job = PendingJob | CompletedJob | FailedJob
