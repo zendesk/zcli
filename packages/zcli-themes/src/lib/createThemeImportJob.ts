@@ -11,6 +11,9 @@ export default async function createThemeImportJob (brandId: string): Promise<Pe
   try {
     const { data: { job } } = await request.requestAPI('/api/v2/guide/theming/jobs/themes/imports', {
       method: 'POST',
+      headers: {
+        'X-Zendesk-Request-Originator': 'zcli themes:import'
+      },
       data: {
         job: {
           attributes: {
