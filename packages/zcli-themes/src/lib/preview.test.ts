@@ -34,7 +34,7 @@ describe('preview', () => {
     sinon.restore()
   })
 
-  it('calls the local_preview endpoint with the correct payload and credentials', async () => {
+  it('calls the local_preview endpoint with the correct payload', async () => {
     const getManifestStub = sinon.stub(getManifest, 'default')
     const getTemplatesStub = sinon.stub(getTemplates, 'default')
     const getVariablesStub = sinon.stub(getVariables, 'default')

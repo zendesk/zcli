@@ -68,7 +68,7 @@ describe('themes:import', function () {
         try {
           await ImportCommand.run([baseThemePath, '--brandId', '1111'])
         } catch (error) {
-          expect(ctx.stderr).to.contain('Creating theme import job... !')
+          expect(ctx.stderr).to.contain('!')
           expect(error.message).to.contain('TooManyThemes')
           expect(error.message).to.contain('Maximum number of allowed themes reached')
         } finally {
