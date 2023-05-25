@@ -66,6 +66,10 @@ describe('themes:preview', function () {
   })
 
   describe('validation errors', () => {
+    after(() => {
+      nock.cleanAll()
+    })
+
     test
       .stdout()
       .env({
@@ -89,10 +93,7 @@ describe('themes:preview', function () {
           await PreviewCommand.run([baseThemePath])
           expect(ctx.stdout).to.contain(`Validation error ${baseThemePath}/templates/home_page.hbs:10:6`)
           expect(ctx.stdout).to.contain("'searcsh' does not exist")
-        } catch {
-        } finally {
-          nock.cleanAll()
-        }
+        } catch {}
       })
   })
 })
