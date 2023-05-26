@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.33](https://github.com/zendesk/zcli/compare/v1.0.0-beta.32...v1.0.0-beta.33) (2023-05-26)
+
+
+### Features
+
+* adding support for zcli:theme preview ([918bff3](https://github.com/zendesk/zcli/commit/918bff36b87a93dbcf9d8994db07866b7820bda7))
+
+
+
+
+
 # [1.0.0-beta.32](https://github.com/zendesk/zcli/compare/v1.0.0-beta.31...v1.0.0-beta.32) (2023-02-14)
 
 
