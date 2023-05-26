@@ -19,7 +19,8 @@ export default class Import extends Command {
   ]
 
   static examples = [
-    '$ zcli themes:import ./copenhagen_theme'
+    '$ zcli themes:import ./copenhagen_theme',
+    '$ zcli themes:import ./copenhagen_theme --brandId=123456789100'
   ]
 
   static strict = false
