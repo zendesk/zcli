@@ -101,7 +101,7 @@ describe('themes:import', function () {
                   meta: {
                     'templates/new_request_page.hbs': [
                       {
-                        description: "'request_fosrm' does not exist",
+                        description: "'post_form' does not exist",
                         line: 22,
                         column: 6,
                         length: 10
@@ -125,7 +125,7 @@ describe('themes:import', function () {
           expect(error.message).to.contain('InvalidTemplates')
           expect(error.message).to.contain('Template(s) with syntax error(s)')
           expect(error.message).to.contain('Validation error')
-          expect(error.message).to.contain("'request_fosrm' does not exist")
+          expect(error.message).to.contain("'post_form' does not exist")
         } finally {
           nock.cleanAll()
         }

@@ -9,7 +9,7 @@ export default async function pollJobStatus (themePath: string, jobId: string, i
   CliUx.ux.action.start('Polling job status')
 
   while (retries) {
-    // Delay issueing a retry
+    // Delay issuing a retry
     await new Promise(resolve => setTimeout(resolve, interval))
 
     const response = await request.requestAPI(`/api/v2/guide/theming/jobs/${jobId}`)

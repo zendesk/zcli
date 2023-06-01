@@ -71,7 +71,7 @@ describe('pollJobStatus', () => {
                       length: 5
                     },
                     {
-                      description: "'categoriess' does not exist",
+                      description: "'articles' does not exist",
                       line: 21,
                       column: 16,
                       length: 11
@@ -79,7 +79,7 @@ describe('pollJobStatus', () => {
                   ],
                   'templates/new_request_page.hbs': [
                     {
-                      description: "'request_fosrm' does not exist",
+                      description: "'post_form' does not exist",
                       line: 22,
                       column: 6,
                       length: 10
@@ -102,10 +102,10 @@ describe('pollJobStatus', () => {
       expect(errorStub.calledWithMatch('not possible to access `names` in `help_center.names`')).to.equal(true)
 
       expect(errorStub.calledWithMatch(`${chalk.bold('Validation error')} theme/path/templates/home_page.hbs:21:16`)).to.equal(true)
-      expect(errorStub.calledWithMatch("'categoriess' does not exist")).to.equal(true)
+      expect(errorStub.calledWithMatch("'articles' does not exist")).to.equal(true)
 
       expect(errorStub.calledWithMatch(`${chalk.bold('Validation error')} theme/path/templates/new_request_page.hbs:22:6`)).to.equal(true)
-      expect(errorStub.calledWithMatch("'request_fosrm' does not exist")).to.equal(true)
+      expect(errorStub.calledWithMatch("'post_form' does not exist")).to.equal(true)
     }
   })
 })

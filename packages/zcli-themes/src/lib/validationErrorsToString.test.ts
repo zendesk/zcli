@@ -12,7 +12,7 @@ describe('validationErrorsToString', () => {
           length: 5
         },
         {
-          description: "'categoriess' does not exist",
+          description: "'articles' does not exist",
           line: 21,
           column: 16,
           length: 11
@@ -20,7 +20,7 @@ describe('validationErrorsToString', () => {
       ],
       'templates/new_request_page.hbs': [
         {
-          description: "'request_fosrm' does not exist",
+          description: "'post_form' does not exist",
           line: 22,
           column: 6,
           length: 10
@@ -34,9 +34,9 @@ describe('validationErrorsToString', () => {
     expect(string).to.contain('not possible to access `names` in `help_center.names`')
 
     expect(string).to.contain('theme/path/templates/home_page.hbs:21:16')
-    expect(string).to.contain("'categoriess' does not exist")
+    expect(string).to.contain("'articles' does not exist")
 
     expect(string).to.contain('templates/new_request_page.hbs')
-    expect(string).to.contain("'request_fosrm' does not exist")
+    expect(string).to.contain("'post_form' does not exist")
   })
 })

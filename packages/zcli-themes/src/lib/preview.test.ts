@@ -105,12 +105,12 @@ describe('preview', () => {
         data: {
           template_errors: {
             home_page: [{
-              description: "'searcsh' does not exist",
+              description: "'articles' does not exist",
               line: 10,
               column: 6,
               length: 7
             }, {
-              description: 'not possible to access `help_centerr` in `help_centerr.name`',
+              description: 'not possible to access `user` in `user.name`',
               line: 1,
               column: 33,
               length: 10
@@ -134,9 +134,9 @@ describe('preview', () => {
       const [call] = errorStub.getCalls()
       const [error] = call.args
       expect(error).to.contain('theme/path/templates/home_page.hbs:10:6')
-      expect(error).to.contain('\'searcsh\' does not exist')
+      expect(error).to.contain('\'articles\' does not exist')
       expect(error).to.contain('theme/path/templates/home_page.hbs:1:33')
-      expect(error).to.contain('not possible to access `help_centerr` in `help_centerr.name`')
+      expect(error).to.contain('not possible to access `user` in `user.name`')
       expect(error).to.contain('theme/path/templates/footer.hbs:6:12')
       expect(error).to.contain('\'alternative_loccales\' does not exist')
     }

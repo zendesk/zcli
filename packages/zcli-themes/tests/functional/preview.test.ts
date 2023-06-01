@@ -81,7 +81,7 @@ describe('themes:preview', function () {
         nock('https://z3ntest.zendesk.com').put('/hc/api/internal/theming/local_preview').reply(400, {
           template_errors: {
             home_page: [{
-              description: "'searcsh' does not exist",
+              description: "'articles' does not exist",
               line: 10,
               column: 6,
               length: 7
@@ -92,7 +92,7 @@ describe('themes:preview', function () {
         try {
           await PreviewCommand.run([baseThemePath])
           expect(ctx.stdout).to.contain(`Validation error ${baseThemePath}/templates/home_page.hbs:10:6`)
-          expect(ctx.stdout).to.contain("'searcsh' does not exist")
+          expect(ctx.stdout).to.contain("'articles' does not exist")
         } catch {}
       })
   })
