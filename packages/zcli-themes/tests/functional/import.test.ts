@@ -118,7 +118,7 @@ describe('themes:import', function () {
           .post('/upload/path')
           .reply(200)
       })
-      .it('should report validation errors', async (ctx) => {
+      .it('should report validation errors', async () => {
         try {
           await ImportCommand.run([baseThemePath, '--brandId', '1111'])
         } catch (error) {
