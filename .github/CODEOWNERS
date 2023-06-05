@@ -6,3 +6,7 @@
 
 # Themes
 /packages/zcli-themes/    @zendesk/vikings
+/docs/themes.md           @zendesk/vikings
+
+# Shared
+yarn.lock                 @zendesk/vegemite @zendesk/vikings

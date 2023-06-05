@@ -1,4 +1,3 @@
-
 // Profiles and Cred Store definitions
 export type Credential = { account: string; password: string }
 
