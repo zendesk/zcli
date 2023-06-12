@@ -45,8 +45,8 @@ describe('themes:preview', function () {
       .it('should serve a compiled stylesheet', async () => {
         const stylesheet = (await axios.get('http://0.0.0.0:9999/guide/style.css')).data
         expect(stylesheet).to.contain('color: #17494D;')
-        expect(stylesheet).to.contain('background: url("http://0.0.0.0:9999/guide/settings/logo.png");')
-        expect(stylesheet).to.contain('cursor: url("http://0.0.0.0:9999/guide/assets/bike.png"), pointer;')
+        expect(stylesheet).to.contain('background: url(http://0.0.0.0:9999/guide/settings/logo.png);')
+        expect(stylesheet).to.contain('cursor: url(http://0.0.0.0:9999/guide/assets/bike.png), pointer;')
         expect(stylesheet).to.contain('width: 12px;')
       })
 
