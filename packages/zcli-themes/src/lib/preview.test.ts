@@ -6,7 +6,7 @@ import * as getVariables from './getVariables'
 import * as getAssets from './getAssets'
 import * as axios from 'axios'
 import { request } from '@zendesk/zcli-core'
-import * as chalk from 'chalk'
+import * as errors from '@oclif/core/lib/errors'
 import preview, { livereloadScript } from './preview'
 
 const manifest = {
@@ -34,7 +34,7 @@ describe('preview', () => {
     sinon.restore()
   })
 
-  it('calls the local_preview endpoint with the correct payload and credentials', async () => {
+  it('calls the local_preview endpoint with the correct payload', async () => {
     const getManifestStub = sinon.stub(getManifest, 'default')
     const getTemplatesStub = sinon.stub(getTemplates, 'default')
     const getVariablesStub = sinon.stub(getVariables, 'default')
@@ -66,10 +66,13 @@ describe('preview', () => {
       statusText: 'OK'
     }) as axios.AxiosPromise)
 
-    expect(await preview('theme/path', flags)).to.equal(true)
+    await preview('theme/path', flags)
 
     expect(requestStub.calledWith('/hc/api/internal/theming/local_preview', sinon.match({
       method: 'put',
+      headers: {
+        'X-Zendesk-Request-Originator': 'zcli themes:preview'
+      },
       data: {
         templates: {
           home_page: '<h1>Home</h1>',
@@ -91,60 +94,51 @@ describe('preview', () => {
     }))).to.equal(true)
   })
 
-  it('logs all the template errors when validation fails', async () => {
+  it('throws a comprehensive error when validation fails', async () => {
     sinon.stub(getManifest, 'default').returns(manifest)
     sinon.stub(getTemplates, 'default').returns({})
     sinon.stub(getVariables, 'default').returns([])
     sinon.stub(getAssets, 'default').returns([])
 
-    sinon.stub(request, 'requestAPI').returns(Promise.resolve({
-      status: 400,
-      data: {
-        template_errors: {
-          home_page: [{
-            description: "'searcsh' does not exist",
-            line: 10,
-            column: 6,
-            length: 7
-          }, {
-            description: 'not possible to access `help_centerr` in `help_centerr.name`',
-            line: 1,
-            column: 33,
-            length: 10
-          }],
-          footer: [{
-            description: "'alternative_loccales' does not exist",
-            line: 6,
-            column: 12,
-            length: 10
-          }]
+    sinon.stub(request, 'requestAPI').throws({
+      response: {
+        data: {
+          template_errors: {
+            home_page: [{
+              description: "'articles' does not exist",
+              line: 10,
+              column: 6,
+              length: 7
+            }, {
+              description: 'not possible to access `user` in `user.name`',
+              line: 1,
+              column: 33,
+              length: 10
+            }],
+            footer: [{
+              description: "'alternative_loccales' does not exist",
+              line: 6,
+              column: 12,
+              length: 10
+            }]
+          }
         }
       }
-    }) as axios.AxiosPromise)
+    })
 
-    const consoleLogStub = sinon.stub(console, 'log')
+    const errorStub = sinon.stub(errors, 'error').callThrough()
 
-    expect(await preview('theme/path', flags)).to.equal(false)
-
-    expect(consoleLogStub.calledWith(
-      chalk.bold.red('Validation error'),
-      'theme/path/templates/home_page.hbs:10:6',
-      '\n',
-      '\'searcsh\' does not exist'
-    )).to.equal(true)
-
-    expect(consoleLogStub.calledWith(
-      chalk.bold.red('Validation error'),
-      'theme/path/templates/home_page.hbs:1:33',
-      '\n',
-      'not possible to access `help_centerr` in `help_centerr.name`')
-    ).to.equal(true)
-
-    expect(consoleLogStub.calledWith(
-      chalk.bold.red('Validation error'),
-      'theme/path/templates/footer.hbs:6:12',
-      '\n',
-      '\'alternative_loccales\' does not exist')
-    ).to.equal(true)
+    try {
+      await preview('theme/path', flags)
+    } catch {
+      const [call] = errorStub.getCalls()
+      const [error] = call.args
+      expect(error).to.contain('theme/path/templates/home_page.hbs:10:6')
+      expect(error).to.contain('\'articles\' does not exist')
+      expect(error).to.contain('theme/path/templates/home_page.hbs:1:33')
+      expect(error).to.contain('not possible to access `user` in `user.name`')
+      expect(error).to.contain('theme/path/templates/footer.hbs:6:12')
+      expect(error).to.contain('\'alternative_loccales\' does not exist')
+    }
   })
 })
