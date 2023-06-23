@@ -86,5 +86,5 @@ OPTIONS
   --themeId       The id of the theme to publish
 
 EXAMPLES
-  $ zcli themes:import --themeId=123456789100
+  $ zcli themes:publish --themeId=123456789100
 ```

@@ -9,10 +9,6 @@ export default class Publish extends Command {
     themeId: Flags.string({ description: 'The id of the theme to publish' })
   }
 
-  static args = [
-    { name: 'themeDirectory', required: true, default: '.' }
-  ]
-
   static examples = [
     '$ zcli themes:publish --themeId=abcd'
   ]
