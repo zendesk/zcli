@@ -75,6 +75,6 @@ OPTIONS
   --replaceSettings       Whether or not to replace the current theme settings
 
 EXAMPLES
-  $ zcli themes:import ./copenhagen_theme --themeId=123456789100
-  $ zcli themes:import ./copenhagen_theme --themeId=123456789100 --replaceSettings
+  $ zcli themes:update ./copenhagen_theme --themeId=123456789100
+  $ zcli themes:update ./copenhagen_theme --themeId=123456789100 --replaceSettings
 ```
