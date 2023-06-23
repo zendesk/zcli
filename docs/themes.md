@@ -72,7 +72,7 @@ ARGUMENTS
 
 OPTIONS
   --themeId               The id of the theme to update
-  --replaceSettings       Whether or not to replace the current theme settings
+  --replaceSettings       [default: false] Whether or not to replace the current theme settings
 
 EXAMPLES
   $ zcli themes:update ./copenhagen_theme --themeId=123456789100
