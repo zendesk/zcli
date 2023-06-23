@@ -19,7 +19,8 @@ export default class Update extends Command {
   ]
 
   static examples = [
-    '$ zcli themes:update ./copenhagen_theme' --themeId=123456789100
+    '$ zcli themes:update ./copenhagen_theme --themeId=123456789100',
+    '$ zcli themes:update ./copenhagen_theme --themeId=123456789100 --replaceSettings'
   ]
 
   static strict = false
