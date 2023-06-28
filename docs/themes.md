@@ -4,6 +4,8 @@
 zcli themes commands helps with managing Zendesk Help Center theming workflow.
 
 * [`zcli themes:preview [THEMEDIRECTORY]`](#zcli-themespreview-themedirectory)
+* [`zcli themes:import [THEMEDIRECTORY]`](#zcli-themesimport-themedirectory)
+* [`zcli themes:update [THEMEDIRECTORY]`](#zcli-themesupdate-themedirectory)
 
 ## Configuration
 
@@ -55,4 +57,24 @@ OPTIONS
 EXAMPLES
   $ zcli themes:import ./copenhagen_theme
   $ zcli themes:import ./copenhagen_theme --brandId=123456789100
+```
+
+## `zcli themes:update [THEMEDIRECTORY]`
+
+updates a theme
+
+```
+USAGE
+  $ zcli themes:update [THEMEDIRECTORY]
+
+ARGUMENTS
+  THEMEDIRECTORY  [default: .] theme path where manifest.json exists
+
+OPTIONS
+  --themeId               The id of the theme to update
+  --replaceSettings       [default: false] Whether or not to replace the current theme settings
+
+EXAMPLES
+  $ zcli themes:update ./copenhagen_theme --themeId=123456789100
+  $ zcli themes:update ./copenhagen_theme --themeId=123456789100 --replaceSettings
 ```

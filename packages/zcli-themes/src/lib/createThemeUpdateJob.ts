@@ -4,19 +4,20 @@ import { request } from '@zendesk/zcli-core'
 import * as chalk from 'chalk'
 import { error } from '@oclif/core/lib/errors'
 
-export default async function createThemeImportJob (brandId: string): Promise<PendingJob> {
-  CliUx.ux.action.start('Creating theme import job')
+export default async function createThemeUpdateJob (themeId: string, replaceSettings: boolean): Promise<PendingJob> {
+  CliUx.ux.action.start('Creating theme update job')
 
   try {
-    const { data: { job } } = await request.requestAPI('/api/v2/guide/theming/jobs/themes/imports', {
+    const { data: { job } } = await request.requestAPI('/api/v2/guide/theming/jobs/themes/updates', {
       method: 'POST',
       headers: {
-        'X-Zendesk-Request-Originator': 'zcli themes:import'
+        'X-Zendesk-Request-Originator': 'zcli themes:update'
       },
       data: {
         job: {
           attributes: {
-            brand_id: brandId,
+            theme_id: themeId,
+            replace_settings: replaceSettings,
             format: 'zip'
           }
         }
