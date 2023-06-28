@@ -6,10 +6,11 @@ zcli themes commands helps with managing Zendesk Help Center theming workflow.
 * [`zcli themes:preview [THEMEDIRECTORY]`](#zcli-themespreview-themedirectory)
 * [`zcli themes:import [THEMEDIRECTORY]`](#zcli-themesimport-themedirectory)
 * [`zcli themes:update [THEMEDIRECTORY]`](#zcli-themesupdate-themedirectory)
+* [`zcli themes:publish`](#zcli-themespublish)
 
 ## Configuration
 
-NOTE: preview requires login so make sure to first run `zcli login -i`
+NOTE: theme commands require login so make sure to first run `zcli login -i`
 
 ## `zcli themes:preview [THEMEDIRECTORY]`
 
@@ -33,12 +34,6 @@ EXAMPLES
   $ zcli themes:preview ./copenhagen_theme --port=9999
   $ zcli themes:preview ./copenhagen_theme --no-livereload
 ```
-
-* [`zcli themes:import [THEMEDIRECTORY]`](#zcli-themesimport-themedirectory)
-
-## Configuration
-
-NOTE: import requires login so make sure to first run `zcli login -i`
 
 ## `zcli themes:import [THEMEDIRECTORY]`
 
@@ -77,4 +72,19 @@ OPTIONS
 EXAMPLES
   $ zcli themes:update ./copenhagen_theme --themeId=123456789100
   $ zcli themes:update ./copenhagen_theme --themeId=123456789100 --replaceSettings
+```
+
+## `zcli themes:publish`
+
+publishes a theme
+
+```
+USAGE
+  $ zcli themes:publish
+
+OPTIONS
+  --themeId       The id of the theme to publish
+
+EXAMPLES
+  $ zcli themes:publish --themeId=123456789100
 ```
