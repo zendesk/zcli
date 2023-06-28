@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.35](https://github.com/zendesk/zcli/compare/v1.0.0-beta.34...v1.0.0-beta.35) (2023-06-28)
+
+
+### Features
+
+* add a themes:publish command ([5842284](https://github.com/zendesk/zcli/commit/5842284a131e096ae38c9f605b72c68fe3204b62))
+* adding support for zcli:themes update ([5b1c4e9](https://github.com/zendesk/zcli/commit/5b1c4e97539e8b97bcb562e85955c0fd35b77b2d))
+
+
+
+
+
 # [1.0.0-beta.34](https://github.com/zendesk/zcli/compare/v1.0.0-beta.32...v1.0.0-beta.34) (2023-06-21)
 
 
