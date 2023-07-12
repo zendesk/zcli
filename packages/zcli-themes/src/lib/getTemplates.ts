@@ -3,7 +3,7 @@ import * as fs from 'fs'
 
 export default function getTemplates (themePath: string): Record<string, string> {
   const templates: Record<string, string> = {}
-  const filenames = globSync(`${themePath}/templates/**/*.hbs`)
+  const filenames = globSync(`${themePath}/templates/**/*.hbs`, { posix: true })
 
   filenames.forEach((template) => {
     const identifier = template.split('templates/')[1].split('.hbs')[0]
