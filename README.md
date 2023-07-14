@@ -5,7 +5,7 @@
 [![npm version](https://badge.fury.io/js/%40zendesk%2Fzcli.svg)](https://www.npmjs.com/package/@zendesk/zcli)
 ![Test](https://github.com/zendesk/zcli/workflows/Test/badge.svg)
 
-ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif) framework.
+ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps and themes from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif) framework.
 
 <img src="demo.gif" alt="Zendesk Logo" />
 
@@ -50,6 +50,7 @@ A better approach might be to await the upcoming support for GUI apps in WSL2 th
 ZCLI supports numerous commands. Further documentation on available commands can be found [here.](/docs)
 
 - [`$ zcli apps`](/docs/apps.md) - manage zendesk apps workflow.
+- [`$ zcli themes`](/docs/themes.md) - manage zendesk themes workflow.
 - [`$ zcli profiles`](/docs/profiles.md) - manage zcli profiles.
 - [`$ zcli login`](/docs/login.md) - login to zendesk account.
 - [`$ zcli logout`](/docs/logout.md) - logout and remove active profile.

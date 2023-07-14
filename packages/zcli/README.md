@@ -14,6 +14,7 @@ USAGE
 # Command Topics
 
 * [`zcli apps`](../../docs/apps.md) - manage Zendesk apps workflow
+* [`zcli themes`](../../docs/themes.md) - manage Zendesk themes workflow
 * [`zcli autocomplete`](../../docs/autocomplete.md) - display autocomplete installation instructions
 * [`zcli help`](../../docs/help.md) - display help for zcli
 * [`zcli login`](../../docs/login.md) - creates and/or saves an authentication token for the specified subdomain
