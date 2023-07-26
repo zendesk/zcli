@@ -10,7 +10,7 @@ export default async function getBrandId (): Promise<string> {
     })
 
     if (brands.length === 1) {
-      return brands[0].id
+      return brands[0].id.toString()
     }
 
     const { brandId } = await inquirer.prompt({
