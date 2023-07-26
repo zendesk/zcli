@@ -17,7 +17,7 @@ describe('getBrandId', () => {
     requestStub.returns(Promise.resolve({
       data: {
         brands: [{
-          id: '1234'
+          id: 1234
         }]
       }
     }) as axios.AxiosPromise)
@@ -34,8 +34,8 @@ describe('getBrandId', () => {
     requestStub.returns(Promise.resolve({
       data: {
         brands: [
-          { id: '1111', name: 'Brand 1' },
-          { id: '2222', name: 'Brand 2' }
+          { id: 1111, name: 'Brand 1' },
+          { id: 2222, name: 'Brand 2' }
         ]
       }
     }) as axios.AxiosPromise)
