@@ -3,6 +3,7 @@ import * as chalk from 'chalk'
 import { Auth, SecureStore } from '@zendesk/zcli-core'
 import { Credential, Profile } from '@zendesk/zcli-core/src/types'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
+import { getAccount } from '@zendesk/zcli-core/src/lib/authUtils'
 
 export default class List extends Command {
   static description = 'lists all the profiles'
@@ -14,10 +15,10 @@ export default class List extends Command {
   renderProfiles (profiles: Credential[], loggedInProfile: Profile | undefined) {
     CliUx.ux.table(profiles, {
       account: {
-        header: 'Subdomains',
+        header: 'Accounts',
         get: row => {
           let log = row.account
-          if (row.account === loggedInProfile?.subdomain) {
+          if (row.account === getAccount(loggedInProfile?.subdomain ?? '', loggedInProfile?.domain)) {
             log = `${log} ${chalk.bold.green('<= active')}`
           }
           return log

@@ -4,8 +4,10 @@
 manage cli user profiles
 
 * [`zcli profiles:list`](#zcli-profileslist)
-* [`zcli profiles:remove SUBDOMAIN`](#zcli-profilesremove-subdomain)
-* [`zcli profiles:use SUBDOMAIN`](#zcli-profilesuse-subdomain)
+* [`zcli profiles:remove ACCOUNT`](#zcli-profilesremove-account)
+* [`zcli profiles:use ACCOUNT`](#zcli-profilesuse-account)
+
+Note: `ACCOUNT` means `subdomain` if you logged in using only the subdomain or `subdomain.domain` if you logged in to an environment hosted on a different domain
 
 ## `zcli profiles:list`
 
@@ -16,29 +18,31 @@ USAGE
   $ zcli profiles:list
 
 EXAMPLE
-  $ zcli profiles
+  $ zcli profiles:list
 ```
 
-## `zcli profiles:remove SUBDOMAIN`
+## `zcli profiles:remove ACCOUNT`
 
 removes a profile
 
 ```
 USAGE
-  $ zcli profiles:remove SUBDOMAIN
+  $ zcli profiles:remove ACCOUNT
 
 EXAMPLE
-  $ zcli profiles:remove [SUBDOMAIN]
+  $ zcli profiles:remove zendesk-subdomain
+  $ zcli profiles:remove zendesk-subdomain.example.com
 ```
 
-## `zcli profiles:use SUBDOMAIN`
+## `zcli profiles:use ACCOUNT`
 
 switches to a profile
 
 ```
 USAGE
-  $ zcli profiles:use SUBDOMAIN
+  $ zcli profiles:use ACCOUNT
 
 EXAMPLE
-  $ zcli profiles:use [SUBDOMAIN]
+  $ zcli profiles:use zendesk-subdomain
+  $ zcli profiles:use zendesk-subdomain.example.com
 ```

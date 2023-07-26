@@ -9,6 +9,6 @@ export interface KeyTar {
   findCredentials: (service: string) => Promise<Array<Credential>>;
 }
 
-export interface Profile { subdomain: string }
+export interface Profile { subdomain: string, domain?: string }
 
 // End profiles and Cred Store definitions

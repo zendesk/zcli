@@ -1,3 +1,5 @@
+import { Profile } from '../types'
+
 /**
  * Parse a subdomain.
  *
@@ -12,4 +14,16 @@ export const parseSubdomain = (subdomain: string) => {
   const regex = /(?:http[s]*:\/\/)*(.*?)\.zendesk.com[/]?$/i
   const result = regex.exec(subdomain)
   return result !== null ? result[1] : subdomain
+}
+
+export const getAccount = (subdomain: string, domain?: string): string => {
+  return domain ? `${subdomain}.${domain}` : subdomain
+}
+
+export const getProfileFromAccount = (account: string): Profile => {
+  const firstDotIndex = account.indexOf('.')
+  if (firstDotIndex === -1) {
+    return { subdomain: account }
+  }
+  return { subdomain: account.substring(0, firstDotIndex), domain: account.substring(firstDotIndex + 1) }
 }
