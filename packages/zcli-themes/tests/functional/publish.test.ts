@@ -1,31 +1,33 @@
 import { expect, test } from '@oclif/test'
 import PublishCommand from '../../src/commands/themes/publish'
+import env from './env'
 
 describe('themes:publish', function () {
   describe('successful publish', () => {
-    test
-      .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
-        ZENDESK_EMAIL: 'admin@z3ntest.com',
-        ZENDESK_PASSWORD: '123456' // the universal password
-      })
+    const success = test
+      .env(env)
       .nock('https://z3ntest.zendesk.com', api => api
         .post('/api/v2/guide/theming/themes/1234/publish')
         .reply(200))
+
+    success
       .stdout()
       .it('should display success message when the theme is published successfully', async ctx => {
         await PublishCommand.run(['--themeId', '1234'])
         expect(ctx.stdout).to.contain('Theme published successfully theme ID: 1234')
       })
+
+    success
+      .stdout()
+      .it('should return an object containing the theme ID when ran with --json', async ctx => {
+        await PublishCommand.run(['--themeId', '1234', '--json'])
+        expect(ctx.stdout).to.equal(JSON.stringify({ themeId: '1234' }, null, 2) + '\n')
+      })
   })
 
   describe('publish failure', () => {
     test
-      .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
-        ZENDESK_EMAIL: 'admin@z3ntest.com',
-        ZENDESK_PASSWORD: '123456' // the universal password
-      })
+      .env(env)
       .nock('https://z3ntest.zendesk.com', api => api
         .post('/api/v2/guide/theming/themes/1234/publish')
         .reply(400, {

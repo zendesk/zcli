@@ -51,7 +51,7 @@ OPTIONS
 
 EXAMPLES
   $ zcli themes:import ./copenhagen_theme
-  $ zcli themes:import ./copenhagen_theme --brandId=123456789100
+  $ zcli themes:import ./copenhagen_theme --brandId=123456
 ```
 
 ## `zcli themes:update [THEMEDIRECTORY]`

@@ -5,6 +5,8 @@ import * as chalk from 'chalk'
 export default class Publish extends Command {
   static description = 'publish a theme'
 
+  static enableJsonFlag = true
+
   static flags = {
     themeId: Flags.string({ description: 'The id of the theme to publish' })
   }
@@ -31,6 +33,7 @@ export default class Publish extends Command {
       })
       CliUx.ux.action.stop('Ok')
       this.log(chalk.green('Theme published successfully'), `theme ID: ${themeId}`)
+      return { themeId }
     } catch (e: any) {
       const [error] = e.response.data.errors
       this.error(`${error.code} - ${error.title}`)
