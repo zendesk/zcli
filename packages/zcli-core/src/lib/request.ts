@@ -23,7 +23,7 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
 
   const authToken = await auth.getAuthorizationToken()
   const subdomain = process.env[EnvVars.SUBDOMAIN] || (await getSubdomain(auth))
-  const domain = process.env[EnvVars.SUBDOMAIN] ? (process.env[EnvVars.DOMAIN] || undefined) : await getDomain(auth)
+  const domain = process.env[EnvVars.SUBDOMAIN] ? process.env[EnvVars.DOMAIN] : await getDomain(auth)
 
   if (options.headers) {
     options.headers = { Authorization: authToken, ...options.headers }
