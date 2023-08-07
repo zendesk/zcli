@@ -10,9 +10,13 @@ export const getManifestAppName = (appPath: string): string | undefined => {
 }
 
 export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
+  console.log('5: setting up upload package')
   const formData = new FormData()
   const pkgBuffer = fs.createReadStream(pkgPath)
   formData.append('uploaded_data', pkgBuffer)
+
+  console.log('6: making api request to upload package')
+
   const response = await request.requestAPI('api/v2/apps/uploads.json', {
     data: formData,
     method: 'POST'

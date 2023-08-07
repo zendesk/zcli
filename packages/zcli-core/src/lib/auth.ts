@@ -31,7 +31,9 @@ export default class Auth {
     } else if (ZENDESK_EMAIL && ZENDESK_PASSWORD) {
       return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD)
     } else {
+      console.log('8: getting logged in profile')
       const profile = await this.getLoggedInProfile()
+      console.log('9: got logged in profile')
       if (profile && this.secureStore) {
         const authToken = await this.secureStore.getPassword(profile.subdomain)
         return authToken

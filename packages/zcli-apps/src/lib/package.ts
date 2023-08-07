@@ -22,6 +22,7 @@ export const createAppPkg = async (
   const output = fs.createWriteStream(pkgPath)
   const archive = archiver('zip')
 
+  console.log('3: creating zip')
   archive.pipe(output)
 
   let archiveIgnore = ['tmp/**']
@@ -38,6 +39,8 @@ export const createAppPkg = async (
   })
 
   await archive.finalize()
+
+  console.log('4: created zip')
 
   if (!fs.pathExistsSync(pkgPath)) {
     throw new CLIError(`Failed to create package at ${pkgPath}`)

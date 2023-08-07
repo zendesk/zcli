@@ -23,6 +23,7 @@ export default class Create extends Command {
   static strict = false
 
   async run () {
+    console.log("1: starting run command")
     const { argv: appDirectories } = await this.parse(Create)
 
     for (const appPath of appDirectories) {
@@ -31,7 +32,10 @@ export default class Create extends Command {
       CliUx.ux.action.start('Uploading app')
 
       const manifest = getManifestFile(appPath)
+
+      console.log("2: creating app package")
       const pkgPath = await createAppPkg(appPath)
+      console.log('12: uploaded package')
       const { id: upload_id } = await uploadAppPkg(pkgPath)
 
       if (!upload_id) {

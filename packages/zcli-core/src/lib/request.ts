@@ -21,7 +21,12 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
     auth = new Auth({ secureStore })
   }
 
+  console.log('7: getting auth token')
+
   const authToken = await auth.getAuthorizationToken()
+
+  console.log('10: got auth token')
+
   const subdomain = process.env[EnvVars.SUBDOMAIN] || (await getSubdomain(auth))
 
   if (options.headers) {
@@ -31,6 +36,9 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
   }
 
   if (authToken && subdomain) {
+
+    console.log('11: Making upload request')
+
     return axios.request({
       baseURL: `https://${subdomain}.zendesk.com`,
       url: url,
