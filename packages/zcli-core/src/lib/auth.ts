@@ -5,7 +5,8 @@ import Config from './config'
 import axios from 'axios'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
-import { parseSubdomain } from './authUtils'
+import { getAccount, parseSubdomain } from './authUtils'
+import { getBaseUrl } from './requestUtils'
 
 export interface AuthOptions {
   secureStore: SecureStore;
@@ -33,7 +34,7 @@ export default class Auth {
     } else {
       const profile = await this.getLoggedInProfile()
       if (profile && this.secureStore) {
-        const authToken = await this.secureStore.getPassword(profile.subdomain)
+        const authToken = await this.secureStore.getPassword(getAccount(profile.subdomain, profile.domain))
         return authToken
       }
 
@@ -50,26 +51,29 @@ export default class Auth {
     return this.config.getConfig('activeProfile') as unknown as Profile
   }
 
-  setLoggedInProfile (subdomain: string) {
-    return this.config.setConfig('activeProfile', { subdomain })
+  setLoggedInProfile (subdomain: string, domain?: string) {
+    return this.config.setConfig('activeProfile', { subdomain, domain })
   }
 
   async loginInteractively (options?: Profile) {
     const subdomain = parseSubdomain(options?.subdomain || await CliUx.ux.prompt('Subdomain'))
+    const domain = options?.domain
+    const account = getAccount(subdomain, domain)
+    const baseUrl = getBaseUrl(subdomain, domain)
     const email = await CliUx.ux.prompt('Email')
     const password = await CliUx.ux.prompt('Password', { type: 'hide' })
 
     const authToken = this.createBasicAuthToken(email, password)
     const testAuth = await axios.get(
-      `https://${subdomain}.zendesk.com/api/v2/account/settings.json`,
+      `${baseUrl}/api/v2/account/settings.json`,
       {
         headers: { Authorization: authToken },
         validateStatus: function (status) { return status < 500 }
       })
 
     if (testAuth.status === 200 && this.secureStore) {
-      await this.secureStore.setPassword(subdomain, authToken)
-      await this.setLoggedInProfile(subdomain)
+      await this.secureStore.setPassword(account, authToken)
+      await this.setLoggedInProfile(subdomain, domain)
 
       return true
     }
@@ -85,7 +89,7 @@ export default class Auth {
     const profile = await this.getLoggedInProfile()
     if (!profile?.subdomain) throw new CLIError(chalk.red('Failed to log out: no active profile found.'))
     await this.config.removeConfig('activeProfile')
-    const deleted = await this.secureStore.deletePassword(profile.subdomain)
+    const deleted = await this.secureStore.deletePassword(getAccount(profile.subdomain, profile.domain))
     if (!deleted) throw new CLIError(chalk.red('Failed to log out: Account, Service not found.'))
 
     return true

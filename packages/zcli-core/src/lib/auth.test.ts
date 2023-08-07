@@ -4,6 +4,7 @@ import { CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
 import Auth from './auth'
 import SecureStore from './secureStore'
+import { Profile } from '../types'
 
 const mockCreateBasicAuthToken = (...args: any[]) => {
   return `Basic ${args[0]}_${args[1]}_base64`
@@ -103,6 +104,51 @@ describe('Auth', () => {
       })
       .it('should return true on login success', async () => {
         expect(await auth.loginInteractively()).to.equal(true)
+      })
+
+    test
+      .do(() => {
+        promptStub.reset()
+        promptStub.onFirstCall().resolves('z3ntest')
+        promptStub.onSecondCall().resolves('test@zendesk.com')
+        promptStub.onThirdCall().resolves('123456')
+      })
+      .stub(CliUx.ux, 'prompt', () => promptStub)
+      .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
+      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
+      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
+      .nock('https://z3ntest.example.com', api => {
+        api
+          .get('/api/v2/account/settings.json')
+          .reply(function () {
+            expect(this.req.headers.authorization).to.equal('Basic test@zendesk.com_123456_base64')
+            return [200]
+          })
+      })
+      .it('should login successfully using the passed domain and the prompted subdomain', async () => {
+        expect(await auth.loginInteractively({ domain: 'example.com' } as Profile)).to.equal(true)
+      })
+
+    test
+      .do(() => {
+        promptStub.reset()
+        promptStub.onFirstCall().resolves('test@zendesk.com')
+        promptStub.onSecondCall().resolves('123456')
+      })
+      .stub(CliUx.ux, 'prompt', () => promptStub)
+      .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
+      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
+      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
+      .nock('https://z3ntest.example.com', api => {
+        api
+          .get('/api/v2/account/settings.json')
+          .reply(function () {
+            expect(this.req.headers.authorization).to.equal('Basic test@zendesk.com_123456_base64')
+            return [200]
+          })
+      })
+      .it('should login successfully using the passed subdomain and domain', async () => {
+        expect(await auth.loginInteractively({ subdomain: 'z3ntest', domain: 'example.com' })).to.equal(true)
       })
 
     test

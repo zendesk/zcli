@@ -2,26 +2,27 @@ import { Command } from '@oclif/core'
 import * as chalk from 'chalk'
 import { SecureStore, Auth } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
+import { getProfileFromAccount } from '@zendesk/zcli-core/src/lib/authUtils'
 
 export default class Remove extends Command {
   static description = 'switches to a profile'
 
   static args = [
-    { name: 'subdomain', required: true }
+    { name: 'account', required: true }
   ]
 
   static examples = [
-    '$ zcli profiles:use [SUBDOMAIN]'
+    '$ zcli profiles:use [ACCOUNT]'
   ]
 
   async run () {
     const { args } = await this.parse(Remove)
-    const { subdomain } = args
+    const { account } = args
 
     const secureStore = new SecureStore()
     const keytar = await secureStore.loadKeytar()
     if (!keytar) {
-      console.log(chalk.yellow(`Failed to load secure credentials store: could not switch to ${subdomain} profile.`), HELP_ENV_VARS)
+      console.log(chalk.yellow(`Failed to load secure credentials store: could not switch to ${account} profile.`), HELP_ENV_VARS)
       return
     }
 
@@ -29,15 +30,16 @@ export default class Remove extends Command {
     const profiles = await auth.getSavedProfiles()
 
     if (profiles && profiles.length) {
-      const profileExists = !!profiles.filter(({ account }) => account === subdomain)?.length
+      const profileExists = !!profiles.filter((profile) => profile.account === account)?.length
       if (profileExists) {
-        await auth.setLoggedInProfile(subdomain)
-        console.log(chalk.green(`Switched to ${subdomain} profile.`))
+        const { subdomain, domain } = getProfileFromAccount(account)
+        await auth.setLoggedInProfile(subdomain, domain)
+        console.log(chalk.green(`Switched to ${account} profile.`))
       } else {
-        console.log(chalk.red(`Failed to find ${subdomain} profile.`))
+        console.log(chalk.red(`Failed to find ${account} profile.`))
       }
     } else {
-      console.log(chalk.red(`Failed to find ${subdomain} profile.`))
+      console.log(chalk.red(`Failed to find ${account} profile.`))
     }
   }
 }

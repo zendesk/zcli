@@ -4,7 +4,7 @@ import Auth from './auth'
 import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
-import { getSubdomain } from './requestUtils'
+import { getBaseUrl, getDomain, getSubdomain } from './requestUtils'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const requestAPI = async (url: string, options: any = {}, json = false) => {
@@ -23,6 +23,7 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
 
   const authToken = await auth.getAuthorizationToken()
   const subdomain = process.env[EnvVars.SUBDOMAIN] || (await getSubdomain(auth))
+  const domain = process.env[EnvVars.SUBDOMAIN] ? process.env[EnvVars.DOMAIN] : await getDomain(auth)
 
   if (options.headers) {
     options.headers = { Authorization: authToken, ...options.headers }
@@ -32,7 +33,7 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
 
   if (authToken && subdomain) {
     return axios.request({
-      baseURL: `https://${subdomain}.zendesk.com`,
+      baseURL: getBaseUrl(subdomain, domain),
       url,
       validateStatus: function (status) { return status < 500 },
       ...options

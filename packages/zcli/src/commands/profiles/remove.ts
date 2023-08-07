@@ -8,16 +8,16 @@ export default class Remove extends Command {
   static description = 'removes a profile'
 
   static args = [
-    { name: 'subdomain', required: true }
+    { name: 'account', required: true }
   ]
 
   static examples = [
-    '$ zcli profiles:remove [SUBDOMAIN]'
+    '$ zcli profiles:remove [ACCOUNT]'
   ]
 
   async run () {
     const { args } = await this.parse(Remove)
-    const { subdomain } = args
+    const { account } = args
 
     const secureStore = new SecureStore()
     const keytar = await secureStore.loadKeytar()
@@ -26,8 +26,8 @@ export default class Remove extends Command {
       return
     }
 
-    const deleted = await secureStore.deletePassword(subdomain)
-    if (!deleted) throw new CLIError(chalk.red(`Profile ${subdomain} not found.`))
-    console.log(chalk.green(`Removed ${subdomain} profile.`))
+    const deleted = await secureStore.deletePassword(account)
+    if (!deleted) throw new CLIError(chalk.red(`Profile ${account} not found.`))
+    console.log(chalk.green(`Removed ${account} profile.`))
   }
 }
