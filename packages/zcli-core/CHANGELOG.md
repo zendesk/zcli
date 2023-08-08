@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.38](https://github.com/zendesk/zcli/compare/v1.0.0-beta.37...v1.0.0-beta.38) (2023-08-08)
+
+
+### Bug Fixes
+
+* fixed imports for getAccount and getProfileAccount ([f38c5d1](https://github.com/zendesk/zcli/commit/f38c5d1a28ecadb51596de2b5c65f3247e382a91))
+
+
+
+
+
 # [1.0.0-beta.37](https://github.com/zendesk/zcli/compare/v1.0.0-beta.36...v1.0.0-beta.37) (2023-08-08)
 
 
