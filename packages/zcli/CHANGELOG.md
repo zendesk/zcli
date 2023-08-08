@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.37](https://github.com/zendesk/zcli/compare/v1.0.0-beta.36...v1.0.0-beta.37) (2023-08-08)
+
+
+### Features
+
+* added support for logging in to different environments ([c90f0b3](https://github.com/zendesk/zcli/commit/c90f0b3f51be8844bda7b5e6b2644282f80d1654))
+
+
+
+
+
 # [1.0.0-beta.36](https://github.com/zendesk/zcli/compare/v1.0.0-beta.35...v1.0.0-beta.36) (2023-07-28)
 
 **Note:** Version bump only for package @zendesk/zcli
