@@ -3,6 +3,7 @@ import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as nock from 'nock'
 import ImportCommand from '../../src/commands/themes/import'
+import env from './env'
 
 describe('themes:import', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
@@ -19,12 +20,8 @@ describe('themes:import', function () {
   }
 
   describe('successful import', () => {
-    test
-      .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
-        ZENDESK_EMAIL: 'admin@z3ntest.com',
-        ZENDESK_PASSWORD: '123456' // the universal password
-      })
+    const success = test
+      .env(env)
       .nock('https://z3ntest.zendesk.com', api => {
         api
           .post('/api/v2/guide/theming/jobs/themes/imports')
@@ -39,21 +36,26 @@ describe('themes:import', function () {
           .post('/upload/path')
           .reply(200)
       })
+
+    success
       .stdout()
       .it('should display success message when the theme is imported successfully', async ctx => {
         await ImportCommand.run([baseThemePath, '--brandId', '1111'])
         expect(ctx.stdout).to.contain('Theme imported successfully theme ID: 1234')
+      })
+
+    success
+      .stdout()
+      .it('should return an object containing the theme ID when ran with --json', async ctx => {
+        await ImportCommand.run([baseThemePath, '--brandId', '1111', '--json'])
+        expect(ctx.stdout).to.equal(JSON.stringify({ themeId: '1234' }, null, 2) + '\n')
       })
   })
 
   describe('import failure', () => {
     test
       .stderr()
-      .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
-        ZENDESK_EMAIL: 'admin@z3ntest.com',
-        ZENDESK_PASSWORD: '123456' // the universal password
-      })
+      .env(env)
       .nock('https://z3ntest.zendesk.com', api => {
         api
           .post('/api/v2/guide/theming/jobs/themes/imports')
@@ -77,11 +79,7 @@ describe('themes:import', function () {
       })
 
     test
-      .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
-        ZENDESK_EMAIL: 'admin@z3ntest.com',
-        ZENDESK_PASSWORD: '123456' // the universal password
-      })
+      .env(env)
       .nock('https://z3ntest.zendesk.com', api => {
         api
           .post('/api/v2/guide/theming/jobs/themes/imports')

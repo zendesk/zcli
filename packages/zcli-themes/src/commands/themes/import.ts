@@ -10,6 +10,8 @@ import pollJobStatus from '../../lib/pollJobStatus'
 export default class Import extends Command {
   static description = 'import a theme'
 
+  static enableJsonFlag = true
+
   static flags = {
     brandId: Flags.string({ description: 'The id of the brand where the theme should be imported to' })
   }
@@ -20,7 +22,7 @@ export default class Import extends Command {
 
   static examples = [
     '$ zcli themes:import ./copenhagen_theme',
-    '$ zcli themes:import ./copenhagen_theme --brandId=123456789100'
+    '$ zcli themes:import ./copenhagen_theme --brandId=123456'
   ]
 
   static strict = false
@@ -42,6 +44,10 @@ export default class Import extends Command {
 
     await pollJobStatus(themePath, job.id)
 
-    this.log(chalk.green('Theme imported successfully'), `theme ID: ${job.data.theme_id}`)
+    const themeId = job.data.theme_id
+
+    this.log(chalk.green('Theme imported successfully'), `theme ID: ${themeId}`)
+
+    return { themeId }
   }
 }

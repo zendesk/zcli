@@ -7,7 +7,9 @@ import uploadThemePackage from '../../lib/uploadThemePackage'
 import pollJobStatus from '../../lib/pollJobStatus'
 
 export default class Update extends Command {
-  static description = 'import a theme'
+  static description = 'update a theme'
+
+  static enableJsonFlag = true
 
   static flags = {
     themeId: Flags.string({ description: 'The id of the theme to update' }),
@@ -43,5 +45,7 @@ export default class Update extends Command {
     await pollJobStatus(themePath, job.id)
 
     this.log(chalk.green('Theme updated successfully'))
+
+    return { themeId }
   }
 }
