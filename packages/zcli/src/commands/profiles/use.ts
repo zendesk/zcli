@@ -1,8 +1,7 @@
 import { Command } from '@oclif/core'
 import * as chalk from 'chalk'
-import { SecureStore, Auth } from '@zendesk/zcli-core'
+import { SecureStore, Auth, getProfileFromAccount } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../../utils/helpMessage'
-import { getProfileFromAccount } from '@zendesk/zcli-core/src/lib/authUtils'
 
 export default class Remove extends Command {
   static description = 'switches to a profile'
