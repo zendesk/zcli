@@ -2,6 +2,8 @@ import { Command, Flags, CliUx } from '@oclif/core'
 import { request } from '@zendesk/zcli-core'
 import * as chalk from 'chalk'
 import getBrandId from '../../lib/getBrandId'
+import type { AxiosError } from 'axios'
+import handleThemeApiError from '../../lib/handleThemeApiError'
 
 export default class List extends Command {
   static description = 'list installed themes'
@@ -34,9 +36,8 @@ export default class List extends Command {
       CliUx.ux.action.stop('Ok')
       this.log(chalk.green('Themes listed successfully'), themes)
       return { themes }
-    } catch (e: any) {
-      const [error] = e.response.data.errors
-      this.error(`${error.code} - ${error.title}`)
+    } catch (error) {
+      handleThemeApiError(error as AxiosError)
     }
   }
 }
