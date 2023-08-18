@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as express from 'express'
 import * as http from 'http'
+import * as https from 'https'
 import * as WebSocket from 'ws'
 import * as morgan from 'morgan'
 import * as chalk from 'chalk'
@@ -26,7 +27,9 @@ export default class Preview extends Command {
     bind: Flags.string({ default: 'localhost', description: 'Bind theme server to a specific host' }),
     port: Flags.integer({ default: 4567, description: 'Port for the http server to use' }),
     logs: Flags.boolean({ default: false, description: 'Tail logs' }),
-    livereload: Flags.boolean({ default: true, description: 'Enable or disable live-reloading the preview when a change is made', allowNo: true })
+    livereload: Flags.boolean({ default: true, description: 'Enable or disable live-reloading the preview when a change is made', allowNo: true }),
+    'ssl-cert': Flags.file({ description: 'SSL Certificate used to start the server in HTTPS mode' }),
+    'ssl-key': Flags.file({ description: 'SSL Key used to start the server in HTTPS mode' })
   }
 
   static args = [
@@ -42,12 +45,21 @@ export default class Preview extends Command {
   async run () {
     const { flags, argv: [themeDirectory] } = await this.parse(Preview)
     const themePath = path.resolve(themeDirectory)
-    const { logs: tailLogs, bind: host, port } = flags
+    const { logs: tailLogs, bind: host, port, 'ssl-cert': sslCert, 'ssl-key': sslKey } = flags
+
+    let httpsServerOptions: https.ServerOptions | null = null
+
+    if (sslCert && sslKey) {
+      httpsServerOptions = {
+        key: fs.readFileSync(sslKey),
+        cert: fs.readFileSync(sslCert)
+      }
+    }
 
     await preview(themePath, flags)
 
     const app = express()
-    const server = http.createServer(app)
+    const server = httpsServerOptions === null ? http.createServer(app) : https.createServer(httpsServerOptions, app)
     const wss = new WebSocket.Server({ server, path: '/livereload' })
 
     app.use(cors())

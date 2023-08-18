@@ -84,7 +84,7 @@ describe('preview', () => {
             <link rel="stylesheet" href="http://localhost:1000/guide/style.css">
             <meta charset="utf-8">
             <script src="http://localhost:1000/guide/script.js"></script>
-            ${livereloadScript(flags.bind, flags.port)}
+            ${livereloadScript(flags)}
           `,
           assets: { 'background.png': 'http://localhost:1000/guide/assets/background.png' },
           variables: { color: '#999', logo: 'http://localhost:1000/guide/settings/logo.png' },
