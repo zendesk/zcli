@@ -28,8 +28,8 @@ export default class Preview extends Command {
     port: Flags.integer({ default: 4567, description: 'Port for the http server to use' }),
     logs: Flags.boolean({ default: false, description: 'Tail logs' }),
     livereload: Flags.boolean({ default: true, description: 'Enable or disable live-reloading the preview when a change is made', allowNo: true }),
-    'ssl-cert': Flags.file({ description: 'SSL Certificate used to start the server in HTTPS mode' }),
-    'ssl-key': Flags.file({ description: 'SSL Key used to start the server in HTTPS mode' })
+    'https-cert': Flags.file({ description: 'Certificate used to start the server in HTTPS mode' }),
+    'https-key': Flags.file({ description: 'Key used to start the server in HTTPS mode' })
   }
 
   static args = [
@@ -45,14 +45,14 @@ export default class Preview extends Command {
   async run () {
     const { flags, argv: [themeDirectory] } = await this.parse(Preview)
     const themePath = path.resolve(themeDirectory)
-    const { logs: tailLogs, bind: host, port, 'ssl-cert': sslCert, 'ssl-key': sslKey } = flags
+    const { logs: tailLogs, bind: host, port, 'https-cert': httpsCert, 'https-key': httpsKey } = flags
 
     let httpsServerOptions: https.ServerOptions | null = null
 
-    if (sslCert && sslKey) {
+    if (httpsCert && httpsKey) {
       httpsServerOptions = {
-        key: fs.readFileSync(sslKey),
-        cert: fs.readFileSync(sslCert)
+        key: fs.readFileSync(httpsKey),
+        cert: fs.readFileSync(httpsCert)
       }
     }
 

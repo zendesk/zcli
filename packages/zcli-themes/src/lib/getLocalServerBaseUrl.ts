@@ -6,10 +6,10 @@ export function getLocalServerBaseUrl (flags: Flags, isWebsocket = false): strin
 }
 
 function getProtocol (flags: Flags, isWebsocket: boolean): string {
-  const { 'ssl-cert': sslCert, 'ssl-key': sslKey } = flags
+  const { 'https-cert': httpsCert, 'https-key': httpsKey } = flags
   if (isWebsocket) {
-    return sslCert && sslKey ? 'wss' : 'ws'
+    return httpsCert && httpsKey ? 'wss' : 'ws'
   } else {
-    return sslCert && sslKey ? 'https' : 'http'
+    return httpsCert && httpsKey ? 'https' : 'http'
   }
 }

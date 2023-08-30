@@ -21,8 +21,8 @@ describe('getLocalServerBaseUrl', () => {
       port: 4567,
       logs: false,
       livereload: true,
-      'ssl-cert': 'localhost.crt',
-      'ssl-key': 'localhost.key'
+      'https-cert': 'localhost.crt',
+      'https-key': 'localhost.key'
     }
     const result = getLocalServerBaseUrl(flags)
     const expected = 'https://themes.local:4567'
@@ -47,8 +47,8 @@ describe('getLocalServerBaseUrl', () => {
       port: 4567,
       logs: false,
       livereload: true,
-      'ssl-cert': 'localhost.crt',
-      'ssl-key': 'localhost.key'
+      'https-cert': 'localhost.crt',
+      'https-key': 'localhost.key'
     }
     const result = getLocalServerBaseUrl(flags, true)
     const expected = 'wss://themes.local:4567'

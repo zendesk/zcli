@@ -28,31 +28,31 @@ OPTIONS
   --port=port      [default: 4567] Port for the http server to use
   --logs           Tail logs
   --no-livereload  Disable live-reloading the preview when a change is made
-  --ssl-cert       SSL Certificate used to start the server in HTTPS mode
-  --ssl-key        SSL Key used to start the server in HTTPS mode
+  --https-cert     Certificate used to start the server in HTTPS mode
+  --https-key      Key used to start the server in HTTPS mode
 
 EXAMPLES
   $ zcli themes:preview ./copenhagen_theme
   $ zcli themes:preview ./copenhagen_theme --port=9999
   $ zcli themes:preview ./copenhagen_theme --no-livereload
-  $ zcli themes:preview ./copenhagen_theme --ssl-cert localhost.crt --ssl-key localhost.key
+  $ zcli themes:preview ./copenhagen_theme --https-cert localhost.crt --https-key localhost.key
 ```
 
-### Previewing in Safari
+### HTTPS
 When using the preview mode, you open your instance on `https://[subdomain].zendesk.com`, and all the theme assets are served from a local web server that runs by default on `http://localhost:4567`. An HTTPS page that includes content fetched using HTTP is called a mixed content page.
 
-Safari [doesn't allow mixed content for localhost](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content#loading_locally_delivered_mixed-resources). This means that when using the preview mode with the default settings, the connection to the local server is blocked by the browser. To avoid this issue you need to have an SSL certificate and an SSL Key for the local server and pass them to ZCLI using the `--ssl-cert` and `--ssl-key` options.
+Some browsers (like Safari) [don't allow mixed content for localhost](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content#loading_locally_delivered_mixed-resources). This means that when using the preview mode with the default settings, the connection to the local server is blocked by the browser. To avoid this issue you need to have an SSL certificate and an SSL Key for the local server and pass them to ZCLI using the `--https-cert` and `--https-key` options.
 
 One option is to use https://github.com/Upinel/localhost.direct, which provides a wildcard certificate for `*.localhost.direct`, and a DNS record that redirects `*.localhost.direct` to `localhost`. You just need to download the certificates and start the preview mode binding to a `localhost.direct` subdomain and passing the certificate files:
 
 ```
-zcli themes:preview --bind themes.localhost.direct --ssl-cert ~/localhost.direct.crt --ssl-key ~/localhost.direct.key
+zcli themes:preview --bind themes.localhost.direct --https-cert ~/localhost.direct.crt --https-key ~/localhost.direct.key
 ```
 
 Another option is to [create a self-signed certificate for localhost](https://letsencrypt.org/docs/certificates-for-localhost/#making-and-trusting-your-own-certificates). In this case, you need to create the certificate, trust it in the Mac OS System Keychain, and pass the required options to `zcli`:
 
 ```
-zcli themes:preview --ssl-cert ~/localhost.crt --ssl-key ~/localhost.key
+zcli themes:preview --https-cert ~/localhost.crt --https-key ~/localhost.key
 ```
 ## `zcli themes:import [THEMEDIRECTORY]`
 
