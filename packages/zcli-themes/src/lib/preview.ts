@@ -8,13 +8,14 @@ import { request } from '@zendesk/zcli-core'
 import { error } from '@oclif/core/lib/errors'
 import { CliUx } from '@oclif/core'
 import validationErrorsToString from './validationErrorsToString'
+import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
 
 export default async function preview (themePath: string, flags: Flags): Promise<void> {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
   const variables = getVariables(themePath, manifest.settings, flags)
   const assets = getAssets(themePath, flags)
-  const { bind: host, port, livereload } = flags
+  const { livereload } = flags
 
   const variablesPayload = variables.reduce((payload, variable) => ({
     ...payload,
@@ -41,10 +42,10 @@ export default async function preview (themePath: string, flags: Flags): Promise
           css: '',
           js: '',
           document_head: `
-            <link rel="stylesheet" href="http://${host}:${port}/guide/style.css">
+            <link rel="stylesheet" href="${getLocalServerBaseUrl(flags)}/guide/style.css">
             ${templates.document_head}
-            <script src="http://${host}:${port}/guide/script.js"></script>
-            ${livereload ? livereloadScript(host, port) : ''}
+            <script src="${getLocalServerBaseUrl(flags)}/guide/script.js"></script>
+            ${livereload ? livereloadScript(flags) : ''}
           `,
           assets: assetsPayload,
           variables: variablesPayload,
@@ -66,9 +67,9 @@ export default async function preview (themePath: string, flags: Flags): Promise
   }
 }
 
-export function livereloadScript (host: string, port: number) {
+export function livereloadScript (flags: Flags) {
   return `<script>(() => {
-    const socket = new WebSocket('ws://${host}:${port}/livereload');
+    const socket = new WebSocket('${getLocalServerBaseUrl(flags, true)}/livereload');
     socket.onopen = () => console.log('Listening to theme changes...');
     socket.onmessage = e => e.data === 'reload' && location.reload();
   })()</script>

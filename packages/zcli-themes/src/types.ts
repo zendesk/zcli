@@ -4,6 +4,8 @@ export type Flags = {
   port: number,
   logs: boolean,
   livereload: boolean,
+  'https-key'?: string,
+  'https-cert'?: string
 }
 
 export type Variable = {
