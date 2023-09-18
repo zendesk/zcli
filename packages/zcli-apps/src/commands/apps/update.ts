@@ -1,4 +1,4 @@
-import { Command, CliUx } from '@oclif/core'
+import { Command, CliUx, Flags } from '@oclif/core'
 import { getAllConfigs } from '../../utils/appConfig'
 import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
@@ -16,6 +16,10 @@ export default class Update extends Command {
     { name: 'appDirectories', required: true, default: '.' }
   ]
 
+  static flags = {
+    'not-update-setting': Flags.boolean({ default: false, description: 'Does not update current app config on instance' })
+  }
+
   static strict = false
 
   getAppID (appPath: string) {
@@ -25,14 +29,14 @@ export default class Update extends Command {
     return app_id
   }
 
-  async installApp (appConfig: ZcliConfigFileContent, uploadId: number, appPath: string, manifest: Manifest) {
+  async installApp (appConfig: ZcliConfigFileContent, uploadId: number, appPath: string, manifest: Manifest, updateSetting: boolean) {
     CliUx.ux.action.start('Deploying app')
     const { job_id } = await deployApp('PUT', `api/v2/apps/${appConfig.app_id}`, uploadId)
 
     try {
       const { app_id }: any = await getUploadJobStatus(job_id, appPath)
       CliUx.ux.action.stop('Deployed')
-      if (!manifest.requirementsOnly && manifest.location) {
+      if (!manifest.requirementsOnly && manifest.location && !updateSetting) {
         Object.keys(manifest.location).forEach(async product => {
           if (!updateProductInstallation(appConfig, manifest, app_id, product)) {
             this.error(chalk.red(`Failed to update ${manifest.name} with app_id: ${app_id}`))
@@ -47,7 +51,8 @@ export default class Update extends Command {
   }
 
   async run () {
-    const { argv: appDirectories } = await this.parse(Update)
+    const { argv: appDirectories, flags } = await this.parse(Update)
+    const updateSetting = flags['not-update-setting']
 
     for (const appPath of appDirectories) {
       validateAppPath(appPath)
@@ -65,7 +70,7 @@ export default class Update extends Command {
 
       CliUx.ux.action.stop('Uploaded')
       try {
-        await this.installApp(appConfig, upload_id, appPath, manifest)
+        await this.installApp(appConfig, upload_id, appPath, manifest, updateSetting)
       } catch (error) {
         this.error(chalk.red(error))
       }
