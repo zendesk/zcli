@@ -148,6 +148,13 @@ updates an existing private app in the Zendesk products specified in the apps ma
 ```
 USAGE
   $ zcli apps:update APPDIRECTORIES
+
+OPTIONS
+  --not-update-setting           Does not update current app config on instance
+
+EXAMPLES
+  $ zcli apps:update
+  $ zcli apps:update --not-update-setting
 ```
 
 ## `zcli apps:validate APPDIRECTORY`
