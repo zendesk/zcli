@@ -17,7 +17,8 @@
     "dist": "dist"
   },
   "devDependencies": {
-    "@types/fs-extra": "9.0.13"
+    "@types/fs-extra": "9.0.13",
+    "@types/node-fetch": "^2.6.5"
   },
   "optionalDependencies": {
     "keytar": "^7.9.0"
@@ -26,7 +27,8 @@
     "@oclif/plugin-plugins": "=2.1.12",
     "axios": "^0.27.2",
     "chalk": "^4.1.2",
-    "fs-extra": "^10.1.0"
+    "fs-extra": "^10.1.0",
+    "node-fetch": "2"
   },
   "scripts": {
     "prepack": "tsc && ../../scripts/prepack.sh",
