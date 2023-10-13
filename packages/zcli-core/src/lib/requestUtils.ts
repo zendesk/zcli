@@ -11,3 +11,7 @@ export const getDomain = async (auth: Auth): Promise<string | undefined> => {
 export const getBaseUrl = (subdomain: string, domain?: string): string => {
   return `https://${subdomain}.${domain || 'zendesk.com'}`
 }
+
+export const isAbsoluteUrl = (url: string) => {
+  return url.indexOf('http://') === 0 || url.indexOf('https://') === 0
+}

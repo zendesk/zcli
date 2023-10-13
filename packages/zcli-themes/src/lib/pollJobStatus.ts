@@ -13,7 +13,7 @@ export default async function pollJobStatus (themePath: string, jobId: string, i
     await new Promise(resolve => setTimeout(resolve, interval))
 
     const response = await request.requestAPI(`/api/v2/guide/theming/jobs/${jobId}`)
-    const job: Job = response.data.job
+    const job: Job = (await response.json()).job
 
     switch (job.status) {
     case 'pending':

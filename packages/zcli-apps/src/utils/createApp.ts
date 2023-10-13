@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra'
 import { Dictionary, Manifest, ManifestParameter } from '../types'
+import { CLIError } from '@oclif/core/lib/errors'
 import * as FormData from 'form-data'
 import { getManifestFile } from '../utils/manifest'
 import { request } from '@zendesk/zcli-core'
@@ -13,15 +14,20 @@ export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
   const formData = new FormData()
   const pkgBuffer = fs.createReadStream(pkgPath)
   formData.append('uploaded_data', pkgBuffer)
+
   const response = await request.requestAPI('api/v2/apps/uploads.json', {
-    data: formData,
+    body: formData,
     method: 'POST'
   })
 
   // clean up
   await fs.remove(pkgPath)
 
-  return response.data
+  if (response.status >= 500) {
+    throw new CLIError(await response.text())
+  }
+
+  return await response.json()
 }
 
 export const promptAndGetSettings = async (params: ManifestParameter[], appName = 'app', valuesRequired = true) => {
@@ -41,7 +47,7 @@ export const deployApp = async (method: string, url: string, upload_id: number, 
     installationPayload = { upload_id }
   }
   const installationOptions = {
-    data: JSON.stringify(installationPayload),
+    body: JSON.stringify(installationPayload),
     method,
     headers: {
       Accept: 'application/json',
@@ -49,13 +55,13 @@ export const deployApp = async (method: string, url: string, upload_id: number, 
     }
   }
   const installationResponse = await request.requestAPI(url, installationOptions)
-  return installationResponse.data
+  return await installationResponse.json()
 }
 
 export const createProductInstallation = async (settings: any, manifest: Manifest, app_id: string, product: string): Promise<boolean> => {
   const installResponse = await request.requestAPI(`api/${product}/apps/installations.json`, {
     method: 'POST',
-    data: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
+    body: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
     headers: {
       'Content-Type': 'application/json'
     }
