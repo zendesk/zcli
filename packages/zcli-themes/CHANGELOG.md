@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.39](https://github.com/zendesk/zcli/compare/v1.0.0-beta.38...v1.0.0-beta.39) (2023-10-18)
+
+
+### Bug Fixes
+
+* improve 'themes' error handling ([73820c1](https://github.com/zendesk/zcli/commit/73820c1a596e0838ac39b0db441e0ab420a81683))
+
+
+### Features
+
+* **themes:** Added options for starting the preview mode in HTTPS ([fcf7a88](https://github.com/zendesk/zcli/commit/fcf7a8830b2343fe586c7bb3c749fa0ee28acc5b))
+
+
+
+
+
 # [1.0.0-beta.37](https://github.com/zendesk/zcli/compare/v1.0.0-beta.36...v1.0.0-beta.37) (2023-08-08)
 
 
