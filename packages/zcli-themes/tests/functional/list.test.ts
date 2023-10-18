@@ -37,12 +37,13 @@ describe('themes:list', function () {
           }]
         }))
       .stderr()
-      .it('should report publish errors', async ctx => {
+      .it('should report list errors', async ctx => {
         try {
           await ListCommand.run(['--brandId', '1111'])
         } catch (error) {
           expect(ctx.stderr).to.contain('!')
-          expect(error.message).to.contain('InternalError - Something went wrong')
+          expect(error.message).to.contain('InternalError')
+          expect(error.message).to.contain('Something went wrong')
         }
       })
   })

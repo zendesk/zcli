@@ -42,7 +42,8 @@ describe('themes:publish', function () {
           await PublishCommand.run(['--themeId', '1234'])
         } catch (error) {
           expect(ctx.stderr).to.contain('!')
-          expect(error.message).to.contain('ThemeNotFound - Invalid id')
+          expect(error.message).to.contain('ThemeNotFound')
+          expect(error.message).to.contain('Invalid id')
         }
       })
   })

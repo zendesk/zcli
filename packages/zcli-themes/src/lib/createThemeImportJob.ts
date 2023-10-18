@@ -1,8 +1,8 @@
 import type { PendingJob } from '../types'
 import { CliUx } from '@oclif/core'
 import { request } from '@zendesk/zcli-core'
-import * as chalk from 'chalk'
-import { error } from '@oclif/core/lib/errors'
+import type { AxiosError } from 'axios'
+import handleThemeApiError from './handleThemeApiError'
 
 export default async function createThemeImportJob (brandId: string): Promise<PendingJob> {
   CliUx.ux.action.start('Creating theme import job')
@@ -25,9 +25,7 @@ export default async function createThemeImportJob (brandId: string): Promise<Pe
     })
     CliUx.ux.action.stop('Ok')
     return job
-  } catch (e) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [{ code, title }] = (e as any).response.data.errors
-    error(`${chalk.bold(code)} - ${title}`)
+  } catch (error) {
+    handleThemeApiError(error as AxiosError)
   }
 }

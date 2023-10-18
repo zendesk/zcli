@@ -1,6 +1,8 @@
 import { Command, Flags, CliUx } from '@oclif/core'
 import { request } from '@zendesk/zcli-core'
 import * as chalk from 'chalk'
+import type { AxiosError } from 'axios'
+import handleThemeApiError from '../../lib/handleThemeApiError'
 
 export default class Publish extends Command {
   static description = 'publish a theme'
@@ -34,9 +36,8 @@ export default class Publish extends Command {
       CliUx.ux.action.stop('Ok')
       this.log(chalk.green('Theme published successfully'), `theme ID: ${themeId}`)
       return { themeId }
-    } catch (e: any) {
-      const [error] = e.response.data.errors
-      this.error(`${error.code} - ${error.title}`)
+    } catch (error) {
+      handleThemeApiError(error as AxiosError)
     }
   }
 }

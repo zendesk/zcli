@@ -9,6 +9,7 @@ import { error } from '@oclif/core/lib/errors'
 import { CliUx } from '@oclif/core'
 import validationErrorsToString from './validationErrorsToString'
 import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
+import type { AxiosError } from 'axios'
 
 export default async function preview (themePath: string, flags: Flags): Promise<void> {
   const manifest = getManifest(themePath)
@@ -57,12 +58,20 @@ export default async function preview (themePath: string, flags: Flags): Promise
     CliUx.ux.action.stop('Ok')
   } catch (e) {
     CliUx.ux.action.stop(chalk.bold.red('!'))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { template_errors } = (e as any).response.data
-    if (template_errors) {
-      handlePreviewError(themePath, template_errors)
+    const { response, message } = e as AxiosError
+    if (response) {
+      const {
+        template_errors: templateErrors,
+        general_error: generalError
+      } = response.data as {
+          template_errors: ValidationErrors,
+          general_error: string
+        }
+      if (templateErrors) handlePreviewError(themePath, templateErrors)
+      else if (generalError) error(generalError)
+      else error(message)
     } else {
-      error('Something went wrong')
+      error(e as AxiosError)
     }
   }
 }

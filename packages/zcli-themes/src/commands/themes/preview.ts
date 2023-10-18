@@ -114,8 +114,8 @@ export default class Preview extends Command {
             client.send('reload')
           }
         })
-      } catch (e: any) {
-        this.error(e, { exit: false })
+      } catch (e) {
+        this.error(e as Error, { exit: false })
       }
     })
 
