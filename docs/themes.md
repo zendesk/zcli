@@ -7,6 +7,8 @@ zcli themes commands helps with managing Zendesk Help Center theming workflow.
 * [`zcli themes:import [THEMEDIRECTORY]`](#zcli-themesimport-themedirectory)
 * [`zcli themes:update [THEMEDIRECTORY]`](#zcli-themesupdate-themedirectory)
 * [`zcli themes:publish`](#zcli-themespublish)
+* [`zcli themes:delete`](#zcli-themesdelete)
+* [`zcli themes:list`](#zcli-themeslist)
 
 ## Configuration
 
@@ -54,6 +56,7 @@ Another option is to [create a self-signed certificate for localhost](https://le
 ```
 zcli themes:preview --https-cert ~/localhost.crt --https-key ~/localhost.key
 ```
+
 ## `zcli themes:import [THEMEDIRECTORY]`
 
 imports a theme in your desired target account and brand
@@ -67,6 +70,7 @@ ARGUMENTS
 
 OPTIONS
   --brandId       The id of the brand where the theme should be imported to
+  --json          Return JSON output (useful in CI)
 
 EXAMPLES
   $ zcli themes:import ./copenhagen_theme
@@ -87,6 +91,7 @@ ARGUMENTS
 OPTIONS
   --themeId               The id of the theme to update
   --replaceSettings       [default: false] Whether or not to replace the current theme settings
+  --json                  Return JSON output (useful in CI)
 
 EXAMPLES
   $ zcli themes:update ./copenhagen_theme --themeId=123456789100
@@ -103,7 +108,42 @@ USAGE
 
 OPTIONS
   --themeId       The id of the theme to publish
+  --json          Return JSON output (useful in CI)
 
 EXAMPLES
   $ zcli themes:publish --themeId=123456789100
+```
+
+## `zcli themes:delete`
+
+deletes a theme
+
+```
+USAGE
+  $ zcli themes:delete
+
+OPTIONS
+  --themeId       The id of the theme to delete
+  --json          Return JSON output (useful in CI)
+
+EXAMPLES
+  $ zcli themes:delete --themeId=123456789100
+```
+
+## `zcli themes:list`
+
+lists all themes in your desired target account and brand
+
+```
+USAGE
+  $ zcli themes:list
+
+OPTIONS
+  --brandId       The id of the brand containing the themes
+  --json          Return JSON output (useful in CI)
+
+EXAMPLES
+  $ zcli themes:import ./copenhagen_theme
+  $ zcli themes:import ./copenhagen_theme --brandId=123456
+  $ zcli themes:import ./copenhagen_theme --brandId=123456 --json
 ```
