@@ -54,6 +54,7 @@ Another option is to [create a self-signed certificate for localhost](https://le
 ```
 zcli themes:preview --https-cert ~/localhost.crt --https-key ~/localhost.key
 ```
+
 ## `zcli themes:import [THEMEDIRECTORY]`
 
 imports a theme in your desired target account and brand
@@ -67,6 +68,7 @@ ARGUMENTS
 
 OPTIONS
   --brandId       The id of the brand where the theme should be imported to
+  --json          Return JSON output (useful in CI)
 
 EXAMPLES
   $ zcli themes:import ./copenhagen_theme
@@ -87,6 +89,7 @@ ARGUMENTS
 OPTIONS
   --themeId               The id of the theme to update
   --replaceSettings       [default: false] Whether or not to replace the current theme settings
+  --json                  Return JSON output (useful in CI)
 
 EXAMPLES
   $ zcli themes:update ./copenhagen_theme --themeId=123456789100
@@ -103,6 +106,7 @@ USAGE
 
 OPTIONS
   --themeId       The id of the theme to publish
+  --json          Return JSON output (useful in CI)
 
 EXAMPLES
   $ zcli themes:publish --themeId=123456789100
