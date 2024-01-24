@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.40](https://github.com/zendesk/zcli/compare/v1.0.0-beta.39...v1.0.0-beta.40) (2024-01-24)
+
+
+### Bug Fixes
+
+* bump glob version ([957c5b3](https://github.com/zendesk/zcli/commit/957c5b3c3c78ed26155dd2f6d1162ad817740eda))
+* convert Windows paths to POSIX format ([a6f8743](https://github.com/zendesk/zcli/commit/a6f87437036dfcbb1accd30c12eb664d5f7c3db0))
+* enforce posix separator in glob result to match split pattern ([9e3f629](https://github.com/zendesk/zcli/commit/9e3f629e5ad9d9d9aab8292f49f4e7b52649e093))
+
+
+
+
+
 # [1.0.0-beta.39](https://github.com/zendesk/zcli/compare/v1.0.0-beta.38...v1.0.0-beta.39) (2023-10-18)
 
 
