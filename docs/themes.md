@@ -7,6 +7,7 @@ zcli themes commands helps with managing Zendesk Help Center theming workflow.
 * [`zcli themes:import [THEMEDIRECTORY]`](#zcli-themesimport-themedirectory)
 * [`zcli themes:update [THEMEDIRECTORY]`](#zcli-themesupdate-themedirectory)
 * [`zcli themes:publish`](#zcli-themespublish)
+* [`zcli themes:delete`](#zcli-themesdelete)
 
 ## Configuration
 
@@ -110,4 +111,20 @@ OPTIONS
 
 EXAMPLES
   $ zcli themes:publish --themeId=123456789100
+```
+
+## `zcli themes:delete`
+
+deletes a theme
+
+```
+USAGE
+  $ zcli themes:delete
+
+OPTIONS
+  --themeId       The id of the theme to delete
+  --json          Return JSON output (useful in CI)
+
+EXAMPLES
+  $ zcli themes:delete --themeId=123456789100
 ```
