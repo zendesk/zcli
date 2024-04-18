@@ -47,7 +47,7 @@ export default class New extends Command {
         zip.extractAllToAsync(path.join(process.cwd()), overwrite, true, async (err) => {
           await cleanDirectory(this.zipScaffoldPath)
           if (err) {
-            reject(err)
+            return reject(err)
           }
           resolve()
         })
