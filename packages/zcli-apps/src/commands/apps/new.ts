@@ -65,9 +65,9 @@ export default class New extends Command {
           if (err) {
             const fsExtraError = err as FsExtraError
             if (fsExtraError.code === 'ENOENT') {
-              reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
+              return reject(new Error(`Scaffold ${flagScaffold} does not exist: ${err}`))
             }
-            reject(err)
+            return reject(err)
           }
           resolve()
         }
