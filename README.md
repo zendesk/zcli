@@ -30,20 +30,30 @@ Depending on your distribution, you will need to run one of the following comman
 - Red Hat-based: `sudo yum install libsecret-devel`
 - Arch Linux: `sudo pacman -S libsecret`
 
-## Note for Windows users running Linux on WSL
 
-ZCLI's credential manager has a dependency on Linux's windowing manager (X11) which will cause some commands to fail to run on WSL, unless you run a setup of WSL with support for X11/GUI apps. These commands include: `zcli login`, `zcli logout` and `zcli profiles`.
+## Note for environments without Linux window manager (X11) support
+ZCLI's credential manager has a dependency on Linux's windowing manager (X11) which will cause some commands to fail to run on an environment without window manager support. These commands include: `zcli login`, `zcli logout` and `zcli profiles`.
 
-Features of ZCLI not dependent on ZCLI's credential manager will work in WSL2 without X11 support.
+### For headless Linux in a Docker container
+- Install  `gnome-keyring`, `dbus-x11` and the corresponding libsecret package listed above
+- Launch `dbus`
+```
+export $(dbus-launch)
+```
+- Unlock the Gnome keyring daemon with a dummy password
+```
+echo "123456" | gnome-keyring-daemon  -r --unlock --components=secrets
+```
 
-There are a number of workarounds:
+Refer to this sample [Dockerfile](/example/headless_ubuntu_zcli.Dockerfile) to see how you can run ZCLI on a headless installation of Ubuntu.
+### For Windows users running Linux on WSL
 
-* Manually starting a DBus session and unlocking the Gnome keyring with a password supplied via STDIN
+WSL2 now [supports running Linux GUI application](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps). For users unable to upgrade to WSL2, there are a number of workarounds available:
+
+* Manually starting a DBus session and unlocking the Gnome keyring with a password supplied via STDIN(similar to headless docker above)
 * Using X11 forwarding to be able to enable the Gnome keyring prompt to display
 
-**Windows 11 users**
 
-A better approach might be to await the upcoming support for GUI apps in WSL2 that Microsoft is [working on](https://youtu.be/f8_nvJzuaSU) and that is currently in [Preview](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
 # Commands
 
@@ -83,7 +93,7 @@ Thanks for your interest in ZCLI! Community involvement helps improve the experi
 
 Got issues with what you find here? You can [create an issue on Github](https://github.com/zendesk/zcli/issues/new), report the issue in the [Zendesk Developers Slack group](https://docs.google.com/forms/d/e/1FAIpQLScm_rDLWwzWnq6PpYWFOR_PwMaSBcaFft-1pYornQtBGAaiJA/viewform), or for other problems, [contact Zendesk Customer Support](https://support.zendesk.com/hc/en-us/articles/360026614173).
 
-If you'd like to take a crack at making some changes, please refer to [our contributing guide](.github/CONTRIBUTING.md). 
+If you'd like to take a crack at making some changes, please refer to [our contributing guide](.github/CONTRIBUTING.md).
 
 # ZAF App Scaffolding
 
