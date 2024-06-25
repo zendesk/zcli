@@ -4,7 +4,7 @@ $ yarn global add @zendesk/zcli
 $ zcli COMMAND
 running command...
 $ zcli --version
-@zendesk/zcli/1.0.0-beta.23 darwin-x64 node-v14.17.3
+@zendesk/zcli/1.0.0-beta.23 darwin-x64 node-v20.13.1
 $ zcli --help [COMMAND]
 USAGE
   $ zcli COMMAND
