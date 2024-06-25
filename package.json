@@ -24,7 +24,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "form-data": "^4.0.0",
-    "lerna": "^5.1.8",
+    "lerna": "^8.1.5",
     "lerna-changelog": "^2.2.0",
     "mocha": "^10.0.0",
     "nock": "^13.2.8",
@@ -46,7 +46,6 @@
   ],
   "scripts": {
     "audit:fix": "yarn-audit-fix",
-    "postinstall": "lerna bootstrap",
     "dev": "ts-node ./packages/zcli/bin/run",
     "git:check": "./scripts/git_check.sh",
     "link:bin": "bash ./scripts/link_dev.sh",
