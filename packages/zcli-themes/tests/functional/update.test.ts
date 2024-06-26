@@ -116,6 +116,7 @@ describe('themes:update', function () {
           .post('/upload/path')
           .reply(200)
       })
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .it('should report validation errors', async (ctx) => {
         try {
           await UpdateCommand.run([baseThemePath, '--themeId', '1111'])
