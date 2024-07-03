@@ -37,7 +37,7 @@ describe('Auth', () => {
 
     test
       .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
-      .stub(auth.secureStore, 'getPassword', () => 'Basic test_token')
+      .stub(auth.secureStore, 'getSecret', () => 'Basic test_token')
       .it('should return token stored in secure store if no env vars are set', async () => {
         expect(await auth.getAuthorizationToken()).to.equal('Basic test_token')
       })
@@ -86,7 +86,7 @@ describe('Auth', () => {
         promptStub.onThirdCall().resolves('123456')
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
+      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
       .nock('https://z3ntest.zendesk.com', api => {
         api
@@ -108,7 +108,7 @@ describe('Auth', () => {
         promptStub.onThirdCall().resolves('123456')
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
+      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
       .nock('https://z3ntest.example.com', api => {
         api
@@ -129,7 +129,7 @@ describe('Auth', () => {
         promptStub.onSecondCall().resolves('123456')
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
+      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
       .nock('https://z3ntest.example.com', api => {
         api
@@ -164,7 +164,7 @@ describe('Auth', () => {
 
     test
       .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
-      .stub(auth.secureStore, 'deletePassword', () => Promise.resolve(true))
+      .stub(auth.secureStore, 'deleteSecret', () => Promise.resolve(true))
       .stub(auth.config, 'removeConfig', () => Promise.resolve())
       .it('should return true on logout success', async () => {
         expect(await auth.logout()).to.equal(true)
@@ -180,7 +180,7 @@ describe('Auth', () => {
 
     test
       .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
-      .stub(auth.secureStore, 'deletePassword', () => Promise.resolve(false))
+      .stub(auth.secureStore, 'deleteSecret', () => Promise.resolve(false))
       .stub(auth.config, 'removeConfig', () => Promise.resolve())
       .do(async () => {
         await auth.logout()

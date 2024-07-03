@@ -39,7 +39,7 @@ export default class Auth {
     } else {
       const profile = await this.getLoggedInProfile()
       if (profile && this.secureStore) {
-        const authToken = await this.secureStore.getPassword(getAccount(profile.subdomain, profile.domain))
+        const authToken = await this.secureStore.getSecret(getAccount(profile.subdomain, profile.domain))
         return authToken
       }
 
@@ -79,7 +79,7 @@ export default class Auth {
       })
 
     if (testAuth.status === 200 && this.secureStore) {
-      await this.secureStore.setPassword(account, authToken)
+      await this.secureStore.setSecret(account, authToken)
       await this.setLoggedInProfile(subdomain, domain)
 
       return true
@@ -96,7 +96,7 @@ export default class Auth {
     const profile = await this.getLoggedInProfile()
     if (!profile?.subdomain) throw new CLIError(chalk.red('Failed to log out: no active profile found.'))
     await this.config.removeConfig('activeProfile')
-    const deleted = await this.secureStore.deletePassword(getAccount(profile.subdomain, profile.domain))
+    const deleted = await this.secureStore.deleteSecret(getAccount(profile.subdomain, profile.domain))
     if (!deleted) throw new CLIError(chalk.red('Failed to log out: Account, Service not found.'))
 
     return true
