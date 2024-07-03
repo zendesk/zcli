@@ -6,10 +6,6 @@ import Auth from './auth'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
 
-const mockCreateBasicAuthToken = (...args: any[]) => {
-  return `Basic ${args[0]}_${args[1]}_base64`
-}
-
 describe('Auth', () => {
   describe('createBasicAuthToken', () => {
     test
@@ -17,7 +13,7 @@ describe('Auth', () => {
         const auth = new Auth()
         expect(
           await auth.createBasicAuthToken('test@zendesk.com', '123456')
-        ).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbToxMjM0NTY=')
+        ).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
       })
   })
 
@@ -35,19 +31,8 @@ describe('Auth', () => {
         ZENDESK_EMAIL: 'test@zendesk.com',
         ZENDESK_API_TOKEN: 'test_api_token'
       })
-      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
       .it('should return basic token if ZENDESK_EMAIL and ZENDESK_API_TOKEN is set', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Basic test@zendesk.com/token_test_api_token_base64')
-      })
-
-    test
-      .env({
-        ZENDESK_EMAIL: 'test@zendesk.com',
-        ZENDESK_PASSWORD: '123456'
-      })
-      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
-      .it('should return basic token if ZENDESK_EMAIL and ZENDESK_PASSWORD is set', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Basic test@zendesk.com_123456_base64')
+        expect(await auth.getAuthorizationToken()).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjp0ZXN0X2FwaV90b2tlbg==')
       })
 
     test
@@ -74,10 +59,20 @@ describe('Auth', () => {
         ZENDESK_API_TOKEN: 'test_api_token',
         ZENDESK_PASSWORD: '123456'
       })
-      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
       .it('should give precedence to ZENDESK_EMAIL and ZENDESK_API_TOKEN when ZENDESK_OAUTH_TOKEN is not defined', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Basic test@zendesk.com/token_test_api_token_base64')
+        expect(await auth.getAuthorizationToken()).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjp0ZXN0X2FwaV90b2tlbg==')
       })
+
+    test
+      .env({
+        ZENDESK_EMAIL: 'test@zendesk.com',
+        ZENDESK_PASSWORD: '123456'
+      })
+      .do(async () => {
+        await auth.getAuthorizationToken()
+      })
+      .catch(chalk.red('Basic authentication of type \'password\' is not supported.'))
+      .it('should throw an error if only ZENDESK_EMAIL and ZENDESK_PASSWORD are set - basic auth with password not supported')
   })
 
   describe('loginInteractively', () => {
@@ -93,12 +88,11 @@ describe('Auth', () => {
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
       .nock('https://z3ntest.zendesk.com', api => {
         api
           .get('/api/v2/account/settings.json')
           .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic test@zendesk.com_123456_base64')
+            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
             return [200]
           })
       })
@@ -116,12 +110,11 @@ describe('Auth', () => {
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
       .nock('https://z3ntest.example.com', api => {
         api
           .get('/api/v2/account/settings.json')
           .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic test@zendesk.com_123456_base64')
+            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
             return [200]
           })
       })
@@ -138,12 +131,11 @@ describe('Auth', () => {
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setPassword', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .stub(auth, 'createBasicAuthToken', mockCreateBasicAuthToken)
       .nock('https://z3ntest.example.com', api => {
         api
           .get('/api/v2/account/settings.json')
           .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic test@zendesk.com_123456_base64')
+            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
             return [200]
           })
       })

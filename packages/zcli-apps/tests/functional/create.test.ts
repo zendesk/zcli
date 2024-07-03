@@ -5,6 +5,7 @@ import * as createAppUtils from '../../src/utils/createApp'
 import * as appConfig from '../../src/utils/appConfig'
 import * as requestUtils from '../../../zcli-core/src/lib/requestUtils'
 import * as packageUtil from '../../src/lib/package'
+import env from './env'
 
 describe('apps', function () {
   const singleProductApp = path.join(__dirname, 'mocks/single_product_app')
@@ -27,11 +28,7 @@ describe('apps', function () {
         .stub(createAppUtils, 'getManifestAppName', () => 'importantAppName')
         .stub(requestUtils, 'getSubdomain', () => Promise.resolve('z3ntest'))
         .stub(appConfig, 'setConfig', () => Promise.resolve())
-        .env({
-          ZENDESK_SUBDOMAIN: 'z3ntest',
-          ZENDESK_EMAIL: 'admin@z3ntest.com',
-          ZENDESK_PASSWORD: '123456' // the universal password
-        })
+        .env(env)
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 817 })
@@ -67,11 +64,7 @@ describe('apps', function () {
     describe('with single app', () => {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
-        .env({
-          ZENDESK_SUBDOMAIN: 'z3ntest',
-          ZENDESK_EMAIL: 'admin@z3ntest.com',
-          ZENDESK_PASSWORD: '123456' // the universal password
-        })
+        .env(env)
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
@@ -97,11 +90,7 @@ describe('apps', function () {
     describe('with requirements-only app', () => {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
-        .env({
-          ZENDESK_SUBDOMAIN: 'z3ntest',
-          ZENDESK_EMAIL: 'admin@z3ntest.com',
-          ZENDESK_PASSWORD: '123456' // the universal password
-        })
+        .env(env)
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
@@ -126,11 +115,7 @@ describe('apps', function () {
     describe('with single app', () => {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
-        .env({
-          ZENDESK_SUBDOMAIN: 'z3ntest',
-          ZENDESK_EMAIL: 'admin@z3ntest.com',
-          ZENDESK_PASSWORD: '123456' // the universal password
-        })
+        .env(env)
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
@@ -153,11 +138,7 @@ describe('apps', function () {
     describe('with requirements-only app', () => {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
-        .env({
-          ZENDESK_SUBDOMAIN: 'z3ntest',
-          ZENDESK_EMAIL: 'admin@z3ntest.com',
-          ZENDESK_PASSWORD: '123456' // the universal password
-        })
+        .env(env)
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })

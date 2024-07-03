@@ -48,7 +48,7 @@ export default class Auth {
   }
 
   createBasicAuthToken (user: string, secret: string, secretType: SecretType = SecretType.Token) {
-    const basicBase64 = (str: string) => ` Basic ${Buffer.from(str).toString('base64')}`
+    const basicBase64 = (str: string) => `Basic ${Buffer.from(str).toString('base64')}`
     if (secretType === SecretType.Token) {
       return basicBase64(`${user}/${SecretType.Token}:${secret}`)
     }

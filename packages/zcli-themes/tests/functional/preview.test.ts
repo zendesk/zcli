@@ -6,6 +6,7 @@ import * as nock from 'nock'
 import axios from 'axios'
 import { cloneDeep } from 'lodash'
 import PreviewCommand from '../../src/commands/themes/preview'
+import env from './env'
 
 describe('themes:preview', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
@@ -15,11 +16,7 @@ describe('themes:preview', function () {
 
     const preview = test
       .stdout()
-      .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
-        ZENDESK_EMAIL: 'admin@z3ntest.com',
-        ZENDESK_PASSWORD: '123456' // the universal password
-      })
+      .env(env)
       .nock('https://z3ntest.zendesk.com', api => {
         api
           .put('/hc/api/internal/theming/local_preview')
@@ -79,11 +76,7 @@ describe('themes:preview', function () {
 
     test
       .stdout()
-      .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
-        ZENDESK_EMAIL: 'admin@z3ntest.com',
-        ZENDESK_PASSWORD: '123456' // the universal password
-      })
+      .env(env)
       .it('should report template errors', async (ctx) => {
         nock('https://z3ntest.zendesk.com').put('/hc/api/internal/theming/local_preview').reply(400, {
           template_errors: {
