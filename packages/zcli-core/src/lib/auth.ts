@@ -8,6 +8,11 @@ import { Profile } from '../types'
 import { getAccount, parseSubdomain } from './authUtils'
 import { getBaseUrl } from './requestUtils'
 
+enum SecretType {
+  Token = 'token',
+  Password = 'password', // No longer supported for basic auth
+}
+
 export interface AuthOptions {
   secureStore: SecureStore;
 }
@@ -28,9 +33,9 @@ export default class Auth {
     if (ZENDESK_OAUTH_TOKEN) {
       return `Bearer ${ZENDESK_OAUTH_TOKEN}`
     } else if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
-      return this.createBasicAuthToken(`${ZENDESK_EMAIL}/token`, ZENDESK_API_TOKEN)
+      return this.createBasicAuthToken(`${ZENDESK_EMAIL}`, ZENDESK_API_TOKEN)
     } else if (ZENDESK_EMAIL && ZENDESK_PASSWORD) {
-      return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD)
+      return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD, SecretType.Password)
     } else {
       const profile = await this.getLoggedInProfile()
       if (profile && this.secureStore) {
@@ -42,9 +47,12 @@ export default class Auth {
     }
   }
 
-  createBasicAuthToken (email: string, passwordOrToken: string) {
-    const plainToken = Buffer.from(`${email}:${passwordOrToken}`)
-    return `Basic ${plainToken.toString('base64')}`
+  createBasicAuthToken (user: string, secret: string, secretType: SecretType = SecretType.Token) {
+    const basicBase64 = (str: string) => ` Basic ${Buffer.from(str).toString('base64')}`
+    if (secretType === SecretType.Token) {
+      return basicBase64(`${user}/${SecretType.Token}:${secret}`)
+    }
+    throw new CLIError(chalk.red(`Basic authentication of type '${secretType}' is not supported.`))
   }
 
   getLoggedInProfile () {
@@ -61,9 +69,8 @@ export default class Auth {
     const account = getAccount(subdomain, domain)
     const baseUrl = getBaseUrl(subdomain, domain)
     const email = await CliUx.ux.prompt('Email')
-    const password = await CliUx.ux.prompt('Password', { type: 'hide' })
-
-    const authToken = this.createBasicAuthToken(email, password)
+    const token = await CliUx.ux.prompt('API Token', { type: 'hide' })
+    const authToken = this.createBasicAuthToken(email, token)
     const testAuth = await axios.get(
       `${baseUrl}/api/v2/account/settings.json`,
       {
