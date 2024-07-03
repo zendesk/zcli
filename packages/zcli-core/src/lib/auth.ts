@@ -7,11 +7,7 @@ import SecureStore from './secureStore'
 import { Profile } from '../types'
 import { getAccount, parseSubdomain } from './authUtils'
 import { getBaseUrl } from './requestUtils'
-
-enum SecretType {
-  Token = 'token',
-  Password = 'password', // No longer supported for basic auth
-}
+import { SecretType } from './secretType'
 
 export interface AuthOptions {
   secureStore: SecureStore;
@@ -35,7 +31,7 @@ export default class Auth {
     } else if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
       return this.createBasicAuthToken(`${ZENDESK_EMAIL}`, ZENDESK_API_TOKEN)
     } else if (ZENDESK_EMAIL && ZENDESK_PASSWORD) {
-      return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD, SecretType.Password)
+      return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD, SecretType.PASSWORD)
     } else {
       const profile = await this.getLoggedInProfile()
       if (profile && this.secureStore) {
@@ -47,10 +43,10 @@ export default class Auth {
     }
   }
 
-  createBasicAuthToken (user: string, secret: string, secretType: SecretType = SecretType.Token) {
+  createBasicAuthToken (user: string, secret: string, secretType: SecretType = SecretType.TOKEN) {
     const basicBase64 = (str: string) => `Basic ${Buffer.from(str).toString('base64')}`
-    if (secretType === SecretType.Token) {
-      return basicBase64(`${user}/${SecretType.Token}:${secret}`)
+    if (secretType === SecretType.TOKEN) {
+      return basicBase64(`${user}/token:${secret}`)
     }
     throw new CLIError(chalk.red(`Basic authentication of type '${secretType}' is not supported.`))
   }
