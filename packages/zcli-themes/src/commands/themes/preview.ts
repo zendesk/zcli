@@ -9,7 +9,6 @@ import * as morgan from 'morgan'
 import * as chalk from 'chalk'
 import * as cors from 'cors'
 import * as chokidar from 'chokidar'
-import { Auth, getBaseUrl } from '@zendesk/zcli-core'
 import preview from '../../lib/preview'
 import getManifest from '../../lib/getManifest'
 import getVariables from '../../lib/getVariables'
@@ -56,8 +55,7 @@ export default class Preview extends Command {
       }
     }
 
-    await preview(themePath, flags)
-
+    const baseUrl = await preview(themePath, flags)
     const app = express()
     const server = httpsServerOptions === null ? http.createServer(app) : https.createServer(httpsServerOptions, app)
     const wss = new WebSocket.Server({ server, path: '/livereload' })
@@ -87,10 +85,6 @@ export default class Preview extends Command {
     })
 
     server.listen(port, host, async () => {
-      // preview requires authentication so we're sure
-      // to have a logged in profile at this point
-      const { subdomain, domain } = await new Auth().getLoggedInProfile()
-      const baseUrl = getBaseUrl(subdomain, domain)
       this.log(chalk.bold.green('Ready', chalk.blueBright(`${baseUrl}/hc/admin/local_preview/start`, '🚀')))
       this.log(`You can exit preview mode in the UI or by visiting ${baseUrl}/hc/admin/local_preview/stop`)
       tailLogs && this.log(chalk.bold('Tailing logs'))
