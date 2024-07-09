@@ -14,6 +14,7 @@ describe('themes:preview', function () {
     let server
 
     const preview = test
+      .stdout()
       .env({
         ZENDESK_SUBDOMAIN: 'z3ntest',
         ZENDESK_EMAIL: 'admin@z3ntest.com',
@@ -32,6 +33,12 @@ describe('themes:preview', function () {
       server.close()
       nock.cleanAll()
     })
+
+    preview
+      .it('should provide links and instructions to start and exit preview', async (ctx) => {
+        expect(ctx.stdout).to.contain('Ready https://z3ntest.zendesk.com/hc/admin/local_preview/start 🚀')
+        expect(ctx.stdout).to.contain('You can exit preview mode in the UI or by visiting https://z3ntest.zendesk.com/hc/admin/local_preview/stop')
+      })
 
     preview
       .it('should serve assets on the defined host and port', async () => {
