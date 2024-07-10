@@ -4,10 +4,13 @@ import * as fs from 'fs'
 import * as readline from 'readline'
 import * as AdmZip from 'adm-zip'
 import env from './env'
+import * as requestUtils from '../../../zcli-core/src/lib/requestUtils'
 
 describe('package', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_app')
   test
+    .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+    .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
     .nock('https://z3ntest.zendesk.com', api => {
       api
@@ -22,6 +25,8 @@ describe('package', function () {
     })
 
   test
+    .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+    .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
     .nock('https://z3ntest.zendesk.com', api => {
       api
@@ -62,6 +67,8 @@ describe('zcliignore', function () {
   })
 
   test
+    .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+    .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
     .nock('https://z3ntest.zendesk.com', api => {
       api

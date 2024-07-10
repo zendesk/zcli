@@ -26,7 +26,8 @@ describe('apps', function () {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
         .stub(createAppUtils, 'getManifestAppName', () => 'importantAppName')
-        .stub(requestUtils, 'getSubdomain', () => Promise.resolve('z3ntest'))
+        .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+        .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
         .stub(appConfig, 'setConfig', () => Promise.resolve())
         .env(env)
         .do(() => {
@@ -64,6 +65,8 @@ describe('apps', function () {
     describe('with single app', () => {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
+        .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+        .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
         .env(env)
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')

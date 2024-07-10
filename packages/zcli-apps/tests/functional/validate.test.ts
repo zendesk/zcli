@@ -1,9 +1,12 @@
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import env from './env'
+import * as requestUtils from '../../../zcli-core/src/lib/requestUtils'
 
 describe('validate', function () {
   test
+    .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+    .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
     .nock('https://z3ntest.zendesk.com', api => {
       api
@@ -17,6 +20,8 @@ describe('validate', function () {
     })
 
   test
+    .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+    .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
     .nock('https://z3ntest.zendesk.com', api => {
       api
