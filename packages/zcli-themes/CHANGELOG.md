@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.43](https://github.com/zendesk/zcli/compare/v1.0.0-beta.42...v1.0.0-beta.43) (2024-07-10)
+
+
+### Bug Fixes
+
+* use the baseUrl from the request api call ([e7e2552](https://github.com/zendesk/zcli/commit/e7e255282939fe18b087c6a94ae422ff5a6db7b5))
+
+
+
+
+
 # [1.0.0-beta.40](https://github.com/zendesk/zcli/compare/v1.0.0-beta.39...v1.0.0-beta.40) (2024-01-24)
 
 

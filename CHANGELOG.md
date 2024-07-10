@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.43](https://github.com/zendesk/zcli/compare/v1.0.0-beta.42...v1.0.0-beta.43) (2024-07-10)
+
+
+### Bug Fixes
+
+* node 14 doesn’t have any arm64 builds, upgrade to 18 ([84cedfe](https://github.com/zendesk/zcli/commit/84cedfee1a1b9621679c4842a9430509dc1ed949))
+* use the baseUrl from the request api call ([e7e2552](https://github.com/zendesk/zcli/commit/e7e255282939fe18b087c6a94ae422ff5a6db7b5))
+
+
+
+
+
 # [1.0.0-beta.42](https://github.com/zendesk/zcli/compare/v1.0.0-beta.40...v1.0.0-beta.42) (2024-04-24)
 
 **Note:** Version bump only for package zcli-monorepo
