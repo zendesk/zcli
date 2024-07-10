@@ -4,15 +4,14 @@ import Auth from './auth'
 import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
-import { getBaseUrl, getDomain as getProfileDomain, getSubdomain as getProfileSubdomain } from './requestUtils'
+import { getBaseUrl, getDomain, getSubdomain } from './requestUtils'
 
 const MSG_ENV_OR_LOGIN = 'Set the following environment variables: ZENDESK_SUBDOMAIN, ZENDESK_EMAIL, ZENDESK_API_TOKEN. Or try logging in via `zcli login -i`'
-const ERR_NO_AUTH_TOKEN = `No authorization token found. ${MSG_ENV_OR_LOGIN}`
 const ERR_AUTH_FAILED = `Authorization failed. ${MSG_ENV_OR_LOGIN}`
 const ERR_ENV_SUBDOMAIN_NOT_FOUND = `No subdomain found. ${MSG_ENV_OR_LOGIN}`
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const requestAPI = async (url: string, options: any = {}, json = false) => {
+export const createRequestConfig = async (url: string, options: any = {}) => {
   let auth
   if (
     varExists(EnvVars.SUBDOMAIN, EnvVars.OAUTH_TOKEN) ||
@@ -25,11 +24,10 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
     auth = new Auth({ secureStore })
   }
   const [authToken, profileSubdomain, profileDomain] =
-    await Promise.all([auth.getAuthorizationToken(), getProfileSubdomain(auth), getProfileDomain(auth)])
-  if (!authToken) throw new CLIError(chalk.red(ERR_NO_AUTH_TOKEN))
+    await Promise.all([auth.getAuthorizationToken(), getSubdomain(auth), getDomain(auth)])
+  if (!authToken) throw new CLIError(chalk.red(ERR_AUTH_FAILED))
   const subdomain = process.env[EnvVars.SUBDOMAIN] || profileSubdomain
   if (!subdomain) throw new CLIError(chalk.red(ERR_ENV_SUBDOMAIN_NOT_FOUND))
-  // If subdomain is set, use domain env even if not set. Otherwise, use profile domain.
   const domain = process.env[EnvVars.SUBDOMAIN] ? process.env[EnvVars.DOMAIN] : profileDomain
 
   if (options.headers) {
@@ -37,17 +35,20 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
   } else {
     options.headers = { Authorization: authToken }
   }
-  if (authToken && subdomain) {
-    const baseURL = getBaseUrl(subdomain, domain)
-    return axios.request({
-      baseURL,
-      url,
-      validateStatus: function (status) {
-        return status < 500
-      },
-      ...options
-    })
-  }
+  const baseURL = getBaseUrl(subdomain, domain)
 
-  throw new CLIError(chalk.red(ERR_AUTH_FAILED))
+  return {
+    baseURL,
+    url,
+    validateStatus: function (status: number) {
+      return status < 500
+    },
+    ...options
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const requestAPI = async (url: string, options: any = {}, json = false) => {
+  const requestConfig = await createRequestConfig(url, options)
+  return axios.request(requestConfig)
 }
