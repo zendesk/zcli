@@ -24,15 +24,11 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
     await secureStore.loadKeytar()
     auth = new Auth({ secureStore })
   }
-
-  const authToken = await auth.getAuthorizationToken()
+  const [authToken, profileSubdomain, profileDomain] =
+    await Promise.all([auth.getAuthorizationToken(), getProfileSubdomain(auth), getProfileDomain(auth)])
   if (!authToken) throw new CLIError(chalk.red(ERR_NO_AUTH_TOKEN))
-
-  const profileSubdomain = await getProfileSubdomain(auth)
   const subdomain = process.env[EnvVars.SUBDOMAIN] || profileSubdomain
   if (!subdomain) throw new CLIError(chalk.red(ERR_ENV_SUBDOMAIN_NOT_FOUND))
-
-  const profileDomain = await getProfileDomain(auth)
   // If subdomain is set, use domain env even if not set. Otherwise, use profile domain.
   const domain = process.env[EnvVars.SUBDOMAIN] ? process.env[EnvVars.DOMAIN] : profileDomain
 
@@ -46,7 +42,9 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
     return axios.request({
       baseURL,
       url,
-      validateStatus: function (status) { return status < 500 },
+      validateStatus: function (status) {
+        return status < 500
+      },
       ...options
     })
   }

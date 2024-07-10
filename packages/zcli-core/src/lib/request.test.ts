@@ -7,14 +7,15 @@ describe('requestAPI', () => {
     .env({
       ZENDESK_SUBDOMAIN: 'z3ntest',
       ZENDESK_EMAIL: 'test@zendesk.com',
-      ZENDESK_API_TOKEN: '123456'
+      ZENDESK_API_TOKEN: '123456',
+      ZENDESK_OAUTH_TOKEN: 'good_token'
     })
-    .stub(Auth, 'getAuthorizationToken', () => Promise.resolve('token'))
+    .stub(Auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest2', domain: 'example.com' }))
     .nock('https://z3ntest.zendesk.com', api => {
       api
         .get('/api/v2/me')
         .reply(function () {
-          expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
+          expect(this.req.headers.authorization).to.equal('Bearer good_token')
           return [200]
         })
     })
@@ -29,7 +30,7 @@ describe('requestAPI', () => {
       ZENDESK_EMAIL: 'test@zendesk.com',
       ZENDESK_API_TOKEN: '123456'
     })
-    .stub(Auth, 'getAuthorizationToken', () => Promise.resolve('token'))
+    .stub(Auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest2', domain: 'example.com' }))
     .nock('https://z3ntest.zendesk.com', api => {
       api
         .get('/api/v2/me')
@@ -53,7 +54,7 @@ describe('requestAPI', () => {
     ZENDESK_EMAIL: 'test@zendesk.com',
     ZENDESK_API_TOKEN: '123456'
   })
-    .stub(Auth, 'getAuthorizationToken', () => Promise.resolve('token'))
+    .stub(Auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest2', domain: 'example.com' }))
     .nock('https://z3ntest.example.com', api => {
       api
         .get('/api/v2/me')
@@ -73,7 +74,6 @@ describe('requestAPI', () => {
     ZENDESK_EMAIL: 'test@zendesk.com',
     ZENDESK_API_TOKEN: '123456'
   })
-    .stub(Auth, 'getAuthorizationToken', () => Promise.resolve('token'))
     .stub(Auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest2', domain: 'example.com' }))
     .nock('https://z3ntest.zendesk.com', api => {
       api
