@@ -33,6 +33,7 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
 
   if (authToken && subdomain) {
     return axios.request({
+      adapter: 'fetch',
       baseURL: getBaseUrl(subdomain, domain),
       url,
       validateStatus: function (status) { return status < 500 },
