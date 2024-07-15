@@ -11,7 +11,7 @@ import validationErrorsToString from './validationErrorsToString'
 import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
 import type { AxiosError } from 'axios'
 
-export default async function preview (themePath: string, flags: Flags): Promise<string | void> {
+export default async function preview (themePath: string, flags: Flags): Promise<void> {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
   const variables = getVariables(themePath, manifest.settings, flags)
@@ -32,7 +32,7 @@ export default async function preview (themePath: string, flags: Flags): Promise
 
   try {
     CliUx.ux.action.start('Uploading theme')
-    const { config: { baseURL } } = await request.requestAPI('/hc/api/internal/theming/local_preview', {
+    await request.requestAPI('/hc/api/internal/theming/local_preview', {
       method: 'put',
       headers: {
         'X-Zendesk-Request-Originator': 'zcli themes:preview'
@@ -56,7 +56,6 @@ export default async function preview (themePath: string, flags: Flags): Promise
       validateStatus: (status: number) => status === 200
     })
     CliUx.ux.action.stop('Ok')
-    return baseURL
   } catch (e) {
     CliUx.ux.action.stop(chalk.bold.red('!'))
     const { response, message } = e as AxiosError

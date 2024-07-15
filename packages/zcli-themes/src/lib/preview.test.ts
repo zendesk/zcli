@@ -34,7 +34,7 @@ describe('preview', () => {
     sinon.restore()
   })
 
-  it('calls the local_preview endpoint with the correct payload and returns the used baseURL', async () => {
+  it('calls the local_preview endpoint with the correct payload', async () => {
     const getManifestStub = sinon.stub(getManifest, 'default')
     const getTemplatesStub = sinon.stub(getTemplates, 'default')
     const getVariablesStub = sinon.stub(getVariables, 'default')
@@ -63,11 +63,10 @@ describe('preview', () => {
 
     requestStub.returns(Promise.resolve({
       status: 200,
-      statusText: 'OK',
-      config: { baseURL: 'https://z3ntest.zendesk.com' }
+      statusText: 'OK'
     }) as axios.AxiosPromise)
 
-    const baseUrl = await preview('theme/path', flags)
+    await preview('theme/path', flags)
 
     expect(requestStub.calledWith('/hc/api/internal/theming/local_preview', sinon.match({
       method: 'put',
@@ -93,8 +92,6 @@ describe('preview', () => {
         }
       }
     }))).to.equal(true)
-
-    expect(baseUrl).to.equal('https://z3ntest.zendesk.com')
   })
 
   it('throws a comprehensive error when validation fails', async () => {
