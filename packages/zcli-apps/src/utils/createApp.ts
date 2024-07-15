@@ -4,6 +4,7 @@ import * as FormData from 'form-data'
 import { getManifestFile } from '../utils/manifest'
 import { request } from '@zendesk/zcli-core'
 import { CliUx } from '@oclif/core'
+import * as chalk from 'chalk'
 
 export const getManifestAppName = (appPath: string): string | undefined => {
   return getManifestFile(appPath).name
@@ -20,6 +21,9 @@ export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
 
   // clean up
   await fs.remove(pkgPath)
+  if (response.status !== 201) {
+    console.log(chalk.red('Upload failed with response: ', response.data))
+  }
 
   return response.data
 }
