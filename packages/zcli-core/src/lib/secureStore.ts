@@ -44,15 +44,15 @@ export default class SecureStore {
     return this.keytar
   }
 
-  setPassword (account: string, password: string) {
-    return this.keytar?.setPassword(this.serviceName, account, password)
+  setSecret (account: string, secret: string) {
+    return this.keytar?.setPassword(this.serviceName, account, secret)
   }
 
-  getPassword (account: string) {
+  getSecret (account: string) {
     return this.keytar?.getPassword(this.serviceName, account)
   }
 
-  deletePassword (account: string) {
+  deleteSecret (account: string) {
     return this.keytar?.deletePassword(this.serviceName, account)
   }
 

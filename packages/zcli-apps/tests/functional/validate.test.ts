@@ -1,13 +1,13 @@
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
+import env from './env'
+import * as requestUtils from '../../../zcli-core/src/lib/requestUtils'
 
 describe('validate', function () {
   test
-    .env({
-      ZENDESK_SUBDOMAIN: 'z3ntest',
-      ZENDESK_EMAIL: 'admin@z3ntest.com',
-      ZENDESK_PASSWORD: '123456' // the universal password
-    })
+    .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+    .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
+    .env(env)
     .nock('https://z3ntest.zendesk.com', api => {
       api
         .post('/api/v2/apps/validate')
@@ -20,11 +20,9 @@ describe('validate', function () {
     })
 
   test
-    .env({
-      ZENDESK_SUBDOMAIN: 'z3ntest',
-      ZENDESK_EMAIL: 'admin@z3ntest.com',
-      ZENDESK_PASSWORD: '123456' // the universal password
-    })
+    .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
+    .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
+    .env(env)
     .nock('https://z3ntest.zendesk.com', api => {
       api
         .post('/api/v2/apps/validate')

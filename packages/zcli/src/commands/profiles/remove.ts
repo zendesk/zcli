@@ -26,7 +26,7 @@ export default class Remove extends Command {
       return
     }
 
-    const deleted = await secureStore.deletePassword(account)
+    const deleted = await secureStore.deleteSecret(account)
     if (!deleted) throw new CLIError(chalk.red(`Profile ${account} not found.`))
     console.log(chalk.green(`Removed ${account} profile.`))
   }
