@@ -2,6 +2,8 @@ import type { Variable } from '../types'
 import * as sinon from 'sinon'
 import * as path from 'path'
 import { expect } from '@oclif/test'
+import * as errors from '@oclif/core/lib/errors'
+import * as chalk from 'chalk'
 import zass from './zass'
 
 // Assert on minified css to ignore whitespace differences
@@ -99,6 +101,17 @@ describe('zass', () => {
         div { background-color: #ff00bf }
       `))
     })
+
+    it('errors with a descriptive message without exiting when it cannot darken a variable', () => {
+      const errorStub = sinon.stub(errors, 'error')
+
+      zass('div { color: darken( $nonexistent_variable, 10% ); }', [], [])
+
+      expect(errorStub.calledWithExactly(
+        `Could not process ${chalk.red('darken( $nonexistent_variable, 10% )')} in style.css`,
+        sinon.match({ exit: false })
+      )).to.equal(true)
+    })
   })
 
   describe('lighten', () => {
@@ -152,6 +165,17 @@ describe('zass', () => {
       )).to.deep.equal(minify(`
         div { background-color: #8894ff }
       `))
+    })
+
+    it('errors with a descriptive message without exiting when it cannot lighten a variable', () => {
+      const errorStub = sinon.stub(errors, 'error')
+
+      zass('div { color: lighten( $nonexistent_variable, 10% ); }', [], [])
+
+      expect(errorStub.calledWithExactly(
+        `Could not process ${chalk.red('lighten( $nonexistent_variable, 10% )')} in style.css`,
+        sinon.match({ exit: false })
+      )).to.equal(true)
     })
   })
 })
