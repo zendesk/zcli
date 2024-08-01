@@ -40,7 +40,7 @@ export default function zass (source: string, variables: Variable[], assets: [pa
 
   const command = /(?<command>lighten|darken)/i
   const percentage = /(?<percentage>\d{1,3})%/
-  const functionsRegex = new RegExp(`${command.source}\\s*\\((?<color>.*),\\s*${percentage.source}\\s*\\)`)
+  const functionsRegex = new RegExp(`${command.source}\\s*\\((?<color>.*),\\s*${percentage.source}\\s*\\)`, 'g')
 
   // `darken` and `lighten` functions may use variables so make
   // sure to replace them last
