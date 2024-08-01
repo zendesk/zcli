@@ -1,6 +1,8 @@
 import type { Variable } from '../types'
 import * as path from 'path'
 import * as sass from 'sass'
+import { error } from '@oclif/core/lib/errors'
+import * as chalk from 'chalk'
 
 // Help Center themes may use SASS variable syntax to access variables
 // defined in the manifest.json file and also the URLs of files placed
@@ -42,20 +44,25 @@ export default function zass (source: string, variables: Variable[], assets: [pa
   const percentage = /(?<percentage>\d{1,3})%/
   const functionsRegex = new RegExp(`${command.source}\\s*\\((?<color>.*),\\s*${percentage.source}\\s*\\)`, 'g')
 
-  // `darken` and `lighten` functions may use variables so make
-  // sure to replace them last
+  // `darken` and `lighten` functions may use variables so make sure to replace them last
   output = output.replace(functionsRegex, (match/*, command, color, percentage */) => {
     const prefix = 'code{color:'
     const suffix = '}'
 
-    // dart-sass does not provide an api to individually compile `darken` and `lighten`
-    // so we improvise one using `compileString` with a valid SCSS string.
-    // If such an api ever becomes available, we could switch to using it along with
-    // the named gorups "command", "color" and "percentage"
-    const compiled = sass.compileString(prefix + match + suffix, { style: 'compressed' }).css
-    const value = compiled.substring(prefix.length, compiled.length - suffix.length)
+    try {
+      // `dart-sass` does not provide an api to individually compile `darken` and `lighten`
+      // functions so we improvise one using `compileString` with a valid SCSS string.
+      // If such an api ever becomes available, we could switch to using it along with
+      // the named gorups "command", "color" and "percentage"
+      const compiled = sass.compileString(prefix + match + suffix, { style: 'compressed' }).css
+      const value = compiled.substring(prefix.length, compiled.length - suffix.length)
 
-    return value
+      return value
+    } catch (e) {
+      // Do no exit but signal the error to the user while maintaining the source string
+      error(`Could not process ${chalk.red(match)} in style.css`, { exit: false })
+      return match
+    }
   })
 
   return output
