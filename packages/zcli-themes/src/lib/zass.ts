@@ -53,7 +53,7 @@ export default function zass (source: string, variables: Variable[], assets: [pa
       // `dart-sass` does not provide an api to individually compile `darken` and `lighten`
       // functions so we improvise one using `compileString` with a valid SCSS string.
       // If such an api ever becomes available, we could switch to using it along with
-      // the named gorups "command", "color" and "percentage"
+      // the named groups "command", "color" and "percentage"
       const compiled = sass.compileString(prefix + match + suffix, { style: 'compressed' }).css
       const value = compiled.substring(prefix.length, compiled.length - suffix.length)
 
