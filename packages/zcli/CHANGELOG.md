@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.47](https://github.com/zendesk/zcli/compare/v1.0.0-beta.46...v1.0.0-beta.47) (2024-08-05)
+
+
+### Features
+
+* replace term password with secret ([e0c2aaa](https://github.com/zendesk/zcli/commit/e0c2aaa0543b4ae7ccfe69245538ab29701688df))
+* update help message to refer only the api token ([97f6ce9](https://github.com/zendesk/zcli/commit/97f6ce9a7a416f233b994b572c844e34c9a24400))
+
+
+
+
+
 # [1.0.0-beta.46](https://github.com/zendesk/zcli/compare/v1.0.0-beta.45...v1.0.0-beta.46) (2024-07-15)
 
 **Note:** Version bump only for package @zendesk/zcli

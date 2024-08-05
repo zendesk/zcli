@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.47](https://github.com/zendesk/zcli/compare/v1.0.0-beta.46...v1.0.0-beta.47) (2024-08-05)
+
+
+### Bug Fixes
+
+* fix unit and functional tests ([e4eb869](https://github.com/zendesk/zcli/commit/e4eb8695e80bba5a397e7d2390accd65d71b9dd4))
+* inconsistent behaviour when ZENDESK_DOMAIN env is set ([7d1f234](https://github.com/zendesk/zcli/commit/7d1f234852dec793953e443879ddced7b5851710))
+* webpack unit test to use vite ([e5c81cf](https://github.com/zendesk/zcli/commit/e5c81cfb21612fcd5fadd2c3f4aee27d0df620ba))
+
+
+
+
+
 # [1.0.0-beta.46](https://github.com/zendesk/zcli/compare/v1.0.0-beta.45...v1.0.0-beta.46) (2024-07-15)
 
 **Note:** Version bump only for package @zendesk/zcli-apps

@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.47](https://github.com/zendesk/zcli/compare/v1.0.0-beta.46...v1.0.0-beta.47) (2024-08-05)
+
+
+### Bug Fixes
+
+* failing unit test ([eede77d](https://github.com/zendesk/zcli/commit/eede77d63514a69ff0725a40065ccf00e90da3ec))
+* fix unit and functional tests ([e4eb869](https://github.com/zendesk/zcli/commit/e4eb8695e80bba5a397e7d2390accd65d71b9dd4))
+* inconsistent behaviour when ZENDESK_DOMAIN env is set ([7d1f234](https://github.com/zendesk/zcli/commit/7d1f234852dec793953e443879ddced7b5851710))
+
+
+### Features
+
+* change login to use api token ([415b5e1](https://github.com/zendesk/zcli/commit/415b5e19ddb164f70cf6d74d5f9f48f802612473))
+* replace term password with secret ([e0c2aaa](https://github.com/zendesk/zcli/commit/e0c2aaa0543b4ae7ccfe69245538ab29701688df))
+* update help message to refer only the api token ([97f6ce9](https://github.com/zendesk/zcli/commit/97f6ce9a7a416f233b994b572c844e34c9a24400))
+
+
+
+
+
 # [1.0.0-beta.46](https://github.com/zendesk/zcli/compare/v1.0.0-beta.45...v1.0.0-beta.46) (2024-07-15)
 
 **Note:** Version bump only for package @zendesk/zcli-core

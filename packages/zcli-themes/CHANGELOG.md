@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.47](https://github.com/zendesk/zcli/compare/v1.0.0-beta.46...v1.0.0-beta.47) (2024-08-05)
+
+
+### Bug Fixes
+
+* fix unit and functional tests ([e4eb869](https://github.com/zendesk/zcli/commit/e4eb8695e80bba5a397e7d2390accd65d71b9dd4))
+* handle compilation errors for lighten and darken functions ([a45f319](https://github.com/zendesk/zcli/commit/a45f31943fdaf1032951111516a78746380fafde))
+* replace all instances of lighten and darken functions ([b828b9c](https://github.com/zendesk/zcli/commit/b828b9cc2a28ff8107d6ca84e00dd4ebca85f78c))
+
+
+
+
+
 # [1.0.0-beta.46](https://github.com/zendesk/zcli/compare/v1.0.0-beta.45...v1.0.0-beta.46) (2024-07-15)
 
 **Note:** Version bump only for package @zendesk/zcli-themes
