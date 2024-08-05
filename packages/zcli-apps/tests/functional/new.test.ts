@@ -74,9 +74,9 @@ describe('apps new', () => {
       await cleanDirectory(dirPath)
     })
 
-    test.it('should create a directory with webpack configs', async () => {
-      const webpackPath = path.join(process.cwd(), dirName, 'webpack')
-      expect(fs.existsSync(webpackPath)).to.eq(true)
+    test.it('should create a vite config file', async () => {
+      const viteConfigPath = path.join(process.cwd(), dirName, 'vite.config.js')
+      expect(fs.existsSync(viteConfigPath)).to.eq(true)
     })
 
     test.it('updates manifest.json with user input values', async () => {
