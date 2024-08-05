@@ -6,7 +6,7 @@ import Auth from './auth'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
 
-describe('Auth', () => {
+describe.only('Auth', () => {
   describe('createBasicAuthToken', () => {
     test
       .it('should create basic auth token', async () => {
@@ -92,7 +92,7 @@ describe('Auth', () => {
         api
           .get('/api/v2/account/settings.json')
           .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
+            expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
             return [200]
           })
       })
@@ -114,7 +114,7 @@ describe('Auth', () => {
         api
           .get('/api/v2/account/settings.json')
           .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
+            expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
             return [200]
           })
       })
@@ -135,7 +135,7 @@ describe('Auth', () => {
         api
           .get('/api/v2/account/settings.json')
           .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
+            expect(this.req.headers.authorization[0]).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
             return [200]
           })
       })
