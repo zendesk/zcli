@@ -1,6 +1,5 @@
 import { expect, test } from '@oclif/test'
 import { createRequestConfig, requestAPI } from './request'
-import { HttpStatusCode } from 'axios'
 import * as requestUtils from './requestUtils'
 import Auth from './auth'
 import { Profile } from '../types'
@@ -103,10 +102,10 @@ describe('requestAPI', () => {
     .nock('https://z3ntest.zendesk.com', api => {
       api
         .get('/api/v2/me')
-        .reply(HttpStatusCode.Ok)
+        .reply(200)
     })
     .it('should call an http endpoint', async () => {
       const response = await requestAPI('api/v2/me', { method: 'GET' })
-      expect(response.status).to.equal(HttpStatusCode.Ok)
+      expect(response.status).to.equal(200)
     })
 })
