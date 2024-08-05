@@ -2,6 +2,8 @@ import type { Variable } from '../types'
 import * as sinon from 'sinon'
 import * as path from 'path'
 import { expect } from '@oclif/test'
+import * as errors from '@oclif/core/lib/errors'
+import * as chalk from 'chalk'
 import zass from './zass'
 
 // Assert on minified css to ignore whitespace differences
@@ -72,6 +74,24 @@ describe('zass', () => {
       `))
     })
 
+    it('replaces multiple instances of `darken` with different arguments', () => {
+      expect(minify(zass(`
+        div {
+          background-color: darken( #ff33cc, 10% );
+          background-color: darken( #ff5, 10% );
+          background-color: darken( rgb(255, 1, 2), 10% );
+          background-color: darken( hsla(180, 50%, 50%, 0.2), 20% );
+        }
+      `, [], []))).to.deep.equal(minify(`
+        div {
+          background-color: #ff00bf;
+          background-color: #ff2;
+          background-color: #cd0001;
+          background-color: rgba(38, 115, 115, .2);
+        }
+      `))
+    })
+
     it('darkens a color defined in variables', () => {
       expect(minify(zass(
         'div { background-color: darken( $cool_color, 10% ) }',
@@ -80,6 +100,17 @@ describe('zass', () => {
       ))).to.deep.equal(minify(`
         div { background-color: #ff00bf }
       `))
+    })
+
+    it('errors with a descriptive message without exiting when it cannot darken a variable', () => {
+      const errorStub = sinon.stub(errors, 'error')
+
+      zass('div { color: darken( $nonexistent_variable, 10% ); }', [], [])
+
+      expect(errorStub.calledWithExactly(
+        `Could not process ${chalk.red('darken( $nonexistent_variable, 10% )')} in style.css`,
+        sinon.match({ exit: false })
+      )).to.equal(true)
     })
   })
 
@@ -108,6 +139,24 @@ describe('zass', () => {
       `))
     })
 
+    it('replaces multiple instances of `lighten` with different arguments', () => {
+      expect(minify(zass(`
+        div {
+          background-color: lighten( #5566ff, 10% );
+          background-color: lighten( #55d, 10% );
+          background-color: lighten( rgb(255, 1, 2), 10% );
+          background-color: lighten( hsla(180, 50%, 50%, 0.2), 20% );
+        }
+      `, [], []))).to.deep.equal(minify(`
+        div {
+          background-color: #8894ff;
+          background-color: #8080e6;
+          background-color: #ff3435;
+          background-color: rgba(140, 217, 217, .2);
+        }
+      `))
+    })
+
     it('darkens a color defined in variables', () => {
       expect(minify(zass(
         'div { background-color: lighten( $cool_color, 10% ) }',
@@ -116,6 +165,17 @@ describe('zass', () => {
       )).to.deep.equal(minify(`
         div { background-color: #8894ff }
       `))
+    })
+
+    it('errors with a descriptive message without exiting when it cannot lighten a variable', () => {
+      const errorStub = sinon.stub(errors, 'error')
+
+      zass('div { color: lighten( $nonexistent_variable, 10% ); }', [], [])
+
+      expect(errorStub.calledWithExactly(
+        `Could not process ${chalk.red('lighten( $nonexistent_variable, 10% )')} in style.css`,
+        sinon.match({ exit: false })
+      )).to.equal(true)
     })
   })
 })
