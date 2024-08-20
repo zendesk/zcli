@@ -77,7 +77,7 @@ describe('Auth', () => {
 
   describe('loginInteractively', () => {
     const auth = new Auth({ secureStore: new SecureStore() })
-    let promptStub = sinon.stub()
+    const promptStub = sinon.stub()
     const sandbox = sinon.createSandbox()
     const fetchStub = sandbox.stub(global, 'fetch')
 
@@ -93,10 +93,10 @@ describe('Auth', () => {
       .do(() => {
         fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/account/settings.json',
           sinon.match(function (params) {
-            if (params.headers.Authorization === "Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=") {
-              return true;
+            if (params.headers.Authorization === 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=') {
+              return true
             }
-            return false;
+            return false
           })).resolves({
             status: 200,
             json: () => Promise.resolve({})
@@ -104,7 +104,7 @@ describe('Auth', () => {
       })
       .it('should return true on login success', async () => {
         expect(await auth.loginInteractively()).to.equal(true)
-        sandbox.reset();
+        sandbox.reset()
       })
 
     test
@@ -120,10 +120,10 @@ describe('Auth', () => {
       .do(() => {
         fetchStub.withArgs('https://z3ntest.example.com/api/v2/account/settings.json',
           sinon.match(function (params) {
-            if (params.headers.Authorization === "Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=") {
-              return true;
+            if (params.headers.Authorization === 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=') {
+              return true
             }
-            return false;
+            return false
           })).resolves({
             status: 200,
             json: () => Promise.resolve({})
@@ -131,7 +131,7 @@ describe('Auth', () => {
       })
       .it('should login successfully using the passed domain and the prompted subdomain', async () => {
         expect(await auth.loginInteractively({ domain: 'example.com' } as Profile)).to.equal(true)
-        sandbox.reset();
+        sandbox.reset()
       })
 
     test
@@ -146,10 +146,10 @@ describe('Auth', () => {
       .do(() => {
         fetchStub.withArgs('https://z3ntest.example.com/api/v2/account/settings.json',
           sinon.match(function (params) {
-            if (params.headers.Authorization === "Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=") {
-              return true;
+            if (params.headers.Authorization === 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=') {
+              return true
             }
-            return false;
+            return false
           })).resolves({
             status: 200,
             json: () => Promise.resolve({})
@@ -157,7 +157,7 @@ describe('Auth', () => {
       })
       .it('should login successfully using the passed subdomain and domain', async () => {
         expect(await auth.loginInteractively({ subdomain: 'z3ntest', domain: 'example.com' })).to.equal(true)
-        sandbox.reset();
+        sandbox.reset()
       })
 
     test
@@ -170,9 +170,9 @@ describe('Auth', () => {
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .do(() => {
         fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/account/settings.json', sinon.match.any).resolves({
-            status: 403,
-            json: () => Promise.resolve({})
-          } as any)
+          status: 403,
+          json: () => Promise.resolve({})
+        } as any)
       })
       .it('should return false on login failure', async () => {
         expect(await auth.loginInteractively()).to.equal(false)

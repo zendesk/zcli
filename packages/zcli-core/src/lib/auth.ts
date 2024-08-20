@@ -69,10 +69,10 @@ export default class Auth {
 
     const testAuth = await fetch(`${baseUrl}/api/v2/account/settings.json`, {
       headers: {
-        Authorization: authToken,
+        Authorization: authToken
       }
     })
-    
+
     if (testAuth.status === 200 && this.secureStore) {
       await this.secureStore.setSecret(account, authToken)
       await this.setLoggedInProfile(subdomain, domain)
