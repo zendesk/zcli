@@ -67,8 +67,12 @@ export default class Auth {
     const token = await CliUx.ux.prompt('API Token', { type: 'hide' })
     const authToken = this.createBasicAuthToken(email, token)
 
-    const testAuth = await fetch(`https://${subdomain}.zendesk.com/api/v2/account/settings.json`, { headers: { Authorization: authToken } }) 
-
+    const testAuth = await fetch(`${baseUrl}/api/v2/account/settings.json`, {
+      headers: {
+        Authorization: authToken,
+      }
+    })
+    
     if (testAuth.status === 200 && this.secureStore) {
       await this.secureStore.setSecret(account, authToken)
       await this.setLoggedInProfile(subdomain, domain)
