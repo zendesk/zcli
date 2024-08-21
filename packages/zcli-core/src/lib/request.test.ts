@@ -102,7 +102,7 @@ describe('requestAPI', () => {
     })
     .stub(requestUtils, 'getSubdomain', () => 'fake')
     .stub(requestUtils, 'getDomain', () => 'fake.com')
-    .do(()=>{
+    .do(() => {
       fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/me', sinon.match.any).resolves({
         status: 200,
         ok: true,

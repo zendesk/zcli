@@ -56,15 +56,15 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
   const response = await fetch(`${requestConfig.baseURL}/${requestConfig.url}`, {
     method: requestConfig.method,
     headers: requestConfig.headers,
-    body: requestConfig.data ? JSON.stringify(requestConfig.data) : undefined,
+    body: requestConfig.data ? JSON.stringify(requestConfig.data) : undefined
   })
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`)
   }
-  
+
   return {
     status: response.status,
-    data: response.json(),
+    data: response.json()
   }
 }
