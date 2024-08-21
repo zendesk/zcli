@@ -1,4 +1,3 @@
-import axios from 'axios'
 import SecureStore from './secureStore'
 import Auth from './auth'
 import { CLIError } from '@oclif/core/lib/errors'
@@ -48,7 +47,24 @@ export const createRequestConfig = async (url: string, options: any = {}) => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// export const requestAPI = async (url: string, options: any = {}, json = false) => {
+//   const requestConfig = await createRequestConfig(url, options)
+//   return axios.request(requestConfig)
+// }
 export const requestAPI = async (url: string, options: any = {}, json = false) => {
   const requestConfig = await createRequestConfig(url, options)
-  return axios.request(requestConfig)
+  const response = await fetch(`${requestConfig.baseURL}/${requestConfig.url}`, {
+    method: requestConfig.method,
+    headers: requestConfig.headers,
+    body: requestConfig.data ? JSON.stringify(requestConfig.data) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  
+  return {
+    status: response.status,
+    data: response.json(),
+  }
 }
