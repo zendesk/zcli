@@ -178,6 +178,10 @@ describe('Auth', () => {
         expect(await auth.loginInteractively()).to.equal(false)
         sandbox.reset()
       })
+
+    after(function () {
+      sandbox.restore()
+    })
   })
 
   describe('logout', () => {

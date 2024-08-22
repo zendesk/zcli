@@ -114,4 +114,7 @@ describe('requestAPI', () => {
       expect(response.status).to.equal(200)
       sandbox.reset()
     })
+  after(function () {
+    sandbox.restore()
+  })
 })
