@@ -92,7 +92,13 @@ describe('createRequestConfig', () => {
 
 describe('requestAPI', () => {
   const sandbox = sinon.createSandbox()
-  const fetchStub = sandbox.stub(global, 'fetch')
+  let fetchStub: any
+  before(() => {
+    fetchStub = sandbox.stub(global, 'fetch')
+  })
+  after(() => {
+    sandbox.restore()
+  })
   test
     .env({
       ZENDESK_SUBDOMAIN: 'z3ntest',
@@ -114,7 +120,4 @@ describe('requestAPI', () => {
       expect(response.status).to.equal(200)
       sandbox.reset()
     })
-  after(function () {
-    sandbox.restore()
-  })
 })

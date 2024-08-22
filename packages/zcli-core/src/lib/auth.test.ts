@@ -79,7 +79,14 @@ describe('Auth', () => {
     const auth = new Auth({ secureStore: new SecureStore() })
     const promptStub = sinon.stub()
     const sandbox = sinon.createSandbox()
-    const fetchStub = sandbox.stub(global, 'fetch')
+    let fetchStub: any
+
+    before(() => {
+      fetchStub = sandbox.stub(global, 'fetch')
+    })
+    after(() => {
+      sandbox.restore()
+    })
 
     test
       .do(() => {
@@ -178,10 +185,6 @@ describe('Auth', () => {
         expect(await auth.loginInteractively()).to.equal(false)
         sandbox.reset()
       })
-
-    after(function () {
-      sandbox.restore()
-    })
   })
 
   describe('logout', () => {
