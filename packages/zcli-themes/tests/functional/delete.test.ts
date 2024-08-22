@@ -1,14 +1,22 @@
 import { expect, test } from '@oclif/test'
+import * as sinon from 'sinon'
 import DeleteCommand from '../../src/commands/themes/delete'
 import env from './env'
+import { ok } from 'assert'
 
 describe('themes:delete', function () {
+  const sandbox = sinon.createSandbox()
+  const fetchStub = sandbox.stub(global, 'fetch')
   describe('successful deletion', () => {
     const success = test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .delete('/api/v2/guide/theming/themes/1234')
-        .reply(204))
+      .do(() => {
+        fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/guide/theming/themes/1234', sinon.match.any).resolves({
+          status: 204,
+          ok: true,
+          json: () => Promise.resolve({})
+        } as any)
+      })
 
     success
       .stdout()

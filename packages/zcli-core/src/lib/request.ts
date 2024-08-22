@@ -64,7 +64,8 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
   }
 
   return {
+    config: requestConfig,
     status: response.status,
-    data: response.json()
+    data: await response.json()
   }
 }
