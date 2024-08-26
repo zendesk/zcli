@@ -15,10 +15,16 @@ describe('apps', function () {
   const successUpdateMessage = 'Successfully updated app'
   const uploadAppPkgStub = sinon.stub(createAppUtils, 'uploadAppPkg')
   const createAppPkgStub = sinon.stub()
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
 
   afterEach(() => {
     uploadAppPkgStub.reset()
     createAppPkgStub.reset()
+    fetchStub.restore()
   })
 
   describe('create', () => {
@@ -34,26 +40,46 @@ describe('apps', function () {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 817 })
           uploadAppPkgStub.onSecondCall().resolves({ id: 818 })
-        })
-        .nock('https://z3ntest.zendesk.com/', api => {
-          api
-            .post('/api/apps.json', { upload_id: 817, name: 'Test App 1' })
-            .reply(200, { job_id: 127 })
-          api
-            .post('/api/apps.json', { upload_id: 818, name: 'Test App 2' })
-            .reply(200, { job_id: 128 })
-          api
-            .get('/api/v2/apps/job_statuses/127')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
-          api
-            .get('/api/v2/apps/job_statuses/128')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 123458 })
-          api
-            .post('/api/support/apps/installations.json', { app_id: '123456', settings: { name: 'Test App 1' } })
-            .reply(200)
-          api
-            .post('/api/support/apps/installations.json', { app_id: '123458', settings: { name: 'Test App 2', salesForceId: 123 } })
-            .reply(200)
+
+          fetchStub.withArgs(sinon.match({
+            url: 'https://z3ntest.zendesk.com/api/apps.json',
+          })).onFirstCall().resolves({
+            body: JSON.stringify({ job_id: 127 }),
+            text: () => Promise.resolve(JSON.stringify({ job_id: 127 })),
+            ok: true,
+          }).onSecondCall().resolves({
+            body: JSON.stringify({ job_id: 128 }),
+            text: () => Promise.resolve(JSON.stringify({ job_id: 128 })),
+            ok: true,
+          })
+          fetchStub.withArgs(sinon.match({
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/127',
+          })).resolves({
+            text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 })),
+            body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 }),
+            ok: true,
+          })
+          fetchStub.withArgs(sinon.match({
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/128',
+          })).resolves({
+            text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123458 })),
+            body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123458 }),
+            ok: true,
+          })
+          fetchStub.withArgs(sinon.match({
+            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json',
+          })).onFirstCall().resolves({
+            text: () => Promise.resolve(JSON.stringify({ job_id: 127 })),
+            body: JSON.stringify({ job_id: 127 }),
+            ok: true,
+          })
+          fetchStub.withArgs(sinon.match({
+            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json',
+          })).onSecondCall().resolves({
+            text: () => Promise.resolve(JSON.stringify({ job_id: 128 })),
+            body: JSON.stringify({ job_id: 128 }),
+            ok: true,
+          })
         })
         .stdout()
         .command(['apps:create', singleProductApp, multiProductApp])
@@ -71,17 +97,18 @@ describe('apps', function () {
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
-        })
-        .nock('https://z3ntest.zendesk.com/', api => {
-          api
-            .post('/api/apps.json', { upload_id: 819, name: 'Test App 1' })
-            .reply(200, { job_id: 129 })
-          api
-            .get('/api/v2/apps/job_statuses/129')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
-          api
-            .post('/api/support/apps/installations.json', { app_id: '123456', settings: { name: 'Test App 1' } })
-            .reply(200)
+
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/apps.json').resolves({
+            json: () => Promise.resolve({ job_id: 129 }),
+            ok: true,
+          } as Response)
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129').resolves({
+            json: () => Promise.resolve({ status: 'completed', message: 'awesome', app_id: 123456 }),
+            ok: true,
+          } as Response)
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/support/apps/installations.json').resolves({
+            ok: true,
+          } as Response)
         })
         .stdout()
         .command(['apps:create', singleProductApp])
@@ -97,14 +124,15 @@ describe('apps', function () {
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
-        })
-        .nock('https://z3ntest.zendesk.com/', api => {
-          api
-            .post('/api/apps.json', { upload_id: 819, name: 'Test App 1' })
-            .reply(200, { job_id: 129 })
-          api
-            .get('/api/v2/apps/job_statuses/129')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
+
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/apps.json').resolves({
+            json: () => Promise.resolve({ job_id: 129 }),
+            ok: true,
+          } as Response)
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129').resolves({
+            json: () => Promise.resolve({ status: 'completed', message: 'awesome', app_id: 123456 }),
+            ok: true,
+          } as Response)
         })
         .stdout()
         .command(['apps:create', requirementsOnlyApp])
@@ -122,14 +150,15 @@ describe('apps', function () {
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
-        })
-        .nock('https://z3ntest.zendesk.com/', api => {
-          api
-            .put('/api/v2/apps/123456', { upload_id: 819 })
-            .reply(200, { job_id: 129 })
-          api
-            .get('/api/v2/apps/job_statuses/129')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
+
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/apps/123456').resolves({
+            json: () => Promise.resolve({ job_id: 129 }),
+            ok: true,
+          } as Response)
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129').resolves({
+            json: () => Promise.resolve({ status: 'completed', message: 'awesome', app_id: 123456 }),
+            ok: true,
+          } as Response)
         })
         .stdout()
         .command(['apps:update', singleProductApp])
@@ -145,14 +174,15 @@ describe('apps', function () {
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
-        })
-        .nock('https://z3ntest.zendesk.com/', api => {
-          api
-            .put('/api/v2/apps/123456', { upload_id: 819 })
-            .reply(200, { job_id: 129 })
-          api
-            .get('/api/v2/apps/job_statuses/129')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
+
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/apps/123456').resolves({
+            json: () => Promise.resolve({ job_id: 129 }),
+            ok: true,
+          } as Response)
+          fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129').resolves({
+            json: () => Promise.resolve({ status: 'completed', message: 'awesome', app_id: 123456 }),
+            ok: true,
+          } as Response)
         })
         .stdout()
         .command(['apps:update', requirementsOnlyApp])
