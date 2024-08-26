@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
 import * as fs from 'fs'
+import * as sinon from 'sinon'
 import * as readline from 'readline'
 import * as AdmZip from 'adm-zip'
 import env from './env'
@@ -8,14 +9,28 @@ import * as requestUtils from '../../../zcli-core/src/lib/requestUtils'
 
 describe('package', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_app')
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
+
   test
     .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
     .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
-    .nock('https://z3ntest.zendesk.com', api => {
-      api
-        .post('/api/v2/apps/validate')
-        .reply(200)
+    .do(() => {
+      fetchStub.withArgs(sinon.match({
+        url: 'https://z3ntest.zendesk.com/api/v2/apps/validate',
+      })).resolves({
+        status: 200,
+        ok: true,
+        text: () => Promise.resolve('')
+      })
     })
     .stdout()
     .command(['apps:package', appPath])
@@ -28,10 +43,14 @@ describe('package', function () {
     .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
     .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
-    .nock('https://z3ntest.zendesk.com', api => {
-      api
-        .post('/api/v2/apps/validate')
-        .reply(400, { description: 'invalid location' })
+    .do(() => {
+      fetchStub.withArgs(sinon.match({
+        url: 'https://z3ntest.zendesk.com/api/v2/apps/validate',
+      })).resolves({
+        status: 400,
+        ok: false,
+        text: () => Promise.resolve(JSON.stringify({ description: 'invalid location' }))
+      })
     })
     .command(['apps:package', path.join(__dirname, 'mocks/single_product_app')])
     .catch(err => expect(err.message).to.contain('Error: invalid location'))
@@ -41,6 +60,7 @@ describe('package', function () {
 describe('zcliignore', function () {
   const appPath = path.join(__dirname, 'mocks/single_product_ignore')
   const tmpPath = path.join(appPath, 'tmp')
+  let fetchStub: sinon.SinonStub
 
   const file = readline.createInterface({
     input: fs.createReadStream(path.join(appPath, '.zcliignore')),
@@ -52,6 +72,14 @@ describe('zcliignore', function () {
 
   file.on('line', (line) => {
     ignoreArr.push(line) // add to array dynamically
+  })
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
   })
 
   after(async () => {
@@ -70,10 +98,14 @@ describe('zcliignore', function () {
     .stub(requestUtils, 'getSubdomain', () => Promise.resolve(undefined))
     .stub(requestUtils, 'getDomain', () => Promise.resolve(undefined))
     .env(env)
-    .nock('https://z3ntest.zendesk.com', api => {
-      api
-        .post('/api/v2/apps/validate')
-        .reply(200)
+    .do(() => {
+      fetchStub.withArgs(sinon.match({
+        url: 'https://z3ntest.zendesk.com/api/v2/apps/validate',
+      })).resolves({
+        status: 200,
+        ok: true,
+        text: () => Promise.resolve('')
+      })
     })
     .stdout()
     .command(['apps:package', appPath])
