@@ -5,6 +5,7 @@ import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
 import { getBaseUrl, getDomain, getSubdomain } from './requestUtils'
 import * as path from 'path'
+import * as fs from 'fs';
 
 const MSG_ENV_OR_LOGIN = 'Set the following environment variables: ZENDESK_SUBDOMAIN, ZENDESK_EMAIL, ZENDESK_API_TOKEN. Or try logging in via `zcli login -i`'
 const ERR_AUTH_FAILED = `Authorization failed. ${MSG_ENV_OR_LOGIN}`
@@ -55,22 +56,31 @@ export const createRequestConfig = async (url: string, options: any = {}) => {
 export const requestAPI = async (url: string, options: any = {}, json = false) => {
   const requestConfig = await createRequestConfig(url, options)
 
-  const concatenatedUrl = `${requestConfig.baseURL}/${requestConfig.url}`
+  // if requestConfig.url has a protocol, then we need to ignore the baseURL
+  if (requestConfig.url.includes('://')) {
+    requestConfig.baseURL = ''
+  }
+
+  const trimmedBaseUrl = requestConfig.baseURL.replace(/\/+$/, '')
+  const trimmedUrl = requestConfig.url.replace(/^\/+/, '')
+
+  const concatenatedUrl = [trimmedBaseUrl, trimmedUrl].filter(Boolean).join('/')
 
   const stringifiedBody = typeof requestConfig.data === 'string' ? requestConfig.data : JSON.stringify(requestConfig.data)
-
 
   const response = await fetch(concatenatedUrl, {
     method: requestConfig.method,
     headers: requestConfig.headers,
     body: stringifiedBody,
   })
+  console.log('response', response)
 
   if (response === undefined) {
     // fetch called with:
     require('fs').writeFileSync(path.join(__dirname, 'request11.json'), JSON.stringify([
       concatenatedUrl,
       {
+        trimmedUrl,
         method: requestConfig.method,
         headers: requestConfig.headers,
         body: stringifiedBody,
@@ -79,13 +89,27 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
     ], null, 2))
 }
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+  // if (!response.ok) {
+  //   throw new Error(`HTTP error! status: ${response.status}`)
+  // }
+
+  let data = null;
+  
+  try {
+    data = await response.json()
+  } catch (e) {
+    data = await response.text()
+  }
+
+  try {
+    fs.writeFileSync(path.join(__dirname, 'data.json'), JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error('Error writing data to file:', error);
   }
 
   return {
     config: requestConfig,
     status: response.status,
-    data: await response.json()
+    data,
   }
 }
