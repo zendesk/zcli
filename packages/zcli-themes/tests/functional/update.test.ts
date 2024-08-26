@@ -4,6 +4,7 @@ import * as path from 'path'
 import * as nock from 'nock'
 import UpdateCommand from '../../src/commands/themes/update'
 import env from './env'
+import * as sinon from 'sinon'
 
 describe('themes:update', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
@@ -18,23 +19,43 @@ describe('themes:update', function () {
       }
     }
   }
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
 
   describe('successful update', () => {
     const success = test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => {
-        api
-          .post('/api/v2/guide/theming/jobs/themes/updates')
-          .reply(202, { job })
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates',
+        })).resolves({
+          status: 202,
+          ok: true,
+          text: () => Promise.resolve(JSON.stringify({ job }))
+        })
 
-        api
-          .get('/api/v2/guide/theming/jobs/9999')
-          .reply(200, { job: { ...job, status: 'completed' } })
-      })
-      .nock('https://s3.com', (api) => {
-        api
-          .post('/upload/path')
-          .reply(200)
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/9999',
+        })).resolves({
+          status: 200,
+          ok: true,
+          text: () => Promise.resolve(JSON.stringify({ job: { ...job, status: 'completed' } }))
+        })
+
+        fetchStub.withArgs(sinon.match({
+          url: 'https://s3.com/upload/path',
+        })).resolves({
+          status: 200,
+          ok: true,
+          text: () => Promise.resolve('')
+        })
       })
 
     success
@@ -56,15 +77,19 @@ describe('themes:update', function () {
     test
       .stderr()
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => {
-        api
-          .post('/api/v2/guide/theming/jobs/themes/updates')
-          .reply(400, {
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates',
+        })).resolves({
+          status: 400,
+          ok: false,
+          text: () => Promise.resolve(JSON.stringify({
             errors: [{
               code: 'TooManyThemes',
               title: 'Maximum number of allowed themes reached'
             }]
-          })
+          }))
+        })
       })
       .it('should report errors when creating the update job fails', async (ctx) => {
         try {
@@ -73,21 +98,26 @@ describe('themes:update', function () {
           expect(ctx.stderr).to.contain('!')
           expect(error.message).to.contain('TooManyThemes')
           expect(error.message).to.contain('Maximum number of allowed themes reached')
-        } finally {
-          nock.cleanAll()
         }
       })
 
     test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => {
-        api
-          .post('/api/v2/guide/theming/jobs/themes/updates')
-          .reply(202, { job })
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates',
+        })).resolves({
+          status: 202,
+          ok: true,
+          text: () => Promise.resolve(JSON.stringify({ job }))
+        })
 
-        api
-          .get('/api/v2/guide/theming/jobs/9999')
-          .reply(200, {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/9999',
+        })).resolves({
+          status: 200,
+          ok: true,
+          text: () => Promise.resolve(JSON.stringify({
             job: {
               ...job,
               status: 'failed',
@@ -109,12 +139,16 @@ describe('themes:update', function () {
                 }
               ]
             }
-          })
-      })
-      .nock('https://s3.com', (api) => {
-        api
-          .post('/upload/path')
-          .reply(200)
+          }))
+        })
+
+        fetchStub.withArgs(sinon.match({
+          url: 'https://s3.com/upload/path',
+        })).resolves({
+          status: 200,
+          ok: true,
+          text: () => Promise.resolve('')
+        })
       })
       .it('should report validation errors', async (ctx) => {
         try {
@@ -124,8 +158,6 @@ describe('themes:update', function () {
           expect(error.message).to.contain('Template(s) with syntax error(s)')
           expect(error.message).to.contain('Validation error')
           expect(error.message).to.contain("'request_fosrm' does not exist")
-        } finally {
-          nock.cleanAll()
         }
       })
   })

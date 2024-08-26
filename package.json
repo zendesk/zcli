@@ -52,7 +52,7 @@
     "link:bin": "bash ./scripts/link_dev.sh",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "test": "nyc --extension .ts mocha --config=.mocharc.json --forbid-only packages/**/src/**/*.test.ts",
-    "test:functional": "mocha --config=.mocharc.json -r ts-node/register packages/**/tests/**/create.test.ts",
+    "test:functional": "mocha --config=.mocharc.json -r ts-node/register packages/**/tests/**/update.test.ts",
     "changelog": "lerna-changelog",
     "type:check": "lerna run type:check"
   },
