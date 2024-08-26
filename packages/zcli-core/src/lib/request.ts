@@ -4,6 +4,7 @@ import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
 import { getBaseUrl, getDomain, getSubdomain } from './requestUtils'
+import * as path from 'path'
 
 const MSG_ENV_OR_LOGIN = 'Set the following environment variables: ZENDESK_SUBDOMAIN, ZENDESK_EMAIL, ZENDESK_API_TOKEN. Or try logging in via `zcli login -i`'
 const ERR_AUTH_FAILED = `Authorization failed. ${MSG_ENV_OR_LOGIN}`
@@ -53,11 +54,29 @@ export const createRequestConfig = async (url: string, options: any = {}) => {
 // }
 export const requestAPI = async (url: string, options: any = {}, json = false) => {
   const requestConfig = await createRequestConfig(url, options)
-  const response = await fetch(`${requestConfig.baseURL}/${requestConfig.url}`, {
+
+  const concatenatedUrl = `${requestConfig.baseURL}/${requestConfig.url}`
+
+
+  const response = await fetch(concatenatedUrl, {
     method: requestConfig.method,
     headers: requestConfig.headers,
     body: requestConfig.data ? JSON.stringify(requestConfig.data) : undefined
   })
+
+  const stringifiedBody = typeof requestConfig.data === 'string' ? requestConfig.data : JSON.stringify(requestConfig.data)
+
+  if (response === undefined) {
+    // fetch called with:
+    require('fs').writeFileSync(path.join(__dirname, 'request11.json'), JSON.stringify([
+      concatenatedUrl,
+      {
+        method: requestConfig.method,
+        headers: requestConfig.headers,
+        body: stringifiedBody
+      }
+    ], null, 2))
+}
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`)
