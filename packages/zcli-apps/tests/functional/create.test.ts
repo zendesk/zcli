@@ -161,6 +161,14 @@ describe('apps', function () {
   })
 
   describe('update', () => {
+    beforeEach(() => {
+      fetchStub = sandbox.stub(global, 'fetch')
+    })
+
+    afterEach(() => {
+      sandbox.restore()
+    })
+
     describe('with single app', () => {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)

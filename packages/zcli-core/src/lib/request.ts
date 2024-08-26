@@ -57,14 +57,14 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
 
   const concatenatedUrl = `${requestConfig.baseURL}/${requestConfig.url}`
 
+  const stringifiedBody = typeof requestConfig.data === 'string' ? requestConfig.data : JSON.stringify(requestConfig.data)
+
 
   const response = await fetch(concatenatedUrl, {
     method: requestConfig.method,
     headers: requestConfig.headers,
-    body: requestConfig.data ? JSON.stringify(requestConfig.data) : undefined
+    body: stringifiedBody,
   })
-
-  const stringifiedBody = typeof requestConfig.data === 'string' ? requestConfig.data : JSON.stringify(requestConfig.data)
 
   if (response === undefined) {
     // fetch called with:
@@ -73,7 +73,8 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
       {
         method: requestConfig.method,
         headers: requestConfig.headers,
-        body: stringifiedBody
+        body: stringifiedBody,
+        requestConfig: requestConfig
       }
     ], null, 2))
 }
