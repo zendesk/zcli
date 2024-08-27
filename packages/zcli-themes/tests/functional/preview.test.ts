@@ -1,5 +1,6 @@
 import type { Manifest } from '../../../zcli-themes/src/types'
 import { expect, test } from '@oclif/test'
+import * as sinon from 'sinon'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as nock from 'nock'
@@ -10,6 +11,15 @@ import env from './env'
 
 describe('themes:preview', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
 
   describe('successful preview', () => {
     let server
@@ -17,10 +27,15 @@ describe('themes:preview', function () {
     const preview = test
       .stdout()
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => {
-        api
-          .put('/hc/api/internal/theming/local_preview')
-          .reply(200)
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/hc/api/internal/theming/local_preview',
+          method: 'PUT'
+        })).resolves({
+          status: 200,
+          ok: true,
+          text: () => Promise.resolve('')
+        })
       })
       .do(async () => {
         server = await PreviewCommand.run([baseThemePath, '--bind', '0.0.0.0', '--port', '9999'])
@@ -28,7 +43,6 @@ describe('themes:preview', function () {
 
     afterEach(() => {
       server.close()
-      nock.cleanAll()
     })
 
     preview
@@ -70,25 +84,29 @@ describe('themes:preview', function () {
   })
 
   describe('validation errors', () => {
-    after(() => {
-      nock.cleanAll()
-    })
-
     test
       .stdout()
       .env(env)
-      .it('should report template errors', async (ctx) => {
-        nock('https://z3ntest.zendesk.com').put('/hc/api/internal/theming/local_preview').reply(400, {
-          template_errors: {
-            home_page: [{
-              description: "'articles' does not exist",
-              line: 10,
-              column: 6,
-              length: 7
-            }]
-          }
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/hc/api/internal/theming/local_preview',
+          method: 'PUT'
+        })).resolves({
+          status: 400,
+          ok: false,
+          text: () => Promise.resolve(JSON.stringify({
+            template_errors: {
+              home_page: [{
+                description: "'articles' does not exist",
+                line: 10,
+                column: 6,
+                length: 7
+              }]
+            }
+          }))
         })
-
+      })
+      .it('should report template errors', async (ctx) => {
         try {
           await PreviewCommand.run([baseThemePath])
           expect(ctx.stdout).to.contain(`Validation error ${baseThemePath}/templates/home_page.hbs:10:6`)
