@@ -1,14 +1,32 @@
 import { expect, test } from '@oclif/test'
 import DeleteCommand from '../../src/commands/themes/delete'
 import env from './env'
+import * as sinon from 'sinon'
 
 describe('themes:delete', function () {
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
+
   describe('successful deletion', () => {
     const success = test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .delete('/api/v2/guide/theming/themes/1234')
-        .reply(204))
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/themes/1234',
+          method: 'DELETE'
+        })).resolves({
+          status: 204,
+          ok: true,
+          text: () => Promise.resolve('')
+        })
+      })
 
     success
       .stdout()
@@ -28,14 +46,21 @@ describe('themes:delete', function () {
   describe('delete failure', () => {
     test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .delete('/api/v2/guide/theming/themes/1234')
-        .reply(400, {
-          errors: [{
-            code: 'ThemeNotFound',
-            title: 'Invalid id'
-          }]
-        }))
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/themes/1234',
+          method: 'DELETE'
+        })).resolves({
+          status: 400,
+          ok: false,
+          text: () => Promise.resolve(JSON.stringify({
+            errors: [{
+              code: 'ThemeNotFound',
+              title: 'Invalid id'
+            }]
+          }))
+        })
+      })
       .stderr()
       .it('should report delete errors', async ctx => {
         try {
