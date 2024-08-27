@@ -1,14 +1,32 @@
 import { expect, test } from '@oclif/test'
+import * as sinon from 'sinon'
 import PublishCommand from '../../src/commands/themes/publish'
 import env from './env'
 
 describe('themes:publish', function () {
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
+
   describe('successful publish', () => {
     const success = test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .post('/api/v2/guide/theming/themes/1234/publish')
-        .reply(200))
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/themes/1234/publish',
+          method: 'POST'
+        })).resolves({
+          status: 200,
+          ok: true,
+          text: () => Promise.resolve('')
+        })
+      })
 
     success
       .stdout()
@@ -28,14 +46,21 @@ describe('themes:publish', function () {
   describe('publish failure', () => {
     test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .post('/api/v2/guide/theming/themes/1234/publish')
-        .reply(400, {
-          errors: [{
-            code: 'ThemeNotFound',
-            title: 'Invalid id'
-          }]
-        }))
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/themes/1234/publish',
+          method: 'POST'
+        })).resolves({
+          status: 400,
+          ok: false,
+          text: () => Promise.resolve(JSON.stringify({
+            errors: [{
+              code: 'ThemeNotFound',
+              title: 'Invalid id'
+            }]
+          }))
+        })
+      })
       .stderr()
       .it('should report publish errors', async ctx => {
         try {
