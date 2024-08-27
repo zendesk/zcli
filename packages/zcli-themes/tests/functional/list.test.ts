@@ -1,18 +1,36 @@
 import { expect, test } from '@oclif/test'
+import * as sinon from 'sinon'
 import ListCommand from '../../src/commands/themes/list'
 import env from './env'
 
 describe('themes:list', function () {
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
+
   describe('successful list', () => {
     const success = test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .get('/api/v2/guide/theming/themes?brand_id=1111')
-        .reply(200, { themes: [] }))
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/themes?brand_id=1111',
+          method: 'GET'
+        })).resolves({
+          status: 200,
+          ok: true,
+          text: () => Promise.resolve(JSON.stringify({ themes: [] }))
+        })
+      })
 
     success
       .stdout()
-      .it('should display success message when thes themes are listed successfully', async ctx => {
+      .it('should display success message when the themes are listed successfully', async ctx => {
         await ListCommand.run(['--brandId', '1111'])
         expect(ctx.stdout).to.contain('Themes listed successfully []')
       })
@@ -28,14 +46,21 @@ describe('themes:list', function () {
   describe('list failure', () => {
     test
       .env(env)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .get('/api/v2/guide/theming/themes?brand_id=1111')
-        .reply(500, {
-          errors: [{
-            code: 'InternalError',
-            title: 'Something went wrong'
-          }]
-        }))
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/themes?brand_id=1111',
+          method: 'GET'
+        })).resolves({
+          status: 500,
+          ok: false,
+          text: () => Promise.resolve(JSON.stringify({
+            errors: [{
+              code: 'InternalError',
+              title: 'Something went wrong'
+            }]
+          }))
+        })
+      })
       .stderr()
       .it('should report list errors', async ctx => {
         try {
