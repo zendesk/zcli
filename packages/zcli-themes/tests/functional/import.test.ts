@@ -2,10 +2,8 @@ import type { Job } from '../../../zcli-themes/src/types'
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
 import * as path from 'path'
-import * as nock from 'nock'
 import ImportCommand from '../../src/commands/themes/import'
 import env from './env'
-
 
 describe('themes:import', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')

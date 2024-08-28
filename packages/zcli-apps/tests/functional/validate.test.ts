@@ -4,7 +4,6 @@ import * as sinon from 'sinon'
 import env from './env'
 import * as requestUtils from '../../../zcli-core/src/lib/requestUtils'
 
-
 describe('validate', function () {
   let fetchStub: sinon.SinonStub
 
@@ -22,7 +21,7 @@ describe('validate', function () {
     .env(env)
     .do(() => {
       fetchStub.withArgs(sinon.match({
-        url: 'https://z3ntest.zendesk.com/api/v2/apps/validate',
+        url: 'https://z3ntest.zendesk.com/api/v2/apps/validate'
       })).resolves({
         status: 200,
         ok: true,
@@ -41,7 +40,7 @@ describe('validate', function () {
     .env(env)
     .do(() => {
       fetchStub.withArgs(sinon.match({
-        url: 'https://z3ntest.zendesk.com/api/v2/apps/validate',
+        url: 'https://z3ntest.zendesk.com/api/v2/apps/validate'
       })).resolves({
         status: 400,
         ok: false,

@@ -1,7 +1,6 @@
 import type { Job } from '../../../zcli-themes/src/types'
 import { expect, test } from '@oclif/test'
 import * as path from 'path'
-import * as nock from 'nock'
 import UpdateCommand from '../../src/commands/themes/update'
 import env from './env'
 import * as sinon from 'sinon'
@@ -34,7 +33,7 @@ describe('themes:update', function () {
       .env(env)
       .do(() => {
         fetchStub.withArgs(sinon.match({
-          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates',
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates'
         })).resolves({
           status: 202,
           ok: true,
@@ -42,7 +41,7 @@ describe('themes:update', function () {
         })
 
         fetchStub.withArgs(sinon.match({
-          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/9999',
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/9999'
         })).resolves({
           status: 200,
           ok: true,
@@ -50,7 +49,7 @@ describe('themes:update', function () {
         })
 
         fetchStub.withArgs(sinon.match({
-          url: 'https://s3.com/upload/path',
+          url: 'https://s3.com/upload/path'
         })).resolves({
           status: 200,
           ok: true,
@@ -79,7 +78,7 @@ describe('themes:update', function () {
       .env(env)
       .do(() => {
         fetchStub.withArgs(sinon.match({
-          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates',
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates'
         })).resolves({
           status: 400,
           ok: false,
@@ -105,7 +104,7 @@ describe('themes:update', function () {
       .env(env)
       .do(() => {
         fetchStub.withArgs(sinon.match({
-          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates',
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/updates'
         })).resolves({
           status: 202,
           ok: true,
@@ -113,7 +112,7 @@ describe('themes:update', function () {
         })
 
         fetchStub.withArgs(sinon.match({
-          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/9999',
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/9999'
         })).resolves({
           status: 200,
           ok: true,
@@ -143,7 +142,7 @@ describe('themes:update', function () {
         })
 
         fetchStub.withArgs(sinon.match({
-          url: 'https://s3.com/upload/path',
+          url: 'https://s3.com/upload/path'
         })).resolves({
           status: 200,
           ok: true,

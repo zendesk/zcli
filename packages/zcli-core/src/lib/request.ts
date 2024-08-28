@@ -52,6 +52,6 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
   const requestConfig = await createRequestConfig(url, options)
   return axios.request({
     ...requestConfig,
-    adapter: "fetch",
+    adapter: 'fetch'
   })
 }

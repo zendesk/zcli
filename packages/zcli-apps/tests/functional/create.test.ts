@@ -42,43 +42,43 @@ describe('apps', function () {
           uploadAppPkgStub.onSecondCall().resolves({ id: 818 })
 
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/apps.json',
+            url: 'https://z3ntest.zendesk.com/api/apps.json'
           })).onFirstCall().resolves({
             body: JSON.stringify({ job_id: 127 }),
             text: () => Promise.resolve(JSON.stringify({ job_id: 127 })),
-            ok: true,
+            ok: true
           }).onSecondCall().resolves({
             body: JSON.stringify({ job_id: 128 }),
             text: () => Promise.resolve(JSON.stringify({ job_id: 128 })),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/127',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/127'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 })),
             body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 }),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/128',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/128'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123458 })),
             body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123458 }),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json',
+            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json'
           })).onFirstCall().resolves({
             text: () => Promise.resolve(JSON.stringify({ job_id: 127 })),
             body: JSON.stringify({ job_id: 127 }),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json',
+            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json'
           })).onSecondCall().resolves({
             text: () => Promise.resolve(JSON.stringify({ job_id: 128 })),
             body: JSON.stringify({ job_id: 128 }),
-            ok: true,
+            ok: true
           })
         })
         .stdout()
@@ -101,25 +101,25 @@ describe('apps', function () {
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
 
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/apps.json',
+            url: 'https://z3ntest.zendesk.com/api/apps.json'
           })).resolves({
             body: JSON.stringify({ job_id: 129 }),
             text: () => Promise.resolve(JSON.stringify({ job_id: 129 })),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 })),
             body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 }),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json',
+            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ job_id: 129 })),
             body: JSON.stringify({ job_id: 129 }),
-            ok: true,
+            ok: true
           })
         })
         .stdout()
@@ -138,25 +138,25 @@ describe('apps', function () {
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
 
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/apps.json',
+            url: 'https://z3ntest.zendesk.com/api/apps.json'
           })).resolves({
             body: JSON.stringify({ job_id: 129 }),
             text: () => Promise.resolve(JSON.stringify({ job_id: 129 })),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 })),
             body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 }),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json',
+            url: 'https://z3ntest.zendesk.com/api/support/apps/installations.json'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ job_id: 129 })),
             body: JSON.stringify({ job_id: 129 }),
-            ok: true,
+            ok: true
           })
         })
         .stdout()
@@ -177,18 +177,18 @@ describe('apps', function () {
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
 
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/123456',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/123456'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ job_id: 129 })),
             body: JSON.stringify({ job_id: 129 }),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 })),
             body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 }),
-            ok: true,
+            ok: true
           })
         })
         .stdout()
@@ -207,18 +207,18 @@ describe('apps', function () {
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
 
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/123456',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/123456'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ job_id: 129 })),
             body: JSON.stringify({ job_id: 129 }),
-            ok: true,
+            ok: true
           })
           fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129',
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129'
           })).resolves({
             text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 })),
             body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 123456 }),
-            ok: true,
+            ok: true
           })
         })
         .stdout()
