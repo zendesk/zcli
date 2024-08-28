@@ -8,6 +8,7 @@ import { getManifestFile } from '../../utils/manifest'
 import { createAppPkg } from '../../lib/package'
 import { Manifest, ZcliConfigFileContent } from '../../types'
 import { validateAppPath } from '../../lib/appPath'
+import { EnvVars } from '../../../../zcli-core/src/lib/env'
 
 export default class Update extends Command {
   static description = 'updates an existing private app in the Zendesk products specified in the apps manifest file.'
@@ -18,16 +19,15 @@ export default class Update extends Command {
 
   static strict = false
 
-  getAppID (appPath: string) {
-    const allConfigs = getAllConfigs(appPath)
-    const app_id = allConfigs ? allConfigs.app_id : undefined
+  getAppID (appConfig: ZcliConfigFileContent) {
+    const app_id = process.env[EnvVars.APP_ID] || (appConfig ? appConfig.app_id : undefined)
     if (!app_id) { throw new CLIError(chalk.red('App ID not found')) }
     return app_id
   }
 
-  async installApp (appConfig: ZcliConfigFileContent, uploadId: number, appPath: string, manifest: Manifest) {
+  async installApp (appConfig: ZcliConfigFileContent, uploadId: number, appPath: string, manifest: Manifest, appID: string) {
     CliUx.ux.action.start('Deploying app')
-    const { job_id } = await deployApp('PUT', `api/v2/apps/${appConfig.app_id}`, uploadId)
+    const { job_id } = await deployApp('PUT', `api/v2/apps/${appID}`, uploadId)
 
     try {
       const { app_id }: any = await getUploadJobStatus(job_id, appPath)
@@ -54,6 +54,7 @@ export default class Update extends Command {
 
       CliUx.ux.action.start('Uploading app')
       const appConfig = getAllConfigs(appPath) || {}
+      const appID = this.getAppID(appConfig)
       const manifest = getManifestFile(appPath)
       const pkgPath = await createAppPkg(appPath)
       const { id: upload_id } = await uploadAppPkg(pkgPath)
@@ -65,7 +66,7 @@ export default class Update extends Command {
 
       CliUx.ux.action.stop('Uploaded')
       try {
-        await this.installApp(appConfig, upload_id, appPath, manifest)
+        await this.installApp(appConfig, upload_id, appPath, manifest, appID)
       } catch (error) {
         this.error(chalk.red(error))
       }
