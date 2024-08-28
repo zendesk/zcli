@@ -164,7 +164,7 @@ describe('apps', function () {
     describe('with ZENDESK_APP_ID set', () => {
       test
         .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
-        .env({...env, ZENDESK_APP_ID: '666'})
+        .env({ ...env, ZENDESK_APP_ID: '666' })
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
