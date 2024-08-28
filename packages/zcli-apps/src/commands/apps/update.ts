@@ -8,7 +8,7 @@ import { getManifestFile } from '../../utils/manifest'
 import { createAppPkg } from '../../lib/package'
 import { Manifest, ZcliConfigFileContent } from '../../types'
 import { validateAppPath } from '../../lib/appPath'
-import { EnvVars } from '../../../../zcli-core/src/lib/env'
+import { EnvVars } from '@zendesk/zcli-core/src/lib/env'
 
 export default class Update extends Command {
   static description = 'updates an existing private app in the Zendesk products specified in the apps manifest file.'
