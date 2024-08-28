@@ -175,7 +175,7 @@ describe('apps', function () {
             .reply(200, { job_id: 129 })
           api
             .get('/api/v2/apps/job_statuses/129')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 123456 })
+            .reply(200, { status: 'completed', message: 'awesome', app_id: 666 })
         })
         .stdout()
         .command(['apps:update', singleProductApp])
