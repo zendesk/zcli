@@ -5,16 +5,10 @@ import * as chalk from 'chalk'
 import { CLIError } from '@oclif/core/lib/errors'
 
 export default function migrateNoBackwards (themePath: string, manifest: Manifest): void {
-  const newDir = themePath + '/updated-theme'
-
-  if (!fs.existsSync(newDir)) {
-    fs.mkdirSync(newDir)
-  }
-
-  updateOrCreateManifest(newDir, manifest)
-  updateNewRequestTemplate(themePath, newDir)
-  updateDocumentHeadTemplate(themePath, newDir)
-  updateHomePageTemplate(themePath, newDir)
+  updateOrCreateManifest(themePath, manifest)
+  updateNewRequestTemplate(themePath)
+  updateDocumentHeadTemplate(themePath)
+  updateHomePageTemplate(themePath)
 }
 
 function updateOrCreateManifest (themePath: string, manifestContent: Manifest): void {
@@ -30,57 +24,39 @@ function updateOrCreateManifest (themePath: string, manifestContent: Manifest): 
   }
 }
 
-function updateNewRequestTemplate (themePath: string, updatedThemePath: string): void {
+function updateNewRequestTemplate (themePath: string): void {
   const templateFilePath = `${themePath}/templates/new_request_page.hbs`
-  const updatedTemplatesPath = `${updatedThemePath}/templates`
-  const updatedTemplateFilePath = `${updatedTemplatesPath}/new_request_page.hbs`
   const additionalModuleFilePath = path.join(__dirname, '..', 'templates', 'request_form_script.hbs')
 
   try {
-    if (!fs.existsSync(updatedTemplatesPath)) {
-      fs.mkdirSync(updatedTemplatesPath)
-    }
-
     const templateFile = fs.readFileSync(templateFilePath, 'utf-8')
     let updatedFile = templateFile.replace(/\n\s*<span class="follow-up-hint"[^>]*>([\s\S]*?)<\/span>/g, '')
     updatedFile = updatedFile.replace(/{{request_form .*}}/g, '<div id="new-request-form"></div>')
 
     const additionalModule = fs.readFileSync(additionalModuleFilePath, 'utf-8')
-    fs.writeFileSync(updatedTemplateFilePath, updatedFile + additionalModule, { flag: 'w' })
+    fs.writeFileSync(templateFilePath, updatedFile + additionalModule, { flag: 'w' })
   } catch (error) {
-    throw new CLIError(chalk.red(`file was malformed at path: "${updatedTemplateFilePath}"`))
+    throw new CLIError(chalk.red(`file was malformed at path: "${templateFilePath}"`))
   }
 }
 
-function updateDocumentHeadTemplate (themePath: string, updatedThemePath: string): void {
+function updateDocumentHeadTemplate (themePath: string): void {
   const templateFilePath = `${themePath}/templates/document_head.hbs`
-  const updatedTemplatesPath = `${updatedThemePath}/templates`
-  const updatedTemplateFilePath = `${updatedTemplatesPath}/document_head.hbs`
   const additionalScriptsFilePath = path.join(__dirname, '..', 'templates', 'document_head_scripts.hbs')
 
   try {
-    if (!fs.existsSync(updatedTemplatesPath)) {
-      fs.mkdirSync(updatedTemplatesPath)
-    }
-
     const templateFile = fs.readFileSync(templateFilePath, 'utf-8')
     const additionalModule = fs.readFileSync(additionalScriptsFilePath, 'utf-8')
-    fs.writeFileSync(updatedTemplateFilePath, templateFile + additionalModule, { flag: 'w' })
+    fs.writeFileSync(templateFilePath, templateFile + additionalModule, { flag: 'w' })
   } catch (error) {
-    throw new CLIError(chalk.red(`file was malformed at path: "${updatedTemplateFilePath}"`))
+    throw new CLIError(chalk.red(`file was malformed at path: "${templateFilePath}"`))
   }
 }
 
-function updateHomePageTemplate (themePath: string, updatedThemePath: string): void {
+function updateHomePageTemplate (themePath: string): void {
   const templateFilePath = `${themePath}/templates/home_page.hbs`
-  const updatedTemplatesPath = `${updatedThemePath}/templates`
-  const updatedTemplateFilePath = `${updatedTemplatesPath}/home_page.hbs`
 
   try {
-    if (!fs.existsSync(updatedTemplatesPath)) {
-      fs.mkdirSync(updatedTemplatesPath)
-    }
-
     const templateFile = fs.readFileSync(templateFilePath, 'utf-8')
 
     const patternsToRemove = [
@@ -113,9 +89,9 @@ function updateHomePageTemplate (themePath: string, updatedThemePath: string): v
       updatedFile = replaceRecursive(updatedFile, element, updatedFile.match(element) !== null)
     })
 
-    fs.writeFileSync(updatedTemplateFilePath, updatedFile, { flag: 'w' })
+    fs.writeFileSync(templateFilePath, updatedFile, { flag: 'w' })
   } catch (error) {
-    throw new CLIError(chalk.red(`file was malformed at path: "${updatedTemplateFilePath}"`))
+    throw new CLIError(chalk.red(`file was malformed at path: "${templateFilePath}"`))
   }
 }
 
