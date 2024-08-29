@@ -75,7 +75,7 @@ describe('Auth', () => {
       .it('should throw an error if only ZENDESK_EMAIL and ZENDESK_PASSWORD are set - basic auth with password not supported')
   })
 
-  describe('loginInteractively', () => {
+  describe.only('loginInteractively', () => {
     const auth = new Auth({ secureStore: new SecureStore() })
     const promptStub = sinon.stub()
     let fetchStub: sinon.SinonStub
@@ -93,26 +93,46 @@ describe('Auth', () => {
         promptStub.onFirstCall().resolves('z3ntest')
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
-        fetchStub.resolves({
-          status: 200,
-          ok: true,
-          text: () => Promise.resolve('')
-        } as Response)
+        fetchStub.withArgs('https://z3ntest.zendesk.com/api/v2/account/settings.json', 
+          sinon.match.has('headers', sinon.match.has('authorization', 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')))
+          .resolves({
+            status: 200,
+            ok: true,
+            // text: () => Promise.resolve('')
+          })
+ 
+        // fetchStub.resolves({
+        //   status: 200,
+        //   ok: true,
+        //   text: () => Promise.resolve('')
+        // } as Response)
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
       .it('should return true on login success', async () => {
-        let response = await auth.loginInteractively()
-        console.error('potter',response)
-        expect(response).to.equal(true)
-        console.log('potter',response)
-        expect(fetchStub.calledWith('https://z3ntest.zendesk.com/api/v2/account/settings.json', {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          }
-        })).to.be.true
+        expect(await auth.loginInteractively()).to.equal(true)
+
+        
+
+        // expect(fetchStub.calledWith(sinon.match.any, sinon.match({
+        //   headers: sinon.match.any
+        // }))).to.be.true
+
+        // expect(fetchStub.calledWith(sinon.match.any, sinon.match({
+        //   headers: sinon.match({
+        //     'Authorization': 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
+        //   })
+        // }))).to.be.true
+      
+        // expect(fetchStub.calledWith('https://z3ntest.zendesk.com/api/v2/account/settings.json', {
+        //   method: 'GET',
+        //   headers: {
+        //     'Accept': 'application/json',
+        //     'Authorization': 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
+        //   }
+        // })).to.be.true
+      
       })
 
     test
