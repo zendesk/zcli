@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as chalk from 'chalk'
 import { CLIError } from '@oclif/core/lib/errors'
 import getManifest from '../../lib/getManifest'
+import migrate from '../../lib/migrate'
 
 export default class Migrate extends Command {
   static description = 'migrate a theme to the latest api_version'
@@ -37,7 +38,7 @@ export default class Migrate extends Command {
         break
       }
       case 3: {
-        // implement
+        migrate(themePath)
         break
       }
       case 4: {
