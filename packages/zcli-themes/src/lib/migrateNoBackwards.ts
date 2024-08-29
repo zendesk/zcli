@@ -61,26 +61,12 @@ function updateHomePageTemplate (themePath: string): void {
 
     const patternsToRemove = [
       // Articles patterns
-      /({{#each categories}}[\s\S]*?)({{#each articles}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#each [\S]*?\.articles}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#with articles}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#with [\S]*?\.articles}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{articles}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{[\S]*?\.articles}})([\s\S]*{{\/each}})/g,
-      // Articles count patterns
-      /({{#each categories}}[\s\S]*?)({{#each articles_count}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#each [\S]*?\.articles_count}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#with articles_count}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#with [\S]*?\.articles_count}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{articles_count}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{[\S]*?\.articles_count}})([\s\S]*{{\/each}})/g,
-      // More articles patterns
-      /({{#each categories}}[\s\S]*?)({{#each more_articles}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#each [\S]*?\.more_articles}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#with more_articles}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{#with [\S]*?\.more_articles}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{more_articles}})([\s\S]*{{\/each}})/g,
-      /({{#each categories}}[\s\S]*?)({{[\S]*?\.more_articles}})([\s\S]*{{\/each}})/g
+      /({{#each categories}}[\s\S]*?)({{#each (?:articles|articles_count|more_articles)}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
+      /({{#each categories}}[\s\S]*?)({{#each [\S]*?\.(?:articles|articles_count|more_articles)}}[\s\S]*?{{\/each}})([\s\S]*{{\/each}})/g,
+      /({{#each categories}}[\s\S]*?)({{#with (?:articles|articles_count|more_articles)}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
+      /({{#each categories}}[\s\S]*?)({{#with [\S]*?\.(?:articles|articles_count|more_articles)}}[\s\S]*?{{\/with}})([\s\S]*{{\/each}})/g,
+      /({{#each categories}}[\s\S]*?)({{(?:articles|articles_count|more_articles)}})([\s\S]*{{\/each}})/g,
+      /({{#each categories}}[\s\S]*?)({{[\S]*?\.(?:articles|articles_count|more_articles)}})([\s\S]*{{\/each}})/g
     ]
 
     let updatedFile = templateFile
