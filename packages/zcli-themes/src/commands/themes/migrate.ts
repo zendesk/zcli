@@ -1,9 +1,9 @@
 import { Command, Flags, CliUx } from '@oclif/core'
 import * as path from 'path'
 import * as chalk from 'chalk'
-import { CLIError } from '@oclif/core/lib/errors'
 import getManifest from '../../lib/getManifest'
 import migrate from '../../lib/migrate'
+import migrateNoBackwards from '../../lib/migrateNoBackwards'
 
 export default class Migrate extends Command {
   static description = 'migrate a theme to the latest api_version'
@@ -11,7 +11,7 @@ export default class Migrate extends Command {
   static enableJsonFlag = true
 
   static flags = {
-    backwardCompatible: Flags.boolean({ default: true, description: 'Use the new api but keep existing functionality and customizations', allowNo: true })
+    backwardCompatible: Flags.boolean({ default: false, description: 'Use the new api but keep existing functionality and customizations', allowNo: true })
   }
 
   static args = [
@@ -19,15 +19,18 @@ export default class Migrate extends Command {
   ]
 
   static examples = [
-    '$ zcli themes:migrate --backwardCompatible=false'
+    '$ zcli themes:migrate ./copenhagen_theme --backwardCompatible'
   ]
 
   static strict = false
 
   async run () {
-    const { flags: { backwardCompatible }, argv: [themeDirectory] } = await this.parse(Migrate)
+    const { flags, argv: [themeDirectory] } = await this.parse(Migrate)
+    const { backwardCompatible } = flags
     const themePath = path.resolve(themeDirectory)
-    const { api_version: apiVersion } = getManifest(themePath)
+    const manifest = getManifest(themePath)
+
+    const { api_version: apiVersion } = manifest
 
     try {
       CliUx.ux.action.start('Migrating theme')
@@ -38,7 +41,14 @@ export default class Migrate extends Command {
         break
       }
       case 3: {
-        migrate(themePath)
+        if (backwardCompatible) {
+          migrate(themePath)
+        } else {
+          this.log(chalk.green('Migrating version 3 without backward compatibility'))
+
+          migrateNoBackwards(themePath, manifest)
+        }
+
         break
       }
       case 4: {
