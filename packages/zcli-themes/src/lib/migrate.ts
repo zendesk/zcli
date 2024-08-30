@@ -28,7 +28,7 @@ function migrateTemplates (themePath: string) {
     for (const macro of macros) {
       const source = fs.readFileSync(macro, 'utf8')
       const { name: helper } = path.parse(macro)
-      template = template.replace(`{{${helper}}}`, source)
+      template = template.replace(new RegExp(`{{${helper}.*}}`), source)
     }
 
     fs.writeFileSync(`${themePath}/templates/${dentifier}.hbs`, template)
