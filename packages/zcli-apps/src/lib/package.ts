@@ -24,11 +24,11 @@ export const createAppPkg = (
 
     output.on('close', () => {
       resolve(pkgPath)
-    });
+    })
 
     output.on('error', (err) => {
       reject(err)
-    });
+    })
 
     const archive = archiver('zip')
 
@@ -50,9 +50,8 @@ export const createAppPkg = (
     archive.finalize()
 
     return pkgPath
-  });
+  })
 }
-
 
 export const validatePkg = async (pkgPath: string) => {
   if (!fs.pathExistsSync(pkgPath)) {
@@ -63,7 +62,7 @@ export const validatePkg = async (pkgPath: string) => {
 
   const form = new FormData()
   form.append('file', file, {
-    filename: path.basename(pkgPath),
+    filename: path.basename(pkgPath)
   })
 
   const res = await request.requestAPI('api/v2/apps/validate', {
