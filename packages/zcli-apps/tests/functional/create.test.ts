@@ -160,5 +160,28 @@ describe('apps', function () {
           expect(ctx.stdout).to.contain(successUpdateMessage)
         })
     })
+
+    describe('with ZENDESK_APP_ID set', () => {
+      test
+        .stub(packageUtil, 'createAppPkg', () => createAppPkgStub)
+        .env({ ...env, ZENDESK_APP_ID: '666' })
+        .do(() => {
+          createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
+          uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
+        })
+        .nock('https://z3ntest.zendesk.com/', api => {
+          api
+            .put('/api/v2/apps/666', { upload_id: 819 })
+            .reply(200, { job_id: 129 })
+          api
+            .get('/api/v2/apps/job_statuses/129')
+            .reply(200, { status: 'completed', message: 'awesome', app_id: 666 })
+        })
+        .stdout()
+        .command(['apps:update', singleProductApp])
+        .it('should update said apps', async ctx => {
+          expect(ctx.stdout).to.contain(successUpdateMessage)
+        })
+    })
   })
 })
