@@ -54,7 +54,6 @@ export const createAppPkg = (
 }
 
 export const validatePkg = async (pkgPath: string) => {
-
   if (!fs.pathExistsSync(pkgPath)) {
     throw new CLIError(`Package not found at ${pkgPath}`)
   }
