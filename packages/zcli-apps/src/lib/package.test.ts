@@ -7,6 +7,7 @@ describe('package', () => {
   describe('validatePkg', () => {
     test
       .stub(fs, 'pathExistsSync', () => true)
+      .stub(fs, 'readFile', () => Promise.resolve('file content'))
       .stub(request, 'requestAPI', () => Promise.resolve({ status: 200 }))
       .it('should return true if package is valid', async () => {
         expect(await validatePkg('./app-path')).to.equal(true)
@@ -14,6 +15,7 @@ describe('package', () => {
 
     test
       .stub(fs, 'pathExistsSync', () => true)
+      .stub(fs, 'readFile', () => Promise.resolve('file content'))
       .stub(request, 'requestAPI', () => Promise.resolve({ status: 400, data: { description: 'invalid location' } }))
       .it('should throw if package has validation errors', async () => {
         try {
@@ -25,6 +27,7 @@ describe('package', () => {
 
     test
       .stub(fs, 'pathExistsSync', () => false)
+      .stub(fs, 'readFile', () => Promise.reject())
       .it('should throw if app path is invalid', async () => {
         try {
           await validatePkg('./bad-path')
