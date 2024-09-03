@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.48](https://github.com/zendesk/zcli/compare/v1.0.0-beta.47...v1.0.0-beta.48) (2024-09-03)
+
+
+### Features
+
+* **apps:update:** add ability to use ZENDESK_APP_ID env var during apps:update ([#254](https://github.com/zendesk/zcli/issues/254)) ([a14e3fe](https://github.com/zendesk/zcli/commit/a14e3fe2333b8fcf00e8b76654e79054337315ed))
+
+
+
+
+
 # [1.0.0-beta.47](https://github.com/zendesk/zcli/compare/v1.0.0-beta.46...v1.0.0-beta.47) (2024-08-05)
 
 
