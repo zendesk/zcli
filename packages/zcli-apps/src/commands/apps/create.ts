@@ -42,6 +42,7 @@ export default class Create extends Command {
       CliUx.ux.action.stop('Uploaded')
       CliUx.ux.action.start('Deploying app')
       const { job_id } = await deployApp('POST', 'api/apps.json', upload_id, manifest.name)
+      console.error('job_id', job_id)
 
       try {
         const { app_id }: any = await getUploadJobStatus(job_id, appPath)
@@ -61,7 +62,8 @@ export default class Create extends Command {
         this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
       } catch (error) {
         CliUx.ux.action.stop('Failed')
-        this.error(chalk.red(error))
+        // this.error(chalk.red(error))
+        console.log(error)
       }
     }
   }

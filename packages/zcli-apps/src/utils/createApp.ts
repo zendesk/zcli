@@ -5,18 +5,28 @@ import { getManifestFile } from '../utils/manifest'
 import { request } from '@zendesk/zcli-core'
 import { CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
+import * as path from 'path'
+
 
 export const getManifestAppName = (appPath: string): string | undefined => {
   return getManifestFile(appPath).name
 }
 
 export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
+
+  const pkgBuffer = await fs.readFile(pkgPath)
+
   const formData = new FormData()
-  const pkgBuffer = fs.createReadStream(pkgPath)
-  formData.append('uploaded_data', pkgBuffer)
+  formData.append('uploaded_data', pkgBuffer, {
+    filename: path.basename(pkgPath),
+    contentType: 'application/zip'
+  })
+
+
   const response = await request.requestAPI('api/v2/apps/uploads.json', {
-    data: formData,
-    method: 'POST'
+    method: 'POST',
+    data: formData.getBuffer(),
+    headers: formData.getHeaders()
   })
 
   // clean up
