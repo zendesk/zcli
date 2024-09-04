@@ -12,8 +12,8 @@ describe('createThemePackage', () => {
     const writeStreamStub = sinon.createStubInstance(fs.WriteStream)
     sinon.stub(fs, 'createWriteStream').returns(writeStreamStub)
 
-    const readStreamStub = sinon.createStubInstance(fs.ReadStream)
-    sinon.stub(fs, 'createReadStream').returns(readStreamStub)
+    const readFileSync = sinon.createStubInstance(Buffer)
+    sinon.stub(fs, 'readFileSync').returns(readFileSync)
 
     const unlinkSyncStub = sinon.stub(fs, 'unlinkSync')
 
@@ -28,7 +28,7 @@ describe('createThemePackage', () => {
 
     const { file, removePackage } = await createThemePackage.default('theme/path')
 
-    expect(file).to.instanceOf(fs.ReadStream)
+    expect(file).to.instanceOf(Buffer)
 
     removePackage()
     expect(unlinkSyncStub.called).to.equal(true)
