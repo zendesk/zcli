@@ -8,21 +8,24 @@ import { error } from '@oclif/core/lib/errors'
 
 export const themeSizeLimit = 31457280
 
-export default async function uploadThemePackage (job: PendingJob, readStream: fs.ReadStream): Promise<void> {
+export default async function uploadThemePackage (job: PendingJob, readFile: Buffer, filename: string): Promise<void> {
   CliUx.ux.action.start('Uploading theme package')
-
+  
   const formData = new FormData()
 
   for (const key in job.data.upload.parameters) {
     formData.append(key, job.data.upload.parameters[key])
   }
 
-  formData.append('file', readStream)
+  formData.append('file', readFile, {
+    filename: filename
+  })
 
   try {
     await request.requestAPI(job.data.upload.url, {
       method: 'POST',
-      data: formData,
+      data: formData.getBuffer(),
+      headers: formData.getHeaders(),
       maxBodyLength: themeSizeLimit,
       maxContentLength: themeSizeLimit
     })

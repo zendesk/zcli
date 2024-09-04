@@ -1,9 +1,9 @@
 import { CliUx } from '@oclif/core'
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import * as archiver from 'archiver'
 
 type CreateThemePackage = {
-  readStream: fs.ReadStream,
+  readFile: Buffer,
   removePackage: () => void
 }
 
@@ -34,7 +34,7 @@ export default async function createThemePackage (themePath: string): Promise<Cr
   CliUx.ux.action.stop('Ok')
 
   return {
-    readStream: fs.createReadStream(pkgPath),
+    readFile: await fs.readFile(pkgPath),
     removePackage: () => fs.unlinkSync(pkgPath)
   }
 }
