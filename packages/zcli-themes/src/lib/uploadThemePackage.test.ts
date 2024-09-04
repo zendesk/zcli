@@ -4,8 +4,6 @@ import * as axios from 'axios'
 import { request } from '@zendesk/zcli-core'
 import uploadThemePackage, { themeSizeLimit } from './uploadThemePackage'
 import * as errors from '@oclif/core/lib/errors'
-import * as fs from 'fs'
-import * as FormData from 'form-data'
 
 const job = {
   id: '9999',
@@ -29,7 +27,7 @@ describe('uploadThemePackage', () => {
 
   it('calls the job upload endpoint with the correct payload and returns the job', async () => {
     const file = Buffer.from('file content')
-    
+
     const requestStub = sinon.stub(request, 'requestAPI')
 
     await uploadThemePackage(job, file, 'filename')
