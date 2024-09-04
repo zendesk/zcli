@@ -2,7 +2,6 @@ import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { CliUx } from '@oclif/core'
 import Config from './config'
-import axios from 'axios'
 import SecureStore from './secureStore'
 import { Profile } from '../types'
 import { getAccount, parseSubdomain } from './authUtils'
@@ -67,12 +66,11 @@ export default class Auth {
     const email = await CliUx.ux.prompt('Email')
     const token = await CliUx.ux.prompt('API Token', { type: 'hide' })
     const authToken = this.createBasicAuthToken(email, token)
-    const testAuth = await axios.get(
-      `${baseUrl}/api/v2/account/settings.json`,
-      {
-        headers: { Authorization: authToken },
-        validateStatus: function (status) { return status < 500 }
-      })
+    const testAuth = await fetch(`${baseUrl}/api/v2/account/settings.json`, {
+      headers: {
+        Authorization: authToken
+      }
+    })
 
     if (testAuth.status === 200 && this.secureStore) {
       await this.secureStore.setSecret(account, authToken)
