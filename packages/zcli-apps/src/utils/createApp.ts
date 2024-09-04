@@ -7,13 +7,11 @@ import { CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
 import * as path from 'path'
 
-
 export const getManifestAppName = (appPath: string): string | undefined => {
   return getManifestFile(appPath).name
 }
 
 export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
-
   const pkgBuffer = await fs.readFile(pkgPath)
 
   const formData = new FormData()
@@ -21,7 +19,6 @@ export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
     filename: path.basename(pkgPath),
     contentType: 'application/zip'
   })
-
 
   const response = await request.requestAPI('api/v2/apps/uploads.json', {
     method: 'POST',
