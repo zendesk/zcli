@@ -235,14 +235,21 @@ describe('apps', function () {
         .do(() => {
           createAppPkgStub.onFirstCall().resolves('thePathLessFrequentlyTravelled')
           uploadAppPkgStub.onFirstCall().resolves({ id: 819 })
-        })
-        .nock('https://z3ntest.zendesk.com/', api => {
-          api
-            .put('/api/v2/apps/666', { upload_id: 819 })
-            .reply(200, { job_id: 129 })
-          api
-            .get('/api/v2/apps/job_statuses/129')
-            .reply(200, { status: 'completed', message: 'awesome', app_id: 666 })
+
+          fetchStub.withArgs(sinon.match({
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/666'
+          })).resolves({
+            text: () => Promise.resolve(JSON.stringify({ job_id: 129 })),
+            body: JSON.stringify({ job_id: 129 }),
+            ok: true
+          })
+          fetchStub.withArgs(sinon.match({
+            url: 'https://z3ntest.zendesk.com/api/v2/apps/job_statuses/129'
+          })).resolves({
+            text: () => Promise.resolve(JSON.stringify({ status: 'completed', message: 'awesome', app_id: 666 })),
+            body: JSON.stringify({ status: 'completed', message: 'awesome', app_id: 666 }),
+            ok: true
+          })
         })
         .stdout()
         .command(['apps:update', singleProductApp])
