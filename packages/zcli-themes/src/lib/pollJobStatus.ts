@@ -24,7 +24,6 @@ export default async function pollJobStatus (themePath: string, jobId: string, i
       return
     }
     case 'failed': {
-      console.error('juju',job.status)
       // Although `data.job.errors` is an array, it usually contains
       // only one error at a time. Hence, we only need to handle the
       // first error in the array.

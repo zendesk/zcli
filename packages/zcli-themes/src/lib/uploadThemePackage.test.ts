@@ -28,10 +28,10 @@ describe('uploadThemePackage', () => {
   })
 
   it('calls the job upload endpoint with the correct payload and returns the job', async () => {
-    const readStreamStub = sinon.createStubInstance(fs.ReadStream)
+    const readStreamStub = sinon.createStubInstance(fs.readFileSync)
     const requestStub = sinon.stub(request, 'requestAPI')
 
-    await uploadThemePackage(job, readStreamStub)
+    await uploadThemePackage(job, readStreamStub, 'filename')
 
     expect(requestStub.calledWith('upload/url', sinon.match({
       method: 'POST',
@@ -42,7 +42,7 @@ describe('uploadThemePackage', () => {
   })
 
   it('errors when the upload fails', async () => {
-    const readStreamStub = sinon.createStubInstance(fs.ReadStream)
+    const readStreamStub = sinon.createStubInstance(Buffer)
     const requestStub = sinon.stub(request, 'requestAPI')
     const errorStub = sinon.stub(errors, 'error').callThrough()
     const error = new axios.AxiosError('Network error')
@@ -50,7 +50,7 @@ describe('uploadThemePackage', () => {
     requestStub.throws(error)
 
     try {
-      await uploadThemePackage(job, readStreamStub)
+      await uploadThemePackage(job, readStreamStub, 'filename')
     } catch {
       expect(errorStub.calledWith(error)).to.equal(true)
     }

@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as archiver from 'archiver'
 
 type CreateThemePackage = {
-  readFile: Buffer,
+  file: Buffer,
   removePackage: () => void
 }
 
@@ -43,12 +43,12 @@ export default async function createThemePackage (themePath: string): Promise<Cr
   const pkgName = `theme-${dateTimeFileName}`
   const pkgPath = `${themePath}/${pkgName}.zip`
 
-  const archive = await createZipArchive(pkgPath, themePath, pkgName)
+  await createZipArchive(pkgPath, themePath, pkgName)
 
   CliUx.ux.action.stop('Ok')
 
   return {
-    readFile: fs.readFileSync(pkgPath),
+    file: fs.readFileSync(pkgPath),
     removePackage: () => fs.unlinkSync(pkgPath)
   }
 }

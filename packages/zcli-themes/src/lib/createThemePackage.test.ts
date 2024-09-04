@@ -26,9 +26,9 @@ describe('createThemePackage', () => {
       finalize: sinon.stub()
     } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    const { readStream, removePackage } = await createThemePackage.default('theme/path')
+    const { file, removePackage } = await createThemePackage.default('theme/path')
 
-    expect(readStream).to.instanceOf(fs.ReadStream)
+    expect(file).to.instanceOf(fs.ReadStream)
 
     removePackage()
     expect(unlinkSyncStub.called).to.equal(true)

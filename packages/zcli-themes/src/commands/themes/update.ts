@@ -34,10 +34,10 @@ export default class Update extends Command {
     themeId = themeId || await CliUx.ux.prompt('Theme ID')
 
     const job = await createThemeUpdateJob(themeId, replaceSettings)
-    const { readFile, removePackage } = await createThemePackage(themePath)
+    const { file, removePackage } = await createThemePackage(themePath)
 
     try {
-      await uploadThemePackage(job, readFile, path.basename(themePath))
+      await uploadThemePackage(job, file, path.basename(themePath))
     } finally {
       removePackage()
     }
