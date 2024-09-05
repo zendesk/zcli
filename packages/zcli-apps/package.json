@@ -29,7 +29,8 @@
     "rimraf": "^3.0.2",
     "semver": "^7.3.2",
     "tslib": "^2.4.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "@zendesk/zcli-core": "^1.0.0-beta.49"
   },
   "devDependencies": {
     "@oclif/test": "=2.1.0",
