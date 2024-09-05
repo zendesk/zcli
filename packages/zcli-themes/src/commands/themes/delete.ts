@@ -1,7 +1,6 @@
 import { Command, Flags, CliUx } from '@oclif/core'
 import { request } from '@zendesk/zcli-core'
 import * as chalk from 'chalk'
-import type { AxiosError } from 'axios'
 import handleThemeApiError from '../../lib/handleThemeApiError'
 
 export default class Delete extends Command {
@@ -37,7 +36,7 @@ export default class Delete extends Command {
       this.log(chalk.green('Theme deleted successfully'), `theme ID: ${themeId}`)
       return { themeId }
     } catch (error) {
-      handleThemeApiError(error as AxiosError)
+      handleThemeApiError(error)
     }
   }
 }

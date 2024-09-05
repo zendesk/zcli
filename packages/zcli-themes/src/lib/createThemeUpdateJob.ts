@@ -8,7 +8,7 @@ export default async function createThemeUpdateJob (themeId: string, replaceSett
   CliUx.ux.action.start('Creating theme update job')
 
   try {
-    const { data: { job } } = await request.requestAPI('/api/v2/guide/theming/jobs/themes/updates', {
+    const response = await request.requestAPI('/api/v2/guide/theming/jobs/themes/updates', {
       method: 'POST',
       headers: {
         'X-Zendesk-Request-Originator': 'zcli themes:update'
@@ -24,8 +24,9 @@ export default async function createThemeUpdateJob (themeId: string, replaceSett
       },
       validateStatus: (status: number) => status === 202
     })
+
     CliUx.ux.action.stop('Ok')
-    return job
+    return response.data.job;
   } catch (error) {
     handleThemeApiError(error as AxiosError)
   }
