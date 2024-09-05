@@ -12,8 +12,8 @@ describe('createThemePackage', () => {
     const writeStreamStub = sinon.createStubInstance(fs.WriteStream)
     sinon.stub(fs, 'createWriteStream').returns(writeStreamStub)
 
-    const readStreamStub = sinon.createStubInstance(fs.ReadStream)
-    sinon.stub(fs, 'createReadStream').returns(readStreamStub)
+    const readFileSync = sinon.createStubInstance(Buffer)
+    sinon.stub(fs, 'readFileSync').returns(readFileSync)
 
     const unlinkSyncStub = sinon.stub(fs, 'unlinkSync')
 
@@ -26,9 +26,9 @@ describe('createThemePackage', () => {
       finalize: sinon.stub()
     } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    const { readStream, removePackage } = await createThemePackage.default('theme/path')
+    const { file, removePackage } = await createThemePackage.default('theme/path')
 
-    expect(readStream).to.instanceOf(fs.ReadStream)
+    expect(file).to.instanceOf(Buffer)
 
     removePackage()
     expect(unlinkSyncStub.called).to.equal(true)

@@ -61,7 +61,8 @@ export default class Create extends Command {
         this.log(chalk.green(`Successfully installed app: ${manifest.name} with app_id: ${app_id}`))
       } catch (error) {
         CliUx.ux.action.stop('Failed')
-        this.error(chalk.red(error))
+        // this.error(chalk.red(error))
+        console.log(error)
       }
     }
   }

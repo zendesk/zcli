@@ -71,7 +71,8 @@ export default class Auth {
       `${baseUrl}/api/v2/account/settings.json`,
       {
         headers: { Authorization: authToken },
-        validateStatus: function (status) { return status < 500 }
+        validateStatus: function (status) { return status < 500 },
+        adapter: 'fetch'
       })
 
     if (testAuth.status === 200 && this.secureStore) {

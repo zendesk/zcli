@@ -1,4 +1,5 @@
 import { expect, test } from '@oclif/test'
+import * as sinon from 'sinon'
 import { createRequestConfig, requestAPI } from './request'
 import * as requestUtils from './requestUtils'
 import Auth from './auth'
@@ -90,6 +91,16 @@ describe('createRequestConfig', () => {
 })
 
 describe('requestAPI', () => {
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
+
   test
     .env({
       ZENDESK_SUBDOMAIN: 'z3ntest',
@@ -99,10 +110,15 @@ describe('requestAPI', () => {
     })
     .stub(requestUtils, 'getSubdomain', () => 'fake')
     .stub(requestUtils, 'getDomain', () => 'fake.com')
-    .nock('https://z3ntest.zendesk.com', api => {
-      api
-        .get('/api/v2/me')
-        .reply(200)
+    .do(() => {
+      fetchStub.withArgs(sinon.match({
+        url: 'https://z3ntest.zendesk.com/api/v2/me',
+        method: 'GET'
+      })).resolves({
+        status: 200,
+        ok: true,
+        text: () => Promise.resolve('')
+      })
     })
     .it('should call an http endpoint', async () => {
       const response = await requestAPI('api/v2/me', { method: 'GET' })

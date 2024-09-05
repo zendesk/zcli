@@ -34,10 +34,9 @@ export default class Import extends Command {
     brandId = brandId || await getBrandId()
 
     const job = await createThemeImportJob(brandId)
-    const { readStream, removePackage } = await createThemePackage(themePath)
-
+    const { file, removePackage } = await createThemePackage(themePath)
     try {
-      await uploadThemePackage(job, readStream)
+      await uploadThemePackage(job, file, path.basename(themePath))
     } finally {
       removePackage()
     }

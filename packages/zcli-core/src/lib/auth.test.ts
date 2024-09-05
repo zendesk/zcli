@@ -78,24 +78,38 @@ describe('Auth', () => {
   describe('loginInteractively', () => {
     const auth = new Auth({ secureStore: new SecureStore() })
     const promptStub = sinon.stub()
+    let fetchStub: sinon.SinonStub
+
+    beforeEach(() => {
+      fetchStub = sinon.stub(global, 'fetch')
+    })
+
+    afterEach(() => {
+      fetchStub.restore()
+    })
 
     test
       .do(() => {
         promptStub.onFirstCall().resolves('z3ntest')
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
+        fetchStub.withArgs(sinon.match({
+          method: 'GET',
+          url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
+          headers: new Headers({
+            Accept: 'application/json, text/plain, */*',
+            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
+          })
+        }))
+          .resolves({
+            status: 200,
+            ok: true,
+            text: () => Promise.resolve('')
+          })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .nock('https://z3ntest.zendesk.com', api => {
-        api
-          .get('/api/v2/account/settings.json')
-          .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
-            return [200]
-          })
-      })
       .it('should return true on login success', async () => {
         expect(await auth.loginInteractively()).to.equal(true)
       })
@@ -106,18 +120,23 @@ describe('Auth', () => {
         promptStub.onFirstCall().resolves('z3ntest')
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
+        fetchStub.withArgs(sinon.match({
+          method: 'GET',
+          url: 'https://z3ntest.example.com/api/v2/account/settings.json',
+          headers: new Headers({
+            Accept: 'application/json, text/plain, */*',
+            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
+          })
+        }))
+          .resolves({
+            status: 200,
+            ok: true,
+            text: () => Promise.resolve('')
+          })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .nock('https://z3ntest.example.com', api => {
-        api
-          .get('/api/v2/account/settings.json')
-          .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
-            return [200]
-          })
-      })
       .it('should login successfully using the passed domain and the prompted subdomain', async () => {
         expect(await auth.loginInteractively({ domain: 'example.com' } as Profile)).to.equal(true)
       })
@@ -127,18 +146,23 @@ describe('Auth', () => {
         promptStub.reset()
         promptStub.onFirstCall().resolves('test@zendesk.com')
         promptStub.onSecondCall().resolves('123456')
+        fetchStub.withArgs(sinon.match({
+          method: 'GET',
+          url: 'https://z3ntest.example.com/api/v2/account/settings.json',
+          headers: new Headers({
+            Accept: 'application/json, text/plain, */*',
+            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
+          })
+        }))
+          .resolves({
+            status: 200,
+            ok: true,
+            text: () => Promise.resolve('')
+          })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
       .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .nock('https://z3ntest.example.com', api => {
-        api
-          .get('/api/v2/account/settings.json')
-          .reply(function () {
-            expect(this.req.headers.authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
-            return [200]
-          })
-      })
       .it('should login successfully using the passed subdomain and domain', async () => {
         expect(await auth.loginInteractively({ subdomain: 'z3ntest', domain: 'example.com' })).to.equal(true)
       })
@@ -149,11 +173,21 @@ describe('Auth', () => {
         promptStub.onFirstCall().resolves('z3ntest')
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
+        fetchStub.withArgs(sinon.match({
+          method: 'GET',
+          url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
+          headers: new Headers({
+            Accept: 'application/json, text/plain, */*',
+            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
+          })
+        }))
+          .resolves({
+            status: 403,
+            ok: false,
+            text: () => Promise.resolve('')
+          })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
-      .nock('https://z3ntest.zendesk.com', api => api
-        .get('/api/v2/account/settings.json')
-        .reply(403))
       .it('should return false on login failure', async () => {
         expect(await auth.loginInteractively()).to.equal(false)
       })
