@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.50](https://github.com/zendesk/zcli/compare/v1.0.0-beta.49...v1.0.0-beta.50) (2024-09-06)
+
+
+### Bug Fixes
+
+* module resolution ([#262](https://github.com/zendesk/zcli/issues/262)) ([12a08ce](https://github.com/zendesk/zcli/commit/12a08ce1b801acb062231be2db158d8e51a9d40e))
+
+
+
+
+
 # [1.0.0-beta.49](https://github.com/zendesk/zcli/compare/v1.0.0-beta.48...v1.0.0-beta.49) (2024-09-05)
 
 **Note:** Version bump only for package @zendesk/zcli-apps
