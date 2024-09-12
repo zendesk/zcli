@@ -15,7 +15,7 @@ For more about ZCLI see [the full documentation.](/docs)
 
 This is a [Node.js](https://nodejs.org/en/) module available through the [npm registry.](https://www.npmjs.com/package/@zendesk/zcli)
 
-Before installing, download and install Node.js. Node.js 20.13.1 or higher is required. Installation is done using the `yarn` install command:
+Before installing, download and install Node.js. Node.js v20.17.0 or higher is required. Installation is done using the `yarn` install command:
 
 ```
 $ yarn global add @zendesk/zcli
