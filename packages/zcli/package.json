@@ -30,7 +30,7 @@
     "/npm-shrinkwrap.json"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.17.0"
   },
   "keywords": [
     "zcli",
