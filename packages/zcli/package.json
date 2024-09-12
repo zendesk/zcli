@@ -29,6 +29,9 @@
     "/oclif.manifest.json",
     "/npm-shrinkwrap.json"
   ],
+  "engines": {
+    "node": ">=20"
+  },
   "keywords": [
     "zcli",
     "zendesk",
