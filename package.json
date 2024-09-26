@@ -35,7 +35,7 @@
     "yarn-audit-fix": "^9.3.1"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.17.0"
   },
   "keywords": [
     "zcli",
