@@ -23,18 +23,6 @@ jobs:
         with:
           node-version: "${{ matrix.node-version }}"
           cache: "yarn"
-      - uses: zendesk/cache@v3
-        with:
-          path: |
-            ./node_modules/
-            ./packages/zcli/node_modules/
-            ./packages/zcli-core/node_modules/
-            ./packages/zcli-apps/node_modules/
-            ./packages/zcli-themes/node_modules/
-          key: node-modules-${{ runner.os }}-${{ hashFiles('**/package.json') }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            node-modules-${{ runner.os }}-${{ hashFiles('**/package.json') }}-
-            node-modules-${{ runner.os }}-
       - run: yarn install
       - run: yarn lint
       - run: yarn test
