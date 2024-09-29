@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.51](https://github.com/zendesk/zcli/compare/v1.0.0-beta.50...v1.0.0-beta.51) (2024-09-29)
+
+
+### Reverts
+
+* Revert "venus" ([cbc6aaa](https://github.com/zendesk/zcli/commit/cbc6aaa6b74a393b13caba603398899d35489e94))
+
+
+
+
+
 # [1.0.0-beta.50](https://github.com/zendesk/zcli/compare/v1.0.0-beta.49...v1.0.0-beta.50) (2024-09-06)
 
 
