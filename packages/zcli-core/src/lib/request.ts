@@ -5,6 +5,7 @@ import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
 import { getBaseUrl, getDomain, getSubdomain } from './requestUtils'
+import { ProxyAgent } from 'proxy-agent'
 
 const MSG_ENV_OR_LOGIN = 'Set the following environment variables: ZENDESK_SUBDOMAIN, ZENDESK_EMAIL, ZENDESK_API_TOKEN. Or try logging in via `zcli login -i`'
 const ERR_AUTH_FAILED = `Authorization failed. ${MSG_ENV_OR_LOGIN}`
@@ -50,8 +51,11 @@ export const createRequestConfig = async (url: string, options: any = {}) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const requestAPI = async (url: string, options: any = {}, json = false) => {
   const requestConfig = await createRequestConfig(url, options)
+  const agent = new ProxyAgent()
   return axios.request({
     ...requestConfig,
-    adapter: 'fetch'
+    httpsAgent: agent,
+    httpAgent: agent,
+    proxy: false
   })
 }

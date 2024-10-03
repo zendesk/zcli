@@ -20,6 +20,7 @@
     "@zendesk/zcli-core": "^1.0.0-beta.49",
     "@zendesk/zcli-themes": "^1.0.0-beta.51",
     "chalk": "^4.1.2",
+    "proxy-agent": "^6.4.0",
     "tslib": "^2.4.0"
   },
   "files": [
