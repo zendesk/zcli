@@ -29,7 +29,10 @@ export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
   // clean up
   await fs.remove(pkgPath)
   if (response.status !== 201) {
-    console.log(chalk.red('Upload failed with response: ', response.data))
+    console.log(
+      chalk.red('Upload failed with response: ', response.data),
+      response.data
+    )
   }
 
   return response.data
