@@ -5,7 +5,7 @@ import { request } from '@zendesk/zcli-core'
 import * as chalk from 'chalk'
 import validationErrorsToString from './validationErrorsToString'
 
-export default async function pollJobStatus (themePath: string, jobId: string, interval = 1000, retries = 10): Promise<void> {
+export default async function pollJobStatus (themePath: string, jobId: string, interval = 1000, retries = 20): Promise<void> {
   CliUx.ux.action.start('Polling job status')
 
   while (retries) {
