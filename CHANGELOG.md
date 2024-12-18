@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.52](https://github.com/zendesk/zcli/compare/v1.0.0-beta.51...v1.0.0-beta.52) (2024-12-18)
+
+
+### Bug Fixes
+
+* **themes:** increase default retries in jobPollStatus ([b381fe9](https://github.com/zendesk/zcli/commit/b381fe9fb1100e596668232f85408ab426f807a1))
+
+
+
+
+
 # [1.0.0-beta.51](https://github.com/zendesk/zcli/compare/v1.0.0-beta.50...v1.0.0-beta.51) (2024-09-29)
 
 
