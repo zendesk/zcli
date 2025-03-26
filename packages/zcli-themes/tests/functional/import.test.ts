@@ -178,9 +178,9 @@ describe('themes:import', function () {
           url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/imports',
           method: 'POST'
         })).resolves({
-            status: 401,
-            ok: false,
-            text: () => Promise.resolve('')
+          status: 401,
+          ok: false,
+          text: () => Promise.resolve('')
         })
       })
       .it('should report request failed with status code', async (ctx) => {
