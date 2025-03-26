@@ -168,4 +168,28 @@ describe('themes:import', function () {
         }
       })
   })
+
+  describe('import unauthorized', () => {
+    test
+      .stderr()
+      .env(env)
+      .do(() => {
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/guide/theming/jobs/themes/imports',
+          method: 'POST'
+        })).resolves({
+            status: 401,
+            ok: false,
+            text: () => Promise.resolve('')
+        })
+      })
+      .it('should report request failed with status code', async (ctx) => {
+        try {
+          await ImportCommand.run([baseThemePath, '--brandId', '1111'])
+        } catch (error) {
+          expect(ctx.stderr).to.contain('!')
+          expect(error.message).to.contain('Request failed with status code 401')
+        }
+      })
+  })
 })
