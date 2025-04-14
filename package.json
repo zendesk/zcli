@@ -24,7 +24,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "form-data": "^4.0.0",
-    "lerna": "^5.1.8",
+    "lerna": "^5.6.2",
     "lerna-changelog": "^2.2.0",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
