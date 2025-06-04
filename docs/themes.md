@@ -143,7 +143,7 @@ OPTIONS
   --json          Return JSON output (useful in CI)
 
 EXAMPLES
-  $ zcli themes:import ./copenhagen_theme
-  $ zcli themes:import ./copenhagen_theme --brandId=123456
-  $ zcli themes:import ./copenhagen_theme --brandId=123456 --json
+  $ zcli themes:list
+  $ zcli themes:list --brandId=123456
+  $ zcli themes:list --brandId=123456 --json
 ```
