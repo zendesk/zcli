@@ -27,7 +27,7 @@ export const updateProductInstallation = async (appConfig: ZcliConfigFileContent
   const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
   const installation = all_installations.installations.filter(i => i.app_id === app_id)
   if (installation.length > 0) {
-    const installation_id  = installation[0].id
+    const installation_id = installation[0].id
     const updated = await request.requestAPI(`/api/${product}/apps/installations/${installation_id}.json`, {
       method: 'PUT',
       data: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
