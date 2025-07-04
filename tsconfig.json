@@ -6,7 +6,8 @@
     "outDir": "lib",
     "rootDir": "src",
     "strict": false,
-    "target": "es2017"
+    "target": "es2017",
+    "types": [] // Fix for https://github.com/strapi/strapi/issues/23859
   },
   "include": [
     "src/**/*"
