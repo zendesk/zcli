@@ -21,23 +21,26 @@ export const getUploadJobStatus = async (job_id: string, appPath: string, pollAf
 
 export const updateProductInstallation = async (appConfig: ZcliConfigFileContent, manifest: Manifest, app_id: string, product: string): Promise<boolean> => {
   const installationResp = await request.requestAPI(`/api/${product}/apps/installations.json`, {}, true)
-  const installations: Installations = installationResp.data
+  const all_installations: Installations = installationResp.data
 
   const configParams = appConfig?.parameters || {} // if there are no parameters in the config, just attach an empty object
   const settings = manifest.parameters ? await getAppSettings(manifest, configParams) : {}
-  const installation_id = installations.installations.filter(i => i.app_id === app_id)[0].id
+  const installation = all_installations.installations.filter(i => i.app_id === app_id)
+  if (installation.length > 0) {
+    const installation_id = installation[0].id
+    const updated = await request.requestAPI(`/api/${product}/apps/installations/${installation_id}.json`, {
+      method: 'PUT',
+      data: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
 
-  const updated = await request.requestAPI(`/api/${product}/apps/installations/${installation_id}.json`, {
-    method: 'PUT',
-    data: JSON.stringify({ settings: { name: manifest.name, ...settings } }),
-    headers: {
-      'Content-Type': 'application/json'
+    if (updated.status === 201 || updated.status === 200) {
+      return true
+    } else {
+      return false
     }
-  })
-
-  if (updated.status === 201 || updated.status === 200) {
-    return true
-  } else {
-    return false
   }
+  return true
 }
