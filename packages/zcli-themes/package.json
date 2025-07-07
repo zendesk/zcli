@@ -1,7 +1,7 @@
 {
   "name": "@zendesk/zcli-themes",
   "description": "zcli theme commands live here",
-  "version": "1.0.0-beta.52",
+  "version": "1.0.0-beta.53",
   "author": "@zendesk/vikings",
   "npmRegistry": "https://registry.npmjs.org",
   "publishConfig": {
