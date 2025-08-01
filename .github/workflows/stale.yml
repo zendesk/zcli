@@ -1,0 +1,24 @@
+name: Stale PRs
+on:
+  schedule:
+    - cron: '30 22 * * *' # At 8:30am AET and 9:30am AEDT
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: [self-hosted, zendesk-stable]
+    steps:
+      - uses: zendesk/stale-action@v9
+        with:
+          stale-pr-message: >
+            This issue has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs. Thank you
+            for your contributions.
+          stale-pr-label: 'wontfix'
+          exempt-pr-labels: 'long-term'
+          days-before-pr-stale: 90
+          days-before-pr-close: 14
+          repo-token: ${{ secrets.ORG_GITHUB_TOKEN }}
