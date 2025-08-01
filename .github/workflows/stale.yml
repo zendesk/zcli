@@ -4,12 +4,13 @@ on:
     - cron: '30 22 * * *' # At 8:30am AET and 9:30am AEDT
   workflow_dispatch:
 
+
 permissions:
   pull-requests: write
 
 jobs:
   stale:
-    runs-on: [self-hosted, zendesk-stable]
+    runs-on: ubuntu-latest
     steps:
       - uses: zendesk/stale-action@v9
         with:
@@ -21,4 +22,4 @@ jobs:
           exempt-pr-labels: 'long-term'
           days-before-pr-stale: 90
           days-before-pr-close: 14
-          repo-token: ${{ secrets.ORG_GITHUB_TOKEN }}
+          repo-token: ${{ secrets.STALE_WORKFLOW_TOKEN }}
