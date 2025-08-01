@@ -2,7 +2,7 @@
   "name": "zcli-monorepo",
   "description": "Zendesk cli is a single command line tool for all your zendesk needs",
   "version": "0.0.1",
-  "author": "@vegemite",
+  "author": "@wattle",
   "private": true,
   "workspaces": [
     "packages/*"

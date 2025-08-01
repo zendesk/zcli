@@ -2,11 +2,11 @@
 # Last path that matches wins. Rules need to run from most general to most specific
 
 # These owners will be the default owners for everything in the repo.
-*                         @zendesk/vegemite
+*                         @zendesk/wattle
 
 # Themes
 /packages/zcli-themes/    @zendesk/vikings
 /docs/themes.md           @zendesk/vikings
 
 # Shared
-yarn.lock                 @zendesk/vegemite @zendesk/vikings
+yarn.lock                 @zendesk/wattle @zendesk/vikings
