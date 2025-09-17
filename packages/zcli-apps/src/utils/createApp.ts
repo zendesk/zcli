@@ -38,8 +38,16 @@ export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
 export const promptAndGetSettings = async (params: ManifestParameter[], appName = 'app', valuesRequired = true) => {
   const settings: Dictionary<string> = {}
   for (const param of params) {
-    const value = await CliUx.ux.prompt(`Enter ${appName} setting.${param.name} value`, { type: param.secure ? 'hide' : 'normal', required: valuesRequired })
-    if (value) settings[param.name] = value
+    let value
+    const valueFromEnv = process.env[param.name]
+    if (valueFromEnv) {
+      value = valueFromEnv
+    } else {
+      value = await CliUx.ux.prompt(`Enter ${appName} setting.${param.name} value`, { type: param.secure ? 'hide' : 'normal', required: valuesRequired })
+    }
+    if (value) {
+      settings[param.name] = value
+    }
   }
   return settings
 }
