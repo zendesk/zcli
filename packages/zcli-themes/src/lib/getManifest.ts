@@ -10,7 +10,7 @@ export default function getManifest (themePath: string): Manifest {
     const manifestFile = fs.readFileSync(manifestFilePath, 'utf8')
     try {
       return JSON.parse(manifestFile)
-    } catch (error) {
+    } catch (_error) {
       throw new CLIError(chalk.red(`manifest.json file was malformed at path: "${manifestFilePath}"`))
     }
   } else {

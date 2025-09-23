@@ -13,7 +13,7 @@ export const getAllConfigs = (appPath: string, configFileName: string = DEFAULT_
     const zcliConfigFile = fs.readFileSync(configFilePath, 'utf8')
     try {
       return JSON.parse(zcliConfigFile)
-    } catch (error) {
+    } catch (_error) {
       throw new CLIError(chalk.red(`zcli configuration file was malformed at path: ${configFilePath}`))
     }
   }

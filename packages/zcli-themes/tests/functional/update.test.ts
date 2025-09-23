@@ -149,7 +149,7 @@ describe('themes:update', function () {
           text: () => Promise.resolve('')
         })
       })
-      .it('should report validation errors', async (ctx) => {
+      .it('should report validation errors', async (_ctx) => {
         try {
           await UpdateCommand.run([baseThemePath, '--themeId', '1111'])
         } catch (error) {

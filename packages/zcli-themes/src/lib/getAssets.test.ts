@@ -23,7 +23,7 @@ describe('getAssets', () => {
       .withArgs('theme/path/assets')
       .returns(true)
 
-    readdirSyncStub.returns(['.gitkeep', 'foo.png', 'bar.png'] as any)
+    readdirSyncStub.returns(['.gitkeep', 'foo.png', 'bar.png'] as unknown as fs.Dirent[])
 
     const assets = getAssets('theme/path', flags)
 
@@ -47,7 +47,7 @@ describe('getAssets', () => {
       .withArgs('theme/path/assets')
       .returns(true)
 
-    readdirSyncStub.returns(['unsuported file name.png'] as any)
+    readdirSyncStub.returns(['unsuported file name.png'] as unknown as fs.Dirent[])
 
     expect(() => {
       getAssets('theme/path', flags)

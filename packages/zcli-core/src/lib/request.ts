@@ -48,7 +48,7 @@ export const createRequestConfig = async (url: string, options: any = {}) => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const requestAPI = async (url: string, options: any = {}, json = false) => {
+export const requestAPI = async (url: string, options: any = {}, _json = false) => {
   const requestConfig = await createRequestConfig(url, options)
   return axios.request({
     ...requestConfig,
