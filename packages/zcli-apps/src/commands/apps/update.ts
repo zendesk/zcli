@@ -30,7 +30,7 @@ export default class Update extends Command {
     const { job_id } = await deployApp('PUT', `api/v2/apps/${appID}`, uploadId)
 
     try {
-      const { app_id }: any = await getUploadJobStatus(job_id, appPath)
+      const { app_id }: { app_id: string } = await getUploadJobStatus(job_id, appPath)
       CliUx.ux.action.stop('Deployed')
       if (!manifest.requirementsOnly && manifest.location) {
         Object.keys(manifest.location).forEach(async product => {

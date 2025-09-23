@@ -8,4 +8,4 @@ export const EnvVars = {
   APP_ID: 'ZENDESK_APP_ID'
 }
 
-export const varExists = (...args: any[]) => !args.filter(envVar => !process.env[envVar]).length
+export const varExists = (...args: string[]) => !args.filter(envVar => !process.env[envVar]).length

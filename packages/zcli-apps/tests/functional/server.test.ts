@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import { omit } from 'lodash'
 import ServerCommand from '../../src/commands/apps/server'
 import { AppJSONPayload, Manifest } from '../../src/types'
-const appJSONSnapshot = require('./mocks/snapshot_app') // eslint-disable-line @typescript-eslint/no-var-requires
+const appJSONSnapshot = require('./mocks/snapshot_app') // eslint-disable-line @typescript-eslint/no-require-imports
 
 describe('apps server', function () {
   const singleProductApp = path.join(__dirname, 'mocks/single_product_app')
