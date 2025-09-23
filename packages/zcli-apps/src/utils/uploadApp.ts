@@ -3,7 +3,7 @@ import { request } from '@zendesk/zcli-core'
 import { getAppSettings } from './getAppSettings'
 import { Manifest, Installations, ZcliConfigFileContent } from '../types'
 
-export const getUploadJobStatus = async (job_id: string, appPath: string, pollAfter = 1000) => new Promise((resolve, reject) => {
+export const getUploadJobStatus = async (job_id: string, appPath: string, pollAfter = 1000) => new Promise<{ status: string, message: string, app_id: string }>((resolve, reject) => {
   const polling = setInterval(async () => {
     const res = await request.requestAPI(`api/v2/apps/job_statuses/${job_id}`, { method: 'GET' })
     const { status, message, app_id } = await res.data

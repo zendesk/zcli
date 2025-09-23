@@ -25,7 +25,7 @@ export default class Clean extends Command {
     try {
       await cleanDirectory(tmpDirectoryPath)
       this.log(chalk.green(`Successfully removed ${tmpDirectoryPath} directory.`))
-    } catch (error) {
+    } catch (_error) {
       this.error(chalk.red(`Failed to remove ${tmpDirectoryPath} directory.`))
     }
   }

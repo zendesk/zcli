@@ -58,7 +58,7 @@ export default function zass (source: string, variables: Variable[], assets: [pa
       const value = compiled.substring(prefix.length, compiled.length - suffix.length)
 
       return value
-    } catch (e) {
+    } catch (_error) {
       // Do no exit but signal the error to the user while maintaining the source string
       error(`Could not process ${chalk.red(match)} in style.css`, { exit: false })
       return match
