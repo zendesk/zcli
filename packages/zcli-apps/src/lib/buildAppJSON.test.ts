@@ -276,7 +276,7 @@ describe('buildAppJSON', () => {
   const mockId = '1'
 
   test
-    .stub(appPath, 'validateAppPath', () => {}) // eslint-disable-line @typescript-eslint/no-empty-function
+    .stub(appPath, 'validateAppPath', () => {})
     .stub(manifest, 'getManifestFile', () => manifestOutput)
     .stub(appConfig, 'getAllConfigs', () => ({
       app_id: '234',
@@ -328,7 +328,7 @@ describe('buildAppJSON', () => {
 
   describe('for non private apps', () => {
     test
-      .stub(appPath, 'validateAppPath', () => {}) // eslint-disable-line @typescript-eslint/no-empty-function
+      .stub(appPath, 'validateAppPath', () => {})
       .stub(manifest, 'getManifestFile', () => manifestOutputNoParams)
       .stub(uuid, 'uuidV4', () => mockId)
       .stub(buildAppJSON, 'getLocationIcons', () => { return multiProductLocationIcons })
@@ -370,7 +370,7 @@ describe('buildAppJSON', () => {
 
   describe('with no params attribute on manifest file', () => {
     test
-      .stub(appPath, 'validateAppPath', () => {}) // eslint-disable-line @typescript-eslint/no-empty-function
+      .stub(appPath, 'validateAppPath', () => {})
       .stub(manifest, 'getManifestFile', () => manifestOutputNoParams)
       .stub(appConfig, 'getAllConfigs', () => ({
         app_id: '234',

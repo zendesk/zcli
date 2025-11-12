@@ -20,8 +20,8 @@ describe('package', () => {
       .it('should throw if package has validation errors', async () => {
         try {
           await validatePkg('./app-path')
-        } catch (error: any) {
-          expect(error.message).to.equal('invalid location')
+        } catch (error: unknown) {
+          expect((error as Error).message).to.equal('invalid location')
         }
       })
 
@@ -31,8 +31,8 @@ describe('package', () => {
       .it('should throw if app path is invalid', async () => {
         try {
           await validatePkg('./bad-path')
-        } catch (error: any) {
-          expect(error.message).to.equal('Package not found at ./bad-path')
+        } catch (error: unknown) {
+          expect((error as Error).message).to.equal('Package not found at ./bad-path')
         }
       })
   })

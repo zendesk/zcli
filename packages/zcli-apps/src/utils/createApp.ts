@@ -11,7 +11,7 @@ export const getManifestAppName = (appPath: string): string | undefined => {
   return getManifestFile(appPath).name
 }
 
-export const uploadAppPkg = async (pkgPath: string): Promise<any> => {
+export const uploadAppPkg = async (pkgPath: string): Promise<{ id: number }> => {
   const pkgBuffer = await fs.readFile(pkgPath)
 
   const formData = new FormData()
@@ -63,7 +63,7 @@ export const deployApp = async (method: string, url: string, upload_id: number, 
   return installationResponse.data
 }
 
-export const createProductInstallation = async (settings: any, manifest: Manifest, app_id: string, product: string): Promise<boolean> => {
+export const createProductInstallation = async (settings: Record<string, unknown>, manifest: Manifest, app_id: string, product: string): Promise<boolean> => {
   const installResponse = await request.requestAPI(`api/${product}/apps/installations.json`, {
     method: 'POST',
     data: JSON.stringify({ app_id: `${app_id}`, settings: { name: manifest.name, ...settings } }),
