@@ -77,6 +77,9 @@ export default class Server extends Command {
     const server = app.listen(port, host, () => {
       this.log(`\nApps server is running on ${chalk.green(`http://${host}:${port}`)} 🚀\n`)
       this.log(`Add ${chalk.bold('?zcli_apps=true')} to the end of your Zendesk URL to load these apps on your Zendesk account.\n`)
+      this.log(chalk.yellow(`If apps fail to load, your browser may be blocking requests to http://${host}:${port}`))
+      this.log(chalk.yellow('Make sure Local Network Access (LNA) is allowed to access your local apps server.'))
+      this.log(chalk.yellow(`Learn more: ${chalk.underline('https://developer.zendesk.com/documentation/apps/getting-started/using-zcli/#local-network-access')}\n`))
       tailLogs && this.log(chalk.bold('Tailing logs'))
     })
 
