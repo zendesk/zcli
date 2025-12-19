@@ -3,7 +3,7 @@ import * as path from 'path'
 import { homedir } from 'os'
 import { KeyTar } from '../types'
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const packageJson = require('../../package.json')
 
 export default class SecureStore {
@@ -21,22 +21,22 @@ export default class SecureStore {
     try {
       await plugins.createPJSON()
       await plugins.yarn.exec(['add', '--force', packageTag], { cwd: this.pluginsPath, verbose: false })
-    } catch (error) {
+    } catch (_error) {
       // TODO: add telemetry so we know when this fails
     }
   }
 
   async loadKeytar () {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       this.keytar = require(this.keytarPath) as KeyTar
-    } catch (error) {
+    } catch (_error) {
       await this.installKeytar()
 
       try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         this.keytar = require(this.keytarPath) as KeyTar
-      } catch (error) {
+      } catch (_error) {
         // TODO: add telemetry so we know when this fails
       }
     }

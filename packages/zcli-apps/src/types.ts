@@ -16,7 +16,13 @@ export type Dictionary<T> = {
 
 // Begin AppJSON definitions
 export interface AppLocation {
-  [appLocation: string]: any;
+  [appLocation: string]: string | {
+    active?: string;
+    hover?: string;
+    inactive?: string;
+    svg?: string;
+    url: string;
+  };
 }
 
 export interface IconLocationAllowlist {
@@ -107,8 +113,8 @@ export interface Installation {
     enabled: boolean;
     id: string;
     plan?: string;
-    requirements: Array<Record<string, any>>;
-    settings: Array<Record<string, any>>;
+    requirements: Array<Record<string, unknown>>;
+    settings: Array<Record<string, unknown>>;
     updated_at: string;
 }
 

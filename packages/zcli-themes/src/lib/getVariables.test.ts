@@ -31,7 +31,7 @@ describe('getVariables', () => {
       .withArgs('theme/path/settings')
       .returns(true)
 
-    readdirSyncStub.returns(['logo.png', 'favicon.png'] as any)
+    readdirSyncStub.returns(['logo.png', 'favicon.png'] as unknown as fs.Dirent[])
 
     expect(getVariables('theme/path', settings, flags)).to.deep.equal([
       { identifier: 'color', type: 'color', value: '#999' },
@@ -48,7 +48,7 @@ describe('getVariables', () => {
       .withArgs('theme/path/settings')
       .returns(true)
 
-    readdirSyncStub.returns(['logo.png'] as any)
+    readdirSyncStub.returns(['logo.png'] as unknown as fs.Dirent[])
 
     expect(() => {
       getVariables('theme/path', settings, flags)

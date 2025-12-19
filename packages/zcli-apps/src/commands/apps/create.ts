@@ -44,7 +44,7 @@ export default class Create extends Command {
       const { job_id } = await deployApp('POST', 'api/apps.json', upload_id, manifest.name)
 
       try {
-        const { app_id }: any = await getUploadJobStatus(job_id, appPath)
+        const { app_id }: { app_id: string } = await getUploadJobStatus(job_id, appPath)
         CliUx.ux.action.stop('Deployed')
 
         const allConfigs = getAllConfigs(appPath)
