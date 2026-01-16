@@ -10,3 +10,6 @@
 
 # Shared
 yarn.lock                 @zendesk/wattle @zendesk/vikings
+
+# Connectors
+/packages/zcli-connectors/ @zendesk/vegemite
