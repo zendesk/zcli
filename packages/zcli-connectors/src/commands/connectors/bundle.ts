@@ -9,14 +9,14 @@ export default class Bundle extends Command {
   static examples = [
     '<%= config.bin %> <%= command.id %> ./example-connector',
     '<%= config.bin %> <%= command.id %> ./example-connector --output ./bundled',
-    '<%= config.bin %> <%= command.id %> --input ./dist --output ./bundle'
+    '<%= config.bin %> <%= command.id %> --input ./src --output ./bundle'
   ]
 
   static flags = {
     help: Flags.help({ char: 'h' }),
     input: Flags.string({
       char: 'i',
-      description: 'input directory containing built connector files',
+      description: 'input directory containing connector source files',
       default: '.'
     }),
     output: Flags.string({
@@ -38,7 +38,7 @@ export default class Bundle extends Command {
   static args = [
     {
       name: 'path',
-      description: 'path to connector directory (will use dist/ folder inside)'
+      description: 'path to connector directory (will use src/ folder inside)'
     }
   ]
 
@@ -55,6 +55,16 @@ export default class Bundle extends Command {
     const outputPath = flags.output ? resolve(flags.output) : resolve('dist')
     if (!existsSync(outputPath)) {
       mkdirSync(outputPath, { recursive: true })
+      if (flags.verbose) {
+        this.log(chalk.cyan(`Created output directory: ${outputPath}`))
+      }
+    }
+
+    if (flags.verbose) {
+      this.log(chalk.cyan('Verbose mode enabled'))
+      this.log(chalk.cyan(`Resolved Input path: ${inputPath}`))
+      this.log(chalk.cyan(`Resolved Output path: ${outputPath}`))
+      this.log(chalk.cyan(`Watch mode: ${flags.watch ? 'enabled' : 'disabled'}`))
     }
 
     const spinner = ora(
@@ -74,29 +84,42 @@ export default class Bundle extends Command {
     } catch (error) {
       spinner.fail(chalk.red('Failed to bundle the connector'))
 
-      if (error instanceof Error) {
+      const errorMessage = (error instanceof Error) ? error.message : String(error)
+      if (flags.verbose) {
         this.log('\n' + chalk.red('Error Details:'))
-        this.log(error.message)
+        this.log(errorMessage)
       }
+
+      this.error(errorMessage, { exit: 1 })
     }
   }
 
   private async generateViteBundle (
     inputPath: string,
     outputPath: string,
-    flags: { watch: boolean },
+    flags: { watch: boolean; verbose: boolean },
     spinner: ora.Ora
   ): Promise<void> {
-    const { watch } = flags
+    const { watch, verbose } = flags
+
+    if (verbose) {
+      this.log(chalk.cyan('Creating Vite configuration...'))
+    }
+
     const viteConfig = ViteConfigBuilder.createConfig(
       {
         inputPath,
         outputPath,
-        useLocalWorkspace: false,
         watch
-      },
-      this
+      }
     )
+
+    if (verbose) {
+      spinner.stop()
+      this.log(chalk.cyan('Vite configuration created successfully'))
+      this.log(chalk.cyan('Starting build process...'))
+      spinner.start()
+    }
 
     spinner.text = watch
       ? 'Building connector and watching for changes...'
@@ -107,6 +130,7 @@ export default class Bundle extends Command {
       spinner.fail(chalk.red('Bundle failed with errors!'))
 
       const errors = stats.toJson().errors || []
+      this.log(chalk.cyan(`Found ${errors.length} error(s)`))
       errors.forEach((error: any) => {
         this.log(chalk.red(`Error: ${error.message}`))
       })
@@ -114,12 +138,27 @@ export default class Bundle extends Command {
       throw new Error('Connector build failed')
     }
 
+    if (verbose) {
+      const buildInfo = stats.toJson()
+      if (buildInfo.assets && buildInfo.assets.length > 0) {
+        this.log(chalk.cyan(`Generated ${buildInfo.assets.length} asset(s)`))
+        buildInfo.assets.forEach((asset: any) => {
+          this.log(chalk.cyan(`  - ${asset.name} (${(asset.size / 1024).toFixed(2)} KB)`))
+        })
+      }
+    }
+
     if (stats.hasWarnings()) {
       const warnings = stats.toJson().warnings || []
+      if (verbose) {
+        this.log(chalk.cyan(`Found ${warnings.length} warning(s)`))
+      }
       this.log(chalk.yellow('\nWarnings:'))
       warnings.forEach((warning: any) => {
         this.log(chalk.yellow(`  - ${warning.message}`))
       })
+    } else if (verbose) {
+      this.log(chalk.cyan('No warnings found'))
     }
   }
 }

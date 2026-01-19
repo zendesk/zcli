@@ -1,5 +1,3 @@
-import { ViteConfigBuilder } from './vite-config'
-
 export class ViteRunner {
   static async run (config: any): Promise<{
     hasErrors: () => boolean;
@@ -39,5 +37,3 @@ export class ViteRunner {
     }
   }
 }
-
-export { ViteConfigBuilder }

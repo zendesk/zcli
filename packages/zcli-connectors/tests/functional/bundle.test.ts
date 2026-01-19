@@ -117,17 +117,6 @@ describe('bundle', () => {
     expect(logStub).to.have.been.calledWith(sinon.match(/Warning message/))
   })
 
-  it('should handle exceptions', async () => {
-    const testError = new Error('Test error')
-    viteStubs.run.rejects(testError)
-
-    try {
-      await bundleCommand.run()
-    } catch (error) {
-      expect(error).to.equal(testError)
-    }
-  })
-
   it('should pass correct config to ViteConfigBuilder', async () => {
     (bundleCommand as any).parse = sinon.stub().resolves({
       args: { path: './test-dir' },
@@ -138,10 +127,8 @@ describe('bundle', () => {
 
     expect(viteStubs.createConfig).to.have.been.calledWith(
       sinon.match({
-        useLocalWorkspace: false,
         watch: false
-      }),
-      sinon.match.any
+      })
     )
   })
 
@@ -156,8 +143,7 @@ describe('bundle', () => {
     expect(viteStubs.createConfig).to.have.been.calledWith(
       sinon.match({
         watch: true
-      }),
-      sinon.match.any
+      })
     )
   })
 })

@@ -1,5 +1,5 @@
-import { writeFileSync } from 'fs'
-import { join } from 'path'
+import { writeFileSync, existsSync, realpathSync } from 'fs'
+import { join, resolve, normalize } from 'path'
 
 import {
   ConnectorConfig,
@@ -39,13 +39,78 @@ export class ManifestGenerator {
   private static async loadConnector (
     outputPath: string
   ): Promise<ConnectorConfig> {
-    const indexPath = join(outputPath, 'connector.js')
+    const normalizedOutputPath = normalize(resolve(outputPath))
+    const indexPath = join(normalizedOutputPath, 'connector.js')
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const connectorModule = require(indexPath)
+    const resolvedIndexPath = resolve(indexPath)
+    const resolvedOutputPath = resolve(normalizedOutputPath)
 
-    // Handle both CommonJS (exports.default) and direct exports
-    return connectorModule.default || connectorModule
+    if (!resolvedIndexPath.startsWith(resolvedOutputPath + '/') &&
+        resolvedIndexPath !== join(resolvedOutputPath, 'connector.js')) {
+      throw new Error(
+        `Security violation: Attempted to load file outside of output directory. Path: ${indexPath}`
+      )
+    }
+
+    if (!existsSync(resolvedIndexPath)) {
+      throw new Error(
+        `Connector file not found at ${resolvedIndexPath}. Please ensure the connector has been built successfully.`
+      )
+    }
+
+    let realIndexPath: string
+    try {
+      realIndexPath = realpathSync(resolvedIndexPath)
+      if (!realIndexPath.startsWith(resolvedOutputPath + '/') &&
+          realIndexPath !== join(resolvedOutputPath, 'connector.js')) {
+        throw new Error(
+          `Security violation: Real path of connector file is outside output directory. Real path: ${realIndexPath}`
+        )
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Security violation')) {
+        throw error
+      }
+      throw new Error(
+        `Failed to resolve real path for ${resolvedIndexPath}: ${error instanceof Error ? error.message : String(error)}`
+      )
+    }
+
+    try {
+      // Clear module cache to ensure fresh loading
+      delete require.cache[require.resolve(realIndexPath)]
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const connectorModule = require(realIndexPath)
+
+      // Handle both CommonJS (exports.default) and direct exports
+      const connector = connectorModule.default || connectorModule
+
+      if (!connector || typeof connector !== 'object') {
+        throw new Error(
+          `Invalid connector module at ${realIndexPath}. Expected an object but got ${typeof connector}.`
+        )
+      }
+
+      return connector
+    } catch (error) {
+      if (error instanceof Error) {
+        // Re-throw our custom errors as-is
+        if (error.message.includes('Connector file not found') ||
+            error.message.includes('Invalid connector module') ||
+            error.message.includes('Security violation')) {
+          throw error
+        }
+        // Wrap other errors with more context
+        throw new Error(
+          `Failed to load connector from ${realIndexPath}: ${error.message}`
+        )
+      }
+      // Handle non-Error objects
+      throw new Error(
+        `Failed to load connector from ${realIndexPath}: ${String(error)}`
+      )
+    }
   }
 
   private static writeManifestFile (

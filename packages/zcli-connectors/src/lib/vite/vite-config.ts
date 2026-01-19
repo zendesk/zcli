@@ -6,7 +6,6 @@ import { join } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
 
 export interface ViteConfigOptions {
-  useLocalWorkspace: boolean;
   inputPath: string;
   outputPath: string;
   watch?: boolean;
@@ -49,27 +48,43 @@ export class ViteConfigBuilder {
   }
 
   /**
+   * Recursively copies a directory from source to destination
+   */
+  private static copyDirRecursive (src: string, dest: string): void {
+    if (!existsSync(dest)) {
+      mkdirSync(dest, { recursive: true })
+    }
+
+    const items = readdirSync(src)
+    for (const item of items) {
+      const srcPath = join(src, item)
+      const destPath = join(dest, item)
+
+      if (statSync(srcPath).isDirectory()) {
+        this.copyDirRecursive(srcPath, destPath)
+      } else {
+        copyFileSync(srcPath, destPath)
+      }
+    }
+  }
+
+  /**
+   * Creates the external function for determining which modules to bundle
+   */
+  private static createExternalFunction (): (id: string) => boolean {
+    return (id: string) => {
+      if (id.includes('@zendesk/connector-sdk')) {
+        return false
+      }
+
+      return !id.startsWith('.') && !id.startsWith('/') && !id.includes('\\')
+    }
+  }
+
+  /**
    * Creates a plugin to copy assets and translations
    */
   private static createAssetCopyPlugin (inputPath: string, outputPath: string) {
-    const copyDirRecursive = (src: string, dest: string) => {
-      if (!existsSync(dest)) {
-        mkdirSync(dest, { recursive: true })
-      }
-
-      const items = readdirSync(src)
-      for (const item of items) {
-        const srcPath = join(src, item)
-        const destPath = join(dest, item)
-
-        if (statSync(srcPath).isDirectory()) {
-          copyDirRecursive(srcPath, destPath)
-        } else {
-          copyFileSync(srcPath, destPath)
-        }
-      }
-    }
-
     return {
       name: 'copy-assets-translations',
       writeBundle () {
@@ -77,14 +92,14 @@ export class ViteConfigBuilder {
         const assetsDir = join(inputPath, 'src/assets')
         if (existsSync(assetsDir)) {
           const targetAssetsDir = join(outputPath, 'assets')
-          copyDirRecursive(assetsDir, targetAssetsDir)
+          ViteConfigBuilder.copyDirRecursive(assetsDir, targetAssetsDir)
         }
 
         // Copy translations
         const translationsDir = join(inputPath, 'src/translations')
         if (existsSync(translationsDir)) {
           const targetTranslationsDir = join(outputPath, 'translations')
-          copyDirRecursive(translationsDir, targetTranslationsDir)
+          ViteConfigBuilder.copyDirRecursive(translationsDir, targetTranslationsDir)
         }
       }
     }
@@ -111,24 +126,7 @@ export class ViteConfigBuilder {
             if (!existsSync(targetDir)) {
               mkdirSync(targetDir, { recursive: true })
             }
-            const copyDirRecursive = (src: string, dest: string) => {
-              if (!existsSync(dest)) {
-                mkdirSync(dest, { recursive: true })
-              }
-
-              const items = readdirSync(src)
-              for (const item of items) {
-                const srcPath = join(src, item)
-                const destPath = join(dest, item)
-
-                if (statSync(srcPath).isDirectory()) {
-                  copyDirRecursive(srcPath, destPath)
-                } else {
-                  copyFileSync(srcPath, destPath)
-                }
-              }
-            }
-            copyDirRecursive(outputPath, targetDir)
+            ViteConfigBuilder.copyDirRecursive(outputPath, targetDir)
           }
         } catch (error) {
           console.error('Failed to generate manifest:', error)
@@ -139,6 +137,7 @@ export class ViteConfigBuilder {
   }
 
   private static createBaseConfig (
+    inputPath: string,
     outputPath: string,
     plugins: any[],
     externalFn: (id: string) => boolean,
@@ -149,7 +148,7 @@ export class ViteConfigBuilder {
         watch: watch ? {} : false,
         target: 'es2015',
         lib: {
-          entry: 'src/index.ts',
+          entry: join(inputPath, 'src', 'index.ts'),
           fileName: 'connector',
           formats: ['cjs']
         },
@@ -182,15 +181,9 @@ export class ViteConfigBuilder {
       this.createManifestPlugin(outputPath, mode, targetDir)
     ]
 
-    const external = (id: string) => {
-      if (id.includes('@zendesk/connector-sdk') || id.includes('core')) {
-        return false
-      }
+    const external = this.createExternalFunction()
 
-      return !id.startsWith('.') && !id.startsWith('/') && !id.includes('\\')
-    }
-
-    return this.createBaseConfig(outputPath, plugins, external, options.watch)
+    return this.createBaseConfig(inputPath, outputPath, plugins, external, options.watch)
   }
 
   private static createNpmConfig (options: ViteConfigOptions): ViteUserConfig {
@@ -202,42 +195,21 @@ export class ViteConfigBuilder {
       this.createManifestPlugin(outputPath, mode, targetDir)
     ]
 
-    const external = (id: string) => {
-      if (id.includes('@zendesk/connector-sdk') || id.includes('core')) {
-        return false
-      }
+    const external = this.createExternalFunction()
 
-      return !id.startsWith('.') && !id.startsWith('/') && !id.includes('\\')
-    }
-
-    return this.createBaseConfig(outputPath, plugins, external, options.watch)
+    return this.createBaseConfig(inputPath, outputPath, plugins, external, options.watch)
   }
 
-  /**
-   * Main config creation method - uses flag to determine which config to use
-   */
   static createConfig (
-    options: ViteConfigOptions,
-    logger: { log: (message: string) => void }
+    options: ViteConfigOptions
   ): ViteUserConfig {
-    const useLocal = options.useLocalWorkspace === true
-
-    if (useLocal) {
-      logger.log('[ViteConfigBuilder] Using local workspace configuration')
-      return this.createLocalConfig(options)
-    } else {
-      logger.log(
-        '[ViteConfigBuilder] Using npm registry configuration (default)'
-      )
-      return this.createNpmConfig(options)
-    }
+    return this.createNpmConfig(options)
   }
 }
 
 // Export a helper function to create Vite config
 export function createConnectorViteConfig (
-  options: ViteConfigOptions,
-  logger: { log: (message: string) => void }
+  options: ViteConfigOptions
 ): ViteUserConfig {
-  return ViteConfigBuilder.createConfig(options, logger)
+  return ViteConfigBuilder.createConfig(options)
 }

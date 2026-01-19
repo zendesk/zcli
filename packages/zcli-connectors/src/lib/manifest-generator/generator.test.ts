@@ -22,7 +22,6 @@ describe('ManifestGenerator', () => {
     writeFileSyncStub = sinon.stub()
     joinStub = sinon.stub()
 
-    // Mock modules
     sinon.replace(fs, 'writeFileSync', writeFileSyncStub)
     sinon.replace(path, 'join', joinStub)
 
@@ -118,8 +117,24 @@ describe('ManifestGenerator', () => {
       .it('should handle connector module with default export', async () => {
         await ManifestGenerator.generateManifest({ outputPath: mockOutputPath })
 
-        // eslint-disable-next-line no-unused-expressions
-        expect(writeFileSyncStub).to.have.been.calledOnce
+        const expectedManifest = {
+          name: 'test-connector',
+          title: 'Test Connector',
+          description: 'A test connector',
+          author: 'Test Author',
+          version: '2.0.0',
+          platform_version: '1.5.0',
+          default_locale: 'en-US',
+          metadata: {
+            connection_type: 'test-connector'
+          }
+        }
+
+        expect(writeFileSyncStub).to.have.been.calledWith(
+          mockManifestPath,
+          JSON.stringify(expectedManifest, null, 2),
+          'utf-8'
+        )
       })
   })
 
@@ -137,7 +152,7 @@ describe('ManifestGenerator', () => {
 
       expect(() => {
         (ManifestGenerator as any).validateConnector(validConnector)
-      }).not.to.throw()
+      }).to.not.throw()
     })
 
     it('should throw for connector missing name', () => {

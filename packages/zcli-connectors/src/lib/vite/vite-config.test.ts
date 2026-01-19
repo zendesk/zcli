@@ -58,10 +58,9 @@ describe('ViteConfigBuilder', () => {
       fsStubs.copyFileSync.returns(undefined)
 
       const config = ViteConfigBuilder.createConfig({
-        useLocalWorkspace: true,
         inputPath,
         outputPath
-      }, { log: () => {} })
+      })
 
       const assetPlugin = config.build.rollupOptions.plugins.find(
         (p: any) => p.name === 'copy-assets-translations'
@@ -88,10 +87,9 @@ describe('ViteConfigBuilder', () => {
       fsStubs.existsSync.returns(false)
 
       const config = ViteConfigBuilder.createConfig({
-        useLocalWorkspace: true,
         inputPath,
         outputPath
-      }, { log: () => {} })
+      })
 
       const assetPlugin = config.build.rollupOptions.plugins.find(
         (p: any) => p.name === 'copy-assets-translations'
@@ -123,12 +121,11 @@ describe('ViteConfigBuilder', () => {
       fsStubs.copyFileSync.returns(undefined)
 
       const config = ViteConfigBuilder.createConfig({
-        useLocalWorkspace: true,
         inputPath: '/input',
         outputPath,
         mode: 'development',
         targetDir
-      }, { log: () => {} })
+      })
 
       const manifestPlugin = config.build.rollupOptions.plugins.find(
         (p: any) => p.name === 'generate-manifest'
@@ -147,10 +144,9 @@ describe('ViteConfigBuilder', () => {
       manifestStub.rejects(error)
 
       const config = ViteConfigBuilder.createConfig({
-        useLocalWorkspace: true,
         inputPath: '/input',
         outputPath: '/output'
-      }, { log: () => {} })
+      })
 
       const manifestPlugin = config.build.rollupOptions.plugins.find(
         (p: any) => p.name === 'generate-manifest'
@@ -169,11 +165,10 @@ describe('ViteConfigBuilder', () => {
       manifestStub.resolves()
 
       const config = ViteConfigBuilder.createConfig({
-        useLocalWorkspace: true,
         inputPath: '/input',
         outputPath: '/output',
         mode: 'production'
-      }, { log: () => {} })
+      })
 
       const manifestPlugin = config.build.rollupOptions.plugins.find(
         (p: any) => p.name === 'generate-manifest'
@@ -190,12 +185,11 @@ describe('ViteConfigBuilder', () => {
       manifestStub.resolves()
 
       const config = ViteConfigBuilder.createConfig({
-        useLocalWorkspace: true,
         inputPath: '/input',
         outputPath: '/output',
         mode: 'development'
         // no targetDir
-      }, { log: () => {} })
+      })
 
       const manifestPlugin = config.build.rollupOptions.plugins.find(
         (p: any) => p.name === 'generate-manifest'
@@ -212,31 +206,14 @@ describe('ViteConfigBuilder', () => {
   describe('createConnectorViteConfig helper function', () => {
     it('should create config using ViteConfigBuilder', () => {
       const options = {
-        useLocalWorkspace: true,
         inputPath: '/input',
         outputPath: '/output'
       }
-      const logger = { log: sinon.stub() }
 
-      const config = createConnectorViteConfig(options, logger)
+      const config = createConnectorViteConfig(options)
 
       expect(config).to.have.property('build')
       expect(config.build).to.have.property('lib')
-      expect(logger.log).to.have.been.calledWith('[ViteConfigBuilder] Using local workspace configuration')
-    })
-
-    it('should create npm config when useLocalWorkspace is false', () => {
-      const options = {
-        useLocalWorkspace: false,
-        inputPath: '/input',
-        outputPath: '/output'
-      }
-      const logger = { log: sinon.stub() }
-
-      const config = createConnectorViteConfig(options, logger)
-
-      expect(config).to.have.property('build')
-      expect(logger.log).to.have.been.calledWith('[ViteConfigBuilder] Using npm registry configuration (default)')
     })
   })
 
@@ -264,12 +241,11 @@ describe('ViteConfigBuilder', () => {
       fsStubs.copyFileSync.returns(undefined)
 
       const config = ViteConfigBuilder.createConfig({
-        useLocalWorkspace: true,
         inputPath: '/input',
         outputPath,
         mode: 'development',
         targetDir
-      }, { log: () => {} })
+      })
 
       const manifestPlugin = config.build.rollupOptions.plugins.find(
         (p: any) => p.name === 'generate-manifest'
