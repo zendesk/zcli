@@ -1,4 +1,4 @@
-import type { Flags, ValidationError, ValidationErrors } from '../types'
+import type { Flags, ValidationErrors } from '../types'
 import getManifest from './getManifest'
 import getTemplates from './getTemplates'
 import getVariables from './getVariables'
@@ -7,9 +7,9 @@ import * as chalk from 'chalk'
 import { request } from '@zendesk/zcli-core'
 import { error } from '@oclif/core/lib/errors'
 import { CliUx } from '@oclif/core'
-import validationErrorsToString from './validationErrorsToString'
 import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
 import type { AxiosError } from 'axios'
+import handleTemplateError from './handleTemplateError'
 
 export default async function preview (themePath: string, flags: Flags): Promise<string | void> {
   const manifest = getManifest(themePath)
@@ -68,7 +68,7 @@ export default async function preview (themePath: string, flags: Flags): Promise
           template_errors: ValidationErrors,
           general_error: string
         }
-      if (templateErrors) handlePreviewError(themePath, templateErrors)
+      if (templateErrors) handleTemplateError(themePath, templateErrors)
       else if (generalError) error(generalError)
       else error(message)
     } else {
@@ -84,19 +84,4 @@ export function livereloadScript (flags: Flags) {
     socket.onmessage = e => e.data === 'reload' && location.reload();
   })()</script>
   `
-}
-
-function handlePreviewError (themePath: string, templateErrors: ValidationErrors) {
-  const validationErrors: ValidationErrors = {}
-  for (const [template, errors] of Object.entries(templateErrors)) {
-    // the preview endpoint returns the template identifier as the 'key' instead of
-    // the template path. We must fix this so we can reuse `validationErrorsToString`
-    // and align with the job import error handling
-    validationErrors[`templates/${template}.hbs`] = errors as ValidationError[]
-  }
-
-  const title = `${chalk.bold('InvalidTemplates')} - Template(s) with syntax error(s)`
-  const details = validationErrorsToString(themePath, validationErrors)
-
-  error(`${title}\n${details}`)
 }
