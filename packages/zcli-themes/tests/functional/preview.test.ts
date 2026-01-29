@@ -21,7 +21,7 @@ describe('themes:preview', function () {
   })
 
   describe('successful preview', () => {
-    let server
+    let server: { close: () => void }
 
     const preview = test
       .stdout()
