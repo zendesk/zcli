@@ -7,16 +7,17 @@ import * as chalk from 'chalk'
 import { request } from '@zendesk/zcli-core'
 import { error } from '@oclif/core/lib/errors'
 import { CliUx } from '@oclif/core'
-import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
 import type { AxiosError } from 'axios'
+import rewriteTemplates from './rewriteTemplates'
+import rewriteManifest from './rewriteManifest'
 import handleTemplateError from './handleTemplateError'
+import parseAxiosError from './parseAxiosError'
 
-export default async function preview (themePath: string, flags: Flags): Promise<string | void> {
+export default async function migrate (themePath: string, flags: Flags): Promise<string | void> {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
   const variables = getVariables(themePath, manifest.settings, flags)
   const assets = getAssets(themePath, flags)
-  const { livereload } = flags
 
   const variablesPayload = variables.reduce((payload, variable) => ({
     ...payload,
@@ -31,23 +32,15 @@ export default async function preview (themePath: string, flags: Flags): Promise
   const metadataPayload = { api_version: manifest.api_version }
 
   try {
-    CliUx.ux.action.start('Uploading theme')
-    const { config: { baseURL } } = await request.requestAPI('/hc/api/internal/theming/local_preview', {
-      method: 'put',
+    CliUx.ux.action.start('Migrating theme')
+    const { data } = await request.requestAPI('/hc/api/internal/theming/migrations', {
+      method: 'POST',
       headers: {
-        'X-Zendesk-Request-Originator': 'zcli themes:preview'
+        'X-Zendesk-Request-Originator': 'zcli themes:migrate'
       },
       data: {
         templates: {
           ...templates,
-          css: '',
-          js: '',
-          document_head: `
-            <link rel="stylesheet" href="${getLocalServerBaseUrl(flags)}/guide/style.css">
-            ${templates.document_head}
-            <script src="${getLocalServerBaseUrl(flags)}/guide/script.js"></script>
-            ${livereload ? livereloadScript(flags) : ''}
-          `,
           assets: assetsPayload,
           variables: variablesPayload,
           metadata: metadataPayload
@@ -55,18 +48,18 @@ export default async function preview (themePath: string, flags: Flags): Promise
       },
       validateStatus: (status: number) => status === 200
     })
+    rewriteManifest(themePath, data.metadata.api_version)
+    rewriteTemplates(themePath, data.templates)
     CliUx.ux.action.stop('Ok')
-    return baseURL
   } catch (e) {
     CliUx.ux.action.stop(chalk.bold.red('!'))
-    const { response, message } = e as AxiosError
+    const { message, response } = parseAxiosError(e as AxiosError)
+
     if (response) {
-      const {
-        template_errors: templateErrors,
-        general_error: generalError
-      } = response.data as {
-          template_errors: ValidationErrors,
-          general_error: string
+      const { template_errors: templateErrors, general_error: generalError } =
+        response.data as {
+          template_errors: ValidationErrors;
+          general_error: string;
         }
       if (templateErrors) handleTemplateError(themePath, templateErrors)
       else if (generalError) error(generalError)
@@ -75,13 +68,4 @@ export default async function preview (themePath: string, flags: Flags): Promise
       error(e as AxiosError)
     }
   }
-}
-
-export function livereloadScript (flags: Flags) {
-  return `<script>(() => {
-    const socket = new WebSocket('${getLocalServerBaseUrl(flags, true)}/livereload');
-    socket.onopen = () => console.log('Listening to theme changes...');
-    socket.onmessage = e => e.data === 'reload' && location.reload();
-  })()</script>
-  `
 }

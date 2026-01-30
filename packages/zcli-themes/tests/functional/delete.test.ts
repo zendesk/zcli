@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import DeleteCommand from '../../src/commands/themes/delete'
 import env from './env'
 import * as sinon from 'sinon'
+import { CLIError } from '@oclif/core/lib/errors'
 
 describe('themes:delete', function () {
   let fetchStub: sinon.SinonStub
@@ -67,8 +68,8 @@ describe('themes:delete', function () {
           await DeleteCommand.run(['--themeId', '1234'])
         } catch (error) {
           expect(ctx.stderr).to.contain('!')
-          expect(error.message).to.contain('ThemeNotFound')
-          expect(error.message).to.contain('Invalid id')
+          expect((error as CLIError).message).to.contain('ThemeNotFound')
+          expect((error as CLIError).message).to.contain('Invalid id')
         }
       })
   })
