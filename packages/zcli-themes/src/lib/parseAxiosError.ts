@@ -28,11 +28,11 @@ export default function parseAxiosError (error: AxiosError): {
   }
 
   // Handle axios fetch adapter quirk: data might be unparsed JSON string
-  if (response && typeof response.data === 'string' && response.data.trim().startsWith('{')) {
+  if (response && typeof response.data === 'string') {
     try {
       response.data = JSON.parse(response.data)
-    } catch (parseError) {
-      // Keep as string if parsing fails
+    } catch {
+      // Keep as string if not valid JSON
     }
   }
 
