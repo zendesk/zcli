@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
 import PublishCommand from '../../src/commands/themes/publish'
 import env from './env'
+import { CLIError } from '@oclif/core/lib/errors'
 
 describe('themes:publish', function () {
   let fetchStub: sinon.SinonStub
@@ -67,8 +68,8 @@ describe('themes:publish', function () {
           await PublishCommand.run(['--themeId', '1234'])
         } catch (error) {
           expect(ctx.stderr).to.contain('!')
-          expect(error.message).to.contain('ThemeNotFound')
-          expect(error.message).to.contain('Invalid id')
+          expect((error as CLIError).message).to.contain('ThemeNotFound')
+          expect((error as CLIError).message).to.contain('Invalid id')
         }
       })
   })

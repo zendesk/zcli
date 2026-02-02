@@ -2,6 +2,7 @@ import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
 import ListCommand from '../../src/commands/themes/list'
 import env from './env'
+import { CLIError } from '@oclif/core/lib/errors'
 
 describe('themes:list', function () {
   let fetchStub: sinon.SinonStub
@@ -67,8 +68,8 @@ describe('themes:list', function () {
           await ListCommand.run(['--brandId', '1111'])
         } catch (error) {
           expect(ctx.stderr).to.contain('!')
-          expect(error.message).to.contain('InternalError')
-          expect(error.message).to.contain('Something went wrong')
+          expect((error as CLIError).message).to.contain('InternalError')
+          expect((error as CLIError).message).to.contain('Something went wrong')
         }
       })
   })

@@ -4,6 +4,7 @@ import * as sinon from 'sinon'
 import * as path from 'path'
 import ImportCommand from '../../src/commands/themes/import'
 import env from './env'
+import { CLIError } from '@oclif/core/lib/errors'
 
 describe('themes:import', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
@@ -100,8 +101,8 @@ describe('themes:import', function () {
           await ImportCommand.run([baseThemePath, '--brandId', '1111'])
         } catch (error) {
           expect(ctx.stderr).to.contain('!')
-          expect(error.message).to.contain('TooManyThemes')
-          expect(error.message).to.contain('Maximum number of allowed themes reached')
+          expect((error as CLIError).message).to.contain('TooManyThemes')
+          expect((error as CLIError).message).to.contain('Maximum number of allowed themes reached')
         }
       })
 
@@ -161,10 +162,10 @@ describe('themes:import', function () {
         try {
           await ImportCommand.run([baseThemePath, '--brandId', '1111'])
         } catch (error) {
-          expect(error.message).to.contain('InvalidTemplates')
-          expect(error.message).to.contain('Template(s) with syntax error(s)')
-          expect(error.message).to.contain('Validation error')
-          expect(error.message).to.contain("'post_form' does not exist")
+          expect((error as CLIError).message).to.contain('InvalidTemplates')
+          expect((error as CLIError).message).to.contain('Template(s) with syntax error(s)')
+          expect((error as CLIError).message).to.contain('Validation error')
+          expect((error as CLIError).message).to.contain("'post_form' does not exist")
         }
       })
   })
