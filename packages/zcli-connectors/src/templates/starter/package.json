@@ -1,0 +1,21 @@
+{
+  "name": "@connectors/templates-starter",
+  "author": "template-starter",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "prettier --check src/ && eslint src/ --max-warnings 0",
+    "lint:fix": "prettier --write src/ && eslint src/ --fix"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@zendesk/connector-sdk": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "@connectors/eslint-config": "workspace:*",
+    "@connectors/typescript-config": "workspace:*",
+    "vitest": "catalog:"
+  }
+}
