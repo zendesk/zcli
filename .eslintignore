@@ -1,1 +1,2 @@
 packages/**/node_modules
+packages/zcli-connectors/src/templates
