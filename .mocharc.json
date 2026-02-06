@@ -9,5 +9,6 @@
     "watch-files": ["lib/**/*.js", "test/**/*.js"],
     "watch-ignore": ["lib/vendor"],
     "require": ["ts-node/register"],
-    "recursive": true
+    "recursive": true,
+    "ignore": ["packages/zcli-connectors/src/templates/**"]
 }
