@@ -50,7 +50,6 @@
       "@oclif/plugin-not-found",
       "@oclif/plugin-warn-if-update-available",
       "@zendesk/zcli-apps",
-      "@zendesk/zcli-connectors",
       "@zendesk/zcli-themes"
     ],
     "warn-if-update-available": {
