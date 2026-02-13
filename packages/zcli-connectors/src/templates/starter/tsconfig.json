@@ -1,5 +1,22 @@
 {
-  "extends": "@connectors/typescript-config/base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "module": "preserve",
+    "noEmit": true,
+    "lib": ["es2022"],
+    "types": ["vitest/globals"]
+  },
   "include": ["src"],
   "exclude": ["node_modules"]
 }

@@ -10,12 +10,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@zendesk/connector-sdk": "catalog:",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
-    "typescript": "catalog:",
-    "@connectors/eslint-config": "workspace:*",
-    "@connectors/typescript-config": "workspace:*",
-    "vitest": "catalog:"
+    "@eslint/js": "^9.31.0",
+    "@zendesk/connector-sdk": "1.4.0",
+    "eslint": "~9.31.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.2.0",
+    "vitest": "~2.1.9"
   }
 }
