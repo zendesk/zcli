@@ -2,6 +2,7 @@ import { Command, Flags } from '@oclif/core'
 import { existsSync, mkdirSync } from 'fs'
 import { join, resolve } from 'path'
 import * as chalk from 'chalk'
+import { execFileSync } from 'child_process'
 import { ViteConfigBuilder, ViteRunner } from '../../lib/vite'
 import * as ora from 'ora'
 
@@ -67,11 +68,16 @@ export default class Bundle extends Command {
       this.log(chalk.cyan(`Watch mode: ${flags.watch ? 'enabled' : 'disabled'}`))
     }
 
-    const spinner = ora(
-      `Bundling connector from ${inputPath} to ${outputPath}...`
-    ).start()
+    let spinner = ora('Checking TypeScript compilation...').start()
 
     try {
+      this.checkTypeScript(inputPath, spinner)
+      spinner.succeed(chalk.green('TypeScript compilation check passed'))
+
+      spinner = ora(
+        `Bundling connector from ${inputPath} to ${outputPath}...`
+      ).start()
+
       await this.generateViteBundle(inputPath, outputPath, flags, spinner)
 
       if (flags.watch) {
@@ -91,6 +97,26 @@ export default class Bundle extends Command {
       }
 
       this.error(errorMessage, { exit: 1 })
+    }
+  }
+
+  private checkTypeScript (
+    projectPath: string,
+    spinner: ora.Ora
+  ): void {
+    try {
+      const tsconfigPath = join(projectPath, 'tsconfig.json')
+      if (!existsSync(tsconfigPath)) {
+        spinner.stop()
+        spinner.info(chalk.yellow('No tsconfig.json found, skipping type check'))
+        return
+      }
+
+      spinner.text = chalk.cyan('Running TypeScript type check...')
+      execFileSync('tsc', ['--noEmit', '--project', projectPath], { stdio: 'inherit' })
+    } catch (error) {
+      spinner.fail(chalk.red('TypeScript type check failed'))
+      throw new Error('TypeScript compilation check failed. Please fix the errors above.')
     }
   }
 

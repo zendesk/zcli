@@ -4,6 +4,7 @@ import { expect, use } from 'chai'
 import * as sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import * as fs from 'fs'
+import * as childProcess from 'child_process'
 import BundleCommand from '../../src/commands/connectors/bundle'
 import { ViteConfigBuilder, ViteRunner } from '../../src/lib/vite'
 
@@ -17,7 +18,9 @@ describe('bundle', () => {
 
   beforeEach(() => {
     fsStubs = {
-      existsSync: sinon.stub(fs, 'existsSync').returns(true),
+      existsSync: sinon.stub(fs, 'existsSync').callsFake((path: fs.PathLike) => {
+        return !String(path).includes('tsconfig.json')
+      }),
       mkdirSync: sinon.stub(fs, 'mkdirSync')
     }
 
@@ -145,5 +148,27 @@ describe('bundle', () => {
         watch: true
       })
     )
+  })
+
+  it('should fail bundle if TypeScript compilation fails', async () => {
+    (bundleCommand as any).parse = sinon.stub().resolves({
+      args: { path: './test-dir' },
+      flags: { output: './output', watch: false, verbose: true }
+    })
+
+    fsStubs.existsSync.returns(true)
+
+    const execSyncStub = sinon.stub(childProcess, 'execFileSync')
+    execSyncStub.throws(new Error('TypeScript compilation error'))
+
+    try {
+      await bundleCommand.run()
+      expect.fail('Should have thrown an error')
+    } catch (error) {
+      expect(error).to.be.instanceOf(Error)
+      expect(logStub).to.have.been.calledWith(sinon.match(/compilation check failed/i))
+    } finally {
+      execSyncStub.restore()
+    }
   })
 })
