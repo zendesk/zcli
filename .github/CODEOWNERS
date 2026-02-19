@@ -9,7 +9,7 @@
 /docs/themes.md           @zendesk/vikings
 
 # Shared
-yarn.lock                 @zendesk/wattle @zendesk/vikings
+yarn.lock                 @zendesk/wattle @zendesk/vikings @zendesk/vegemite
 
 # Connectors
 /packages/zcli-connectors/ @zendesk/vegemite
