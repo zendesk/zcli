@@ -119,7 +119,7 @@ function validateFieldValues (manifest: ConnectorManifest): void {
       throw new Error('Metadata connection_type must be a string')
     }
 
-    if (manifest.metadata.connection_type == null || manifest.metadata.connection_type === '') {
+    if (manifest.metadata.connection_type === '') {
       throw new Error('Metadata connection_type must be a non-empty string')
     }
 
