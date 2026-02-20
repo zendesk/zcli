@@ -55,3 +55,15 @@ export const requestAPI = async (url: string, options: any = {}, json = false) =
     adapter: 'fetch'
   })
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const requestRaw = async (url: string, options: any = {}) => {
+  return axios.request({
+    url,
+    ...options,
+    validateStatus: function (status: number) {
+      return status < 500
+    },
+    adapter: 'fetch'
+  })
+}

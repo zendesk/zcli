@@ -1,6 +1,6 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
-import { createRequestConfig, requestAPI } from './request'
+import { createRequestConfig, requestAPI, requestRaw } from './request'
 import * as requestUtils from './requestUtils'
 import Auth from './auth'
 import { Profile } from '../types'
@@ -124,4 +124,94 @@ describe('requestAPI', () => {
       const response = await requestAPI('api/v2/me', { method: 'GET' })
       expect(response.status).to.equal(200)
     })
+})
+
+describe('requestRaw', () => {
+  let fetchStub: sinon.SinonStub
+
+  beforeEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fetchStub = sinon.stub(global, 'fetch' as any)
+  })
+
+  afterEach(() => {
+    fetchStub.restore()
+  })
+
+  it('should make a raw request without adding any extra headers', async () => {
+    fetchStub.resolves({
+      status: 200,
+      ok: true,
+      headers: new Map(),
+      text: () => Promise.resolve('success'),
+      data: { result: 'ok' }
+    })
+
+    const customHeaders = { 'Content-Type': 'application/zip' }
+    const response = await requestRaw('https://example.com/upload', {
+      method: 'PUT',
+      headers: customHeaders,
+      data: Buffer.from('test')
+    })
+
+    expect(response.status).to.equal(200)
+    expect(fetchStub.called).to.equal(true)
+  })
+
+  it('should pass through options without modification', async () => {
+    fetchStub.resolves({
+      status: 201,
+      ok: true,
+      headers: new Map(),
+      text: () => Promise.resolve('created')
+    })
+
+    const customHeaders = { 'Custom-Header': 'value' }
+    await requestRaw('https://example.com/api', {
+      method: 'POST',
+      headers: customHeaders,
+      data: { test: 'data' }
+    })
+
+    expect(fetchStub.called).to.equal(true)
+  })
+
+  it('should return 403 response without throwing error', async () => {
+    fetchStub.resolves({
+      status: 403,
+      ok: false,
+      statusText: 'Forbidden',
+      headers: new Map(),
+      text: () => Promise.resolve('{"error":"Access denied"}'),
+      json: () => Promise.resolve({ error: 'Access denied' })
+    })
+
+    const response = await requestRaw('https://example.com/upload', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/zip' }
+    })
+
+    expect(response.status).to.equal(403)
+    expect(response.data.error).to.equal('Access denied')
+  })
+
+  it('should throw error on 500 server error', async () => {
+    fetchStub.rejects({
+      response: {
+        status: 500,
+        statusText: 'Internal Server Error',
+        data: { error: 'Server error' }
+      }
+    })
+
+    try {
+      await requestRaw('https://example.com/api', {
+        method: 'POST',
+        data: { test: 'data' }
+      })
+      expect.fail('Should have thrown an error')
+    } catch (error) {
+      expect((error as any).response.status).to.equal(500)
+    }
+  })
 })
