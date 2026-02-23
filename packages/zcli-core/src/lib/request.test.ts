@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
-import { createRequestConfig, requestAPI } from './request'
+import axios from 'axios'
+import { createRequestConfig, requestAPI, requestRaw } from './request'
 import * as requestUtils from './requestUtils'
 import Auth from './auth'
 import { Profile } from '../types'
@@ -124,4 +125,68 @@ describe('requestAPI', () => {
       const response = await requestAPI('api/v2/me', { method: 'GET' })
       expect(response.status).to.equal(200)
     })
+})
+
+describe('requestRaw', () => {
+  let axiosStub: sinon.SinonStub
+
+  beforeEach(() => {
+    axiosStub = sinon.stub(axios, 'request')
+  })
+
+  afterEach(() => {
+    axiosStub.restore()
+  })
+
+  it('should make a raw request without adding any extra headers', async () => {
+    axiosStub.resolves({
+      status: 200,
+      ok: true,
+      data: { result: 'ok' }
+    })
+
+    const customHeaders = { 'Content-Type': 'application/zip' }
+    const response = await requestRaw('https://example.com/upload', {
+      method: 'PUT',
+      headers: customHeaders,
+      data: Buffer.from('test')
+    })
+
+    expect(response.status).to.equal(200)
+    expect(axiosStub.called).to.equal(true)
+    const callArgs = axiosStub.firstCall.args[0]
+    expect(callArgs.headers).to.deep.equal(customHeaders)
+  })
+
+  it('should return 403 response without throwing error', async () => {
+    axiosStub.resolves({
+      status: 403,
+      ok: false,
+      data: { error: 'Access denied' }
+    })
+
+    const response = await requestRaw('https://example.com/upload', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/zip' }
+    })
+
+    expect(response.status).to.equal(403)
+    expect(response.data.error).to.equal('Access denied')
+  })
+
+  it('should throw error on 500 server error', async () => {
+    const axiosError = new Error('Server error')
+    ;(axiosError as any).response = { status: 500 }
+    axiosStub.rejects(axiosError)
+
+    try {
+      await requestRaw('https://example.com/api', {
+        method: 'POST',
+        data: { test: 'data' }
+      })
+      expect.fail('Should have thrown an error')
+    } catch (error) {
+      expect((error as any).response.status).to.equal(500)
+    }
+  })
 })
