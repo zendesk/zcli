@@ -57,7 +57,8 @@ describe('publish', () => {
       requestAPIStub = sinon.stub(request, 'requestAPI').resolves({
         status: 201,
         data: {
-          upload_url: 'https://example.com/upload/123'
+          upload_url: 'https://example.com/upload/123',
+          job_id: 'job-123'
         }
       } as any)
 
@@ -65,6 +66,7 @@ describe('publish', () => {
 
       expect(result.uploadUrl).to.equal('https://example.com/upload/123')
       expect(result.connectorName).to.equal('my-connector')
+      expect(result.jobId).to.equal('job-123')
       expect(readFileSyncStub.calledOnce).to.equal(true)
       expect(requestAPIStub.calledOnce).to.equal(true)
     })
@@ -79,7 +81,8 @@ describe('publish', () => {
       requestAPIStub = sinon.stub(request, 'requestAPI').resolves({
         status: 201,
         data: {
-          upload_url: 'https://example.com/upload/456'
+          upload_url: 'https://example.com/upload/456',
+          job_id: 'job-456'
         }
       } as any)
 
@@ -87,6 +90,7 @@ describe('publish', () => {
 
       expect(result.uploadUrl).to.equal('https://example.com/upload/456')
       expect(result.connectorName).to.equal('test-connector')
+      expect(result.jobId).to.equal('job-456')
 
       const callArgs = requestAPIStub.getCall(0)
       expect(callArgs.args[0]).to.equal('/flowstate/connectors/private/create')
