@@ -5,6 +5,7 @@ import * as chalk from 'chalk'
 import * as ora from 'ora'
 import { runValidationChecks } from '../../lib/validations'
 import { createConnector, uploadConnectorPackage } from '../../lib/publish/publish'
+import { pollProvisioningStatus } from '../../lib/publish/poller'
 
 export default class Publish extends Command {
   static description = 'publish a connector'
@@ -95,11 +96,24 @@ export default class Publish extends Command {
   private async publishConnector (
     path: string
   ): Promise<void> {
-    const spinner = ora('Publishing connector...').start()
+    let spinner = ora('Publishing connector...').start()
     try {
-      const { uploadUrl, connectorName } = await createConnector(path)
+      const { uploadUrl, connectorName, jobId } = await createConnector(path)
       await uploadConnectorPackage(path, uploadUrl, connectorName)
-      spinner.succeed(chalk.green('Publish complete'))
+      spinner.succeed(chalk.green('Upload complete'))
+
+      spinner = ora('Waiting for connector provisioning...').start()
+      const { status: finalStatus, reason } = await pollProvisioningStatus(connectorName, jobId)
+
+      if (finalStatus === 'SUCCESS') {
+        spinner.succeed(chalk.green('Connector provisioned successfully!'))
+      } else if (finalStatus === 'FAILED') {
+        spinner.fail(chalk.red('Connector provisioning failed'))
+        throw new Error(`Connector provisioning failed: ${reason ?? 'Unknown reason'}`)
+      } else if (finalStatus === 'ABORTED') {
+        spinner.fail(chalk.yellow('Connector provisioning was aborted'))
+        throw new Error(`Connector provisioning was aborted: ${reason ?? 'Unknown reason'}`)
+      }
     } catch (error) {
       spinner.fail(chalk.red('Publish failed'))
       throw error

@@ -8,6 +8,7 @@ import * as fs from 'fs'
 import PublishCommand from '../../src/commands/connectors/publish'
 import * as validations from '../../src/lib/validations'
 import * as publishModule from '../../src/lib/publish/publish'
+import * as pollerModule from '../../src/lib/publish/poller'
 
 use(sinonChai)
 
@@ -102,7 +103,8 @@ describe('publish command', () => {
       sinon.stub(validations, 'runValidationChecks').resolves()
       sinon.stub(publishModule, 'createConnector').resolves({
         uploadUrl: 'https://example.com/upload',
-        connectorName: 'test-connector'
+        connectorName: 'test-connector',
+        jobId: 'job-123'
       })
 
       const uploadError = new Error('Failed to upload connector: S3 upload failed')
@@ -124,10 +126,12 @@ describe('publish command', () => {
       sinon.stub(publishModule, 'createConnector').resolves(
         {
           uploadUrl: 'https://example.com/upload',
-          connectorName: 'test-connector'
+          connectorName: 'test-connector',
+          jobId: 'job-123'
         }
       )
       sinon.stub(publishModule, 'uploadConnectorPackage').resolves()
+      sinon.stub(pollerModule, 'pollProvisioningStatus').resolves({ status: 'SUCCESS', reason: '' })
 
       try {
         await publishCommand.run()
@@ -137,6 +141,50 @@ describe('publish command', () => {
 
       expect(caughtError).to.not.exist
       expect(logStub).to.have.been.calledWith(sinon.match(/Connector published successfully/))
+    })
+
+    it('should handle publish connector provisioned with failed state', async () => {
+      sinon.stub(validations, 'runValidationChecks').resolves()
+      sinon.stub(publishModule, 'createConnector').resolves(
+        {
+          uploadUrl: 'https://example.com/upload',
+          connectorName: 'test-connector',
+          jobId: 'job-123'
+        }
+      )
+      sinon.stub(publishModule, 'uploadConnectorPackage').resolves()
+      sinon.stub(pollerModule, 'pollProvisioningStatus').resolves({ status: 'FAILED', reason: 'Provisioning failed' })
+
+      try {
+        await publishCommand.run()
+      } catch (error) {
+        caughtError = error as Error
+      }
+
+      expect(caughtError).to.exist
+      expect(caughtError?.message).to.include('Connector provisioning failed:')
+    })
+
+    it('should handle publish connector provisioned with aborted state', async () => {
+      sinon.stub(validations, 'runValidationChecks').resolves()
+      sinon.stub(publishModule, 'createConnector').resolves(
+        {
+          uploadUrl: 'https://example.com/upload',
+          connectorName: 'test-connector',
+          jobId: 'job-123'
+        }
+      )
+      sinon.stub(publishModule, 'uploadConnectorPackage').resolves()
+      sinon.stub(pollerModule, 'pollProvisioningStatus').resolves({ status: 'ABORTED', reason: 'Provisioning aborted' })
+
+      try {
+        await publishCommand.run()
+      } catch (error) {
+        caughtError = error as Error
+      }
+
+      expect(caughtError).to.exist
+      expect(caughtError?.message).to.include('Connector provisioning was aborted')
     })
   })
 
