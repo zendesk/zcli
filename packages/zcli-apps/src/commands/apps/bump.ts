@@ -19,9 +19,9 @@ export default class Bump extends Command {
   ]
 
   static flags = {
-    major: Flags.boolean({ char: 'M', description: 'Increments the major version by 1' }),
-    minor: Flags.boolean({ char: 'm', description: 'Increments the minor version by 1' }),
-    patch: Flags.boolean({ char: 'p', description: 'Increments the patch version by 1' })
+    major: Flags.boolean({ char: 'M', description: 'Increments the major version by 1.0' }),
+    minor: Flags.boolean({ char: 'm', description: 'Increments the minor version by 1.0' }),
+    patch: Flags.boolean({ char: 'p', description: 'Increments the patch version by 1.0' })
   }
 
   async run () {
