@@ -65,20 +65,6 @@ describe('validateAssets', () => {
       expect(logSpy.getCall(2).args[0]).to.include('Logo file validated')
       expect(logSpy.getCall(3).args[0]).to.include('Assets and resources validation passed')
     })
-
-    it('should not validate assets if assets directory does not exist', async () => {
-      existsSyncStub.returns(false)
-
-      const context: ValidationContext = {
-        inputPath: '/path/to/dist',
-        options: { verbose: false },
-        log: logSpy
-      }
-
-      await validateAssets(context)
-
-      expect(logSpy.called).to.equal(false)
-    })
   })
 
   describe('validation failures', () => {
@@ -217,6 +203,24 @@ describe('validateAssets', () => {
       } catch (error) {
         expect((error as Error).message).to.include('too large')
         expect((error as Error).message).to.include('5KB')
+      }
+    })
+
+    it('should throw error when assets directory does not exist', async () => {
+      existsSyncStub.returns(false)
+
+      const context: ValidationContext = {
+        inputPath: '/path/to/dist',
+        options: { verbose: false },
+        log: logSpy
+      }
+
+      try {
+        await validateAssets(context)
+        expect.fail('Should have thrown an error')
+      } catch (error) {
+        expect((error as Error).message).to.include('Assets validation failed')
+        expect((error as Error).message).to.include('Assets directory is required but does not exist')
       }
     })
   })

@@ -11,12 +11,7 @@ export default class Create extends Command {
   ]
 
   static flags = {
-    help: Flags.help({ char: 'h' }),
-    author: Flags.string({
-      char: 'a',
-      description: 'Author of the connector',
-      required: true
-    })
+    help: Flags.help({ char: 'h' })
   }
 
   static args = [
@@ -28,14 +23,14 @@ export default class Create extends Command {
   ]
 
   async run (): Promise<void> {
-    const { args, flags } = await this.parse(Create)
+    const { args } = await this.parse(Create)
     const { connector } = args
     this.log(`creating ${connector} connector ...`)
 
     const cwd = process.cwd()
     const __connectorDir = resolve(cwd, `./${connector}`)
     if (existsSync(__connectorDir)) {
-      this.error(chalk.cyan(`Error: Directory ${connector} already exists in ${cwd}`))
+      this.error(chalk.red(`Error: Directory ${connector} already exists in ${cwd}`))
     }
 
     const __dirname = dirname(__filename)
@@ -51,8 +46,7 @@ export default class Create extends Command {
     replaceInFile(indexTsPath, {
       "name: 'starter'": `name: '${connector}'`,
       "title: 'Starter Connector'": `title: '${toTitleCase(connector)}'`,
-      "description: 'Starter Connector'": `description: '${toTitleCase(connector)} connector'`,
-      "author: 'starter-author'": `author: '${flags.author}'`
+      "description: 'Starter Connector'": `description: '${toTitleCase(connector)} connector'`
     })
 
     this.log(`✅ Connector '${connector}' created successfully!`)
