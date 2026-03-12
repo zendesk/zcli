@@ -19,9 +19,11 @@ export function validateAssets (context: ValidationContext): void {
 
   try {
     const assetsPath = join(inputPath, 'assets')
-    if (existsSync(assetsPath)) {
-      validateAssetsDirectory(assetsPath, options, log)
+    if (!existsSync(assetsPath)) {
+      throw new Error(`Assets directory is required but does not exist: ${assetsPath}`)
     }
+
+    validateAssetsDirectory(assetsPath, options, log)
 
     if (options.verbose) {
       log(chalk.cyan('  ✓ Assets and resources validation passed'))

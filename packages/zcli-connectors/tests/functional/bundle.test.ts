@@ -19,7 +19,11 @@ describe('bundle', () => {
   beforeEach(() => {
     fsStubs = {
       existsSync: sinon.stub(fs, 'existsSync').callsFake((path: fs.PathLike) => {
-        return !String(path).includes('tsconfig.json')
+        const pathStr = String(path)
+        // Return false for tsconfig.json (to skip type check) and for non-existent connector dirs in specific tests
+        if (pathStr.includes('tsconfig.json')) return false
+        if (pathStr.includes('/nonexistent') || pathStr.includes('\\nonexistent')) return false
+        return true // connector root and dist directories exist by default
       }),
       mkdirSync: sinon.stub(fs, 'mkdirSync')
     }
@@ -78,7 +82,13 @@ describe('bundle', () => {
   })
 
   it('should create output directory if it does not exist', async () => {
-    fsStubs.existsSync.returns(false)
+    // Make connector root exist but dist directory not exist
+    fsStubs.existsSync.callsFake((path: fs.PathLike) => {
+      const pathStr = String(path)
+      if (pathStr.includes('tsconfig.json')) return false
+      if (pathStr.endsWith('/dist') || pathStr.endsWith('\\dist')) return false
+      return true // connector root exists
+    })
 
     await bundleCommand.run()
 
@@ -123,7 +133,7 @@ describe('bundle', () => {
   it('should pass correct config to ViteConfigBuilder', async () => {
     (bundleCommand as any).parse = sinon.stub().resolves({
       args: { path: './test-dir' },
-      flags: { output: './output', watch: false, verbose: false }
+      flags: { watch: false, verbose: false }
     })
 
     await bundleCommand.run()
@@ -138,7 +148,7 @@ describe('bundle', () => {
   it('should enable watch mode', async () => {
     (bundleCommand as any).parse = sinon.stub().resolves({
       args: { path: '.' },
-      flags: { output: undefined, watch: true, verbose: false }
+      flags: { watch: true, verbose: false }
     })
 
     await bundleCommand.run()
@@ -153,7 +163,7 @@ describe('bundle', () => {
   it('should fail bundle if TypeScript compilation fails', async () => {
     (bundleCommand as any).parse = sinon.stub().resolves({
       args: { path: './test-dir' },
-      flags: { output: './output', watch: false, verbose: true }
+      flags: { watch: false, verbose: true }
     })
 
     fsStubs.existsSync.returns(true)
@@ -169,6 +179,31 @@ describe('bundle', () => {
       expect(logStub).to.have.been.calledWith(sinon.match(/compilation check failed/i))
     } finally {
       execSyncStub.restore()
+    }
+  })
+
+  it('should fail if connector directory does not exist', async () => {
+    (bundleCommand as any).parse = sinon.stub().resolves({
+      args: { path: './nonexistent-dir' },
+      flags: { watch: false, verbose: false }
+    })
+
+    const errorStub = sinon.stub(bundleCommand, 'error').callsFake((message: any, options: any) => {
+      const err = new Error(String(message))
+      ;(err as any).options = options
+      throw err
+    })
+    try {
+      await bundleCommand.run()
+      expect.fail('Expected bundleCommand.run() to throw when connector directory does not exist')
+    } catch (error: any) {
+      expect(errorStub).to.have.been.calledWith(
+        sinon.match(/Connector root directory does not exist/),
+        sinon.match({ exit: 1 })
+      )
+      expect(error.message).to.match(/Connector root directory does not exist/)
+    } finally {
+      errorStub.restore()
     }
   })
 })

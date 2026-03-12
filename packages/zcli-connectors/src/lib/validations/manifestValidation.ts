@@ -44,7 +44,7 @@ export function validateManifest (context: ValidationContext): void {
       )
     }
     const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new Error(`Manifest validation failed: ${errorMessage}. Update the manifest definition and re-run the bundle command.`)
+    throw new Error(`Manifest validation failed: ${errorMessage}. Update the manifest definition in your connector's src/index.ts file and re-run \`zcli connectors:bundle ./{connector-name}\``)
   }
 }
 

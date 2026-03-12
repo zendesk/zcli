@@ -8,22 +8,12 @@ import * as ora from 'ora'
 
 export default class Bundle extends Command {
   static examples = [
-    '<%= config.bin %> <%= command.id %> ./example-connector',
-    '<%= config.bin %> <%= command.id %> ./example-connector --output ./bundled',
-    '<%= config.bin %> <%= command.id %> --input ./src --output ./bundle'
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> ./example-connector'
   ]
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    input: Flags.string({
-      char: 'i',
-      description: 'input directory containing connector source files',
-      default: '.'
-    }),
-    output: Flags.string({
-      char: 'o',
-      description: 'output directory for bundled files'
-    }),
     verbose: Flags.boolean({
       char: 'v',
       description: 'verbose output',
@@ -39,21 +29,21 @@ export default class Bundle extends Command {
   static args = [
     {
       name: 'path',
-      description: 'path to connector directory (will use src/ folder inside)'
+      description: 'relative path to connector root directory (optional, defaults to current directory)'
     }
   ]
 
   async run (): Promise<void> {
     const { args, flags } = await this.parse(Bundle)
 
-    let inputPath: string
-    if (args.path) {
-      inputPath = resolve(join(args.path, 'src'))
-    } else {
-      inputPath = resolve(flags.input)
-    }
+    // Resolve connector root once upfront for consistent path handling
+    const connectorRoot = resolve(args.path || '.')
+    const inputPath = connectorRoot
+    const outputPath = join(connectorRoot, 'dist')
 
-    const outputPath = flags.output ? resolve(flags.output) : resolve('dist')
+    // Validate connector root directory exists and contains expected structure
+    this.validateConnectorRoot(connectorRoot)
+
     if (!existsSync(outputPath)) {
       mkdirSync(outputPath, { recursive: true })
       if (flags.verbose) {
@@ -72,7 +62,6 @@ export default class Bundle extends Command {
 
     try {
       this.checkTypeScript(inputPath, spinner)
-      spinner.succeed(chalk.green('TypeScript compilation check passed'))
 
       spinner = ora(
         `Bundling connector from ${inputPath} to ${outputPath}...`
@@ -114,6 +103,7 @@ export default class Bundle extends Command {
 
       spinner.text = chalk.cyan('Running TypeScript type check...')
       execFileSync('tsc', ['--noEmit', '--project', projectPath], { stdio: 'inherit' })
+      spinner.succeed(chalk.green('TypeScript compilation check passed'))
     } catch (error) {
       spinner.fail(chalk.red('TypeScript type check failed'))
       throw new Error('TypeScript compilation check failed. Please fix the errors above.')
@@ -156,7 +146,7 @@ export default class Bundle extends Command {
       spinner.fail(chalk.red('Bundle failed with errors!'))
 
       const errors = stats.toJson().errors || []
-      this.log(chalk.cyan(`Found ${errors.length} error(s)`))
+      this.log(chalk.red(`Found ${errors.length} error(s)`))
       errors.forEach((error: any) => {
         this.log(chalk.red(`Error: ${error.message}`))
       })
@@ -185,6 +175,16 @@ export default class Bundle extends Command {
       })
     } else if (verbose) {
       this.log(chalk.cyan('No warnings found'))
+    }
+  }
+
+  private validateConnectorRoot (connectorRoot: string): void {
+    // Check if the connector root directory exists
+    if (!existsSync(connectorRoot)) {
+      this.error(
+        chalk.red(`Connector root directory does not exist: ${connectorRoot}`),
+        { exit: 1 }
+      )
     }
   }
 }
