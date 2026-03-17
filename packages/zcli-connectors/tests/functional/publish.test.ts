@@ -104,7 +104,7 @@ describe('publish command', () => {
       sinon.stub(publishModule, 'createConnector').resolves({
         uploadUrl: 'https://example.com/upload',
         connectorName: 'test-connector',
-        jobId: 'job-123'
+        provisioningId: 'job-123'
       })
 
       const uploadError = new Error('Failed to upload connector: S3 upload failed')
@@ -127,7 +127,7 @@ describe('publish command', () => {
         {
           uploadUrl: 'https://example.com/upload',
           connectorName: 'test-connector',
-          jobId: 'job-123'
+          provisioningId: 'job-123'
         }
       )
       sinon.stub(publishModule, 'uploadConnectorPackage').resolves()
@@ -149,7 +149,7 @@ describe('publish command', () => {
         {
           uploadUrl: 'https://example.com/upload',
           connectorName: 'test-connector',
-          jobId: 'job-123'
+          provisioningId: 'job-123'
         }
       )
       sinon.stub(publishModule, 'uploadConnectorPackage').resolves()
@@ -171,7 +171,7 @@ describe('publish command', () => {
         {
           uploadUrl: 'https://example.com/upload',
           connectorName: 'test-connector',
-          jobId: 'job-123'
+          provisioningId: 'job-123'
         }
       )
       sinon.stub(publishModule, 'uploadConnectorPackage').resolves()
