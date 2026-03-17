@@ -57,7 +57,7 @@ export async function cleanupPackageArchive (archivePath: string): Promise<void>
   })
 }
 
-export async function createConnector (path: string): Promise<{ uploadUrl: string; connectorName: string; jobId: string }> {
+export async function createConnector (path: string): Promise<{ uploadUrl: string; connectorName: string; provisioningId: string }> {
   const manifestPath = join(path, 'manifest.json')
   const manifestContent = fs.readFileSync(manifestPath, 'utf-8')
   const manifest = JSON.parse(manifestContent)
@@ -84,7 +84,7 @@ export async function createConnector (path: string): Promise<{ uploadUrl: strin
   return {
     uploadUrl: response.data.upload_url,
     connectorName,
-    jobId: response.data.job_id
+    provisioningId: response.data.id
   }
 }
 

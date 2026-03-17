@@ -3,9 +3,9 @@ import { existsSync } from 'fs'
 import { resolve, join } from 'path'
 import * as chalk from 'chalk'
 import * as ora from 'ora'
-import { runValidationChecks } from '../../lib/validations'
-import { createConnector, uploadConnectorPackage } from '../../lib/publish/publish'
-import { pollProvisioningStatus } from '../../lib/publish/poller'
+import { runValidationChecks } from '../../../lib/validations'
+import { createConnector, uploadConnectorPackage } from '../../../lib/publish/publish'
+import { pollProvisioningStatus } from '../../../lib/publish/poller'
 
 export default class Publish extends Command {
   static description = 'publish a connector'
@@ -98,12 +98,12 @@ export default class Publish extends Command {
   ): Promise<void> {
     let spinner = ora('Publishing connector...').start()
     try {
-      const { uploadUrl, connectorName, jobId } = await createConnector(path)
+      const { uploadUrl, connectorName, provisioningId } = await createConnector(path)
       await uploadConnectorPackage(path, uploadUrl, connectorName)
       spinner.succeed(chalk.green('Upload complete'))
 
       spinner = ora('Waiting for connector provisioning...').start()
-      const { status: finalStatus, reason } = await pollProvisioningStatus(connectorName, jobId)
+      const { status: finalStatus, reason } = await pollProvisioningStatus(connectorName, provisioningId)
 
       if (finalStatus === 'SUCCESS') {
         spinner.succeed(chalk.green('Connector provisioned successfully!'))
