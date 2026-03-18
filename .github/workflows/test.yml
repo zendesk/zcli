@@ -18,6 +18,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: zendesk/checkout@v3
+      - name: Enable Corepack
+        run: corepack enable || true
       - name: Use Node.js
         uses: zendesk/setup-node@v4
         with:
@@ -26,15 +28,11 @@ jobs:
       - uses: zendesk/cache@v3
         with:
           path: |
-            ./node_modules/
-            ./packages/zcli/node_modules/
-            ./packages/zcli-core/node_modules/
-            ./packages/zcli-apps/node_modules/
-            ./packages/zcli-themes/node_modules/
-          key: node-modules-${{ runner.os }}-${{ hashFiles('**/package.json') }}-${{ hashFiles('yarn.lock') }}
+            .yarn/cache
+            node_modules
+          key: yarn-berry-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            node-modules-${{ runner.os }}-${{ hashFiles('**/package.json') }}-
-            node-modules-${{ runner.os }}-
+            yarn-berry-${{ runner.os }}-
       - run: yarn install
       - run: yarn lint
       - run: yarn test

@@ -35,10 +35,10 @@ your PR is merged.
 
 ## Development Workflow
 
-Before you start, be sure [yarn](https://yarnpkg.com/en/) is installed
-on your system. After you clone this repo, run `yarn` to install
-dependencies needed for development. After installation, the following
-commands are available:
+Before you start, be sure [Node.js](https://nodejs.org/) v20.17.0 or higher is installed
+on your system. The project uses Yarn Berry (v4) which is managed via Corepack (included with Node.js).
+After you clone this repo, run `yarn` to install dependencies needed for development.
+After installation, the following commands are available:
 
 - `yarn dev` to run zcli
 - `yarn lint` to lint your typescript code using standardjs eslint config

@@ -1,0 +1,56 @@
+name: Release to npm
+
+# ⚠️ SAFETY MODE: This workflow is configured with --dry-run by default
+# ⚠️ No packages will actually be published until you remove the --dry-run flag
+# ⚠️ See line ~46 in the 'publish' job
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'lerna.json'
+      - 'packages/*/package.json'
+
+jobs:
+  check-release:
+    name: Check if release commit
+    runs-on: ubuntu-latest
+    outputs:
+      should-publish: ${{ steps.check.outputs.should-publish }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if this is a release commit
+        id: check
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if echo "$COMMIT_MSG" | grep -q "chore(release): publish"; then
+            echo "should-publish=true" >> $GITHUB_OUTPUT
+            VERSION=$(jq -r '.version' lerna.json)
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "✅ Release commit detected: $VERSION"
+          else
+            echo "should-publish=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Not a release commit, skipping publish"
+          fi
+
+  publish:
+    name: Publish packages to npm
+    needs: check-release
+    if: needs.check-release.outputs.should-publish == 'true'
+    # TODO: Update this path to your actual company reusable workflow location
+    # Example: zendesk/shared-workflows/.github/workflows/npm-publish.yml@main
+    uses: zendesk/REPLACE_WITH_ACTUAL_PATH/.github/workflows/npm-publish.yml@main
+    with:
+      node_version: '20.17.0'
+      # This command will be executed as: yarn workspaces foreach ... npm publish --otp $totp
+      # ⚠️ IMPORTANT: Remove --dry-run flag when ready for production publishing!
+      command: 'workspaces foreach --no-private --topological npm publish --dry-run --tolerate-republish'
+      commit: false
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}

@@ -1,7 +1,22 @@
 #!/usr/bin/env bash
 
+# DEPRECATED: This script is deprecated in favor of the automated release process
+# Use ./scripts/create-release-pr.sh instead
+
 # exit when any command fails
 set -e
+
+echo "⚠️  WARNING: This script is deprecated!"
+echo ""
+echo "The release process has been automated. Please use:"
+echo "  ./scripts/create-release-pr.sh"
+echo ""
+echo "This will create a release PR that, when merged, will"
+echo "automatically publish to npm via GitHub Actions."
+echo ""
+echo "Press Ctrl+C to cancel, or wait 5 seconds to continue with old process..."
+sleep 5
+echo ""
 
 if [[ "$(yarn config get @zendesk:registry)" == *'jfrog'* ]]; then
     # https://github.com/yarnpkg/yarn/issues/5310

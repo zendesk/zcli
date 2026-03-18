@@ -7,9 +7,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "zcli-apps": "./bin/run"
-  },
+  "bin": "./bin/run",
   "scripts": {
     "build": "tsc",
     "prepack": "tsc && ../../scripts/prepack.sh",
@@ -40,6 +38,7 @@
     "@types/mocha": "^9.1.1",
     "@types/morgan": "^1.9.0",
     "@types/rimraf": "^3.0.2",
+    "@types/semver": "^7.7.1",
     "@types/uuid": "^8.3.4",
     "chai": "^4",
     "eslint": "^8.18.0",
