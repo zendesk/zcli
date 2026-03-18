@@ -96,10 +96,10 @@ describe('Auth', () => {
         fetchStub.withArgs(sinon.match({
           method: 'GET',
           url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
-          headers: new Headers({
+          headers: {
             Accept: 'application/json, text/plain, */*',
             Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
+          }
         }))
           .resolves({
             status: 200,
@@ -123,10 +123,10 @@ describe('Auth', () => {
         fetchStub.withArgs(sinon.match({
           method: 'GET',
           url: 'https://z3ntest.example.com/api/v2/account/settings.json',
-          headers: new Headers({
+          headers: {
             Accept: 'application/json, text/plain, */*',
             Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
+          }
         }))
           .resolves({
             status: 200,
@@ -149,10 +149,10 @@ describe('Auth', () => {
         fetchStub.withArgs(sinon.match({
           method: 'GET',
           url: 'https://z3ntest.example.com/api/v2/account/settings.json',
-          headers: new Headers({
+          headers: {
             Accept: 'application/json, text/plain, */*',
             Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
+          }
         }))
           .resolves({
             status: 200,
@@ -176,10 +176,10 @@ describe('Auth', () => {
         fetchStub.withArgs(sinon.match({
           method: 'GET',
           url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
-          headers: new Headers({
+          headers: {
             Accept: 'application/json, text/plain, */*',
             Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
+          }
         }))
           .resolves({
             status: 403,
