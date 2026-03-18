@@ -1,3 +1,4 @@
+/* global Headers, Blob, FormData, ArrayBuffer */
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
 import { CliUx } from '@oclif/core'
