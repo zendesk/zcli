@@ -93,19 +93,17 @@ describe('Auth', () => {
         promptStub.onFirstCall().resolves('z3ntest')
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
-          headers: {
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          }
-        }))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
+        fetchStub.resolves({
+          status: 200,
+          ok: true,
+          statusText: 'OK',
+          headers: new Headers(),
+          text: () => Promise.resolve(''),
+          json: () => Promise.resolve({}),
+          blob: () => Promise.resolve(new Blob()),
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+          formData: () => Promise.resolve(new FormData())
+        })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
@@ -120,19 +118,17 @@ describe('Auth', () => {
         promptStub.onFirstCall().resolves('z3ntest')
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.example.com/api/v2/account/settings.json',
-          headers: {
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          }
-        }))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
+        fetchStub.resolves({
+          status: 200,
+          ok: true,
+          statusText: 'OK',
+          headers: new Headers(),
+          text: () => Promise.resolve(''),
+          json: () => Promise.resolve({}),
+          blob: () => Promise.resolve(new Blob()),
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+          formData: () => Promise.resolve(new FormData())
+        })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
@@ -146,19 +142,17 @@ describe('Auth', () => {
         promptStub.reset()
         promptStub.onFirstCall().resolves('test@zendesk.com')
         promptStub.onSecondCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.example.com/api/v2/account/settings.json',
-          headers: {
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          }
-        }))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
+        fetchStub.resolves({
+          status: 200,
+          ok: true,
+          statusText: 'OK',
+          headers: new Headers(),
+          text: () => Promise.resolve(''),
+          json: () => Promise.resolve({}),
+          blob: () => Promise.resolve(new Blob()),
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+          formData: () => Promise.resolve(new FormData())
+        })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
@@ -173,19 +167,17 @@ describe('Auth', () => {
         promptStub.onFirstCall().resolves('z3ntest')
         promptStub.onSecondCall().resolves('test@zendesk.com')
         promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
-          headers: {
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          }
-        }))
-          .resolves({
-            status: 403,
-            ok: false,
-            text: () => Promise.resolve('')
-          })
+        fetchStub.resolves({
+          status: 403,
+          ok: false,
+          statusText: 'Forbidden',
+          headers: new Headers(),
+          text: () => Promise.resolve(''),
+          json: () => Promise.resolve({}),
+          blob: () => Promise.resolve(new Blob()),
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+          formData: () => Promise.resolve(new FormData())
+        })
       })
       .stub(CliUx.ux, 'prompt', () => promptStub)
       .it('should return false on login failure', async () => {

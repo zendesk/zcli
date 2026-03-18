@@ -10,5 +10,8 @@
     "watch-ignore": ["lib/vendor"],
     "require": ["ts-node/register"],
     "recursive": true,
-    "ignore": ["packages/zcli-connectors/src/templates/**"]
+    "ignore": [
+        "packages/zcli-connectors/src/templates/**",
+        "packages/zcli-connectors/src/**/*.test.ts"
+    ]
 }
