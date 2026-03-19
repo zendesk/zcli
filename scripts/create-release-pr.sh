@@ -86,9 +86,9 @@ echo '📦 Packages to be published:'
 npx lerna changed --json 2>/dev/null | jq -r '.[].name' | sed 's/^/   - /'
 echo ''
 
-# Push branch and tags
-echo '⬆️  Pushing branch and tags to GitHub...'
-# git push origin "$RELEASE_BRANCH" --follow-tags
+# Push branch only (not tags - for testing)
+echo '⬆️  Pushing branch to GitHub...'
+git push origin "$RELEASE_BRANCH"
 
 if [ $? -ne 0 ]; then
     echo ''
@@ -103,6 +103,7 @@ echo '━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ''
 echo "📋 Version: $NEW_VERSION"
 echo "🌿 Branch:  $RELEASE_BRANCH"
+echo "🏷️  Tag:     v$NEW_VERSION (created locally, not pushed)"
 echo ''
 echo 'Next steps:'
 echo '1. Open a PR: https://github.com/zendesk/zcli/compare/'$RELEASE_BRANCH'?expand=1'
@@ -110,4 +111,7 @@ echo '2. Review the version bumps and changelog'
 echo '3. Merge the PR to trigger automated publishing'
 echo ''
 echo '⚠️  Publishing to npm will happen automatically when PR is merged!'
+echo ''
+echo '🧹 To clean up local tag after testing:'
+echo "   git tag -d v$NEW_VERSION"
 echo ''
