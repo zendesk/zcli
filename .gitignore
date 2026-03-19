@@ -11,3 +11,5 @@ packages/**/dist
 # Yarn Berry
 .yarn/*
 !.yarn/releases
+IMPLEMENTATION_GUIDE.md
+.tool-versions
