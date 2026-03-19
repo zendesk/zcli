@@ -5,7 +5,9 @@
 [![npm version](https://badge.fury.io/js/%40zendesk%2Fzcli.svg)](https://www.npmjs.com/package/@zendesk/zcli)
 ![Test](https://github.com/zendesk/zcli/workflows/Test/badge.svg)
 
-ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps and themes from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif) framework.
+ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps and themes from the command line. ZCLI is generally available and built using the [oclif](https://github.com/oclif/oclif) framework.
+
+> **Note:** ZCLI is the successor to Zendesk App Tools (ZAT). If you're currently using ZAT, please migrate to ZCLI for the latest features and support.
 
 <img src="demo.gif" alt="Zendesk Logo" />
 
@@ -82,12 +84,6 @@ yarn global add ts-node
 Under Windows this can only be used in WSL2 or [Cygwin](https://www.cygwin.com).
 
 # Contributing
-
----
-
-**Note:** While ZCLI is in beta, we are not routinely reviewing issues and merging community-submitted pull requests. We hope to begin reviewing these again soon, but for the moment we appreciate your patience.
-
----
 
 Thanks for your interest in ZCLI! Community involvement helps improve the experience for all developers using the Zendesk platform.
 
