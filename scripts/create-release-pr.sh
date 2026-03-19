@@ -28,7 +28,7 @@ if ! echo "$YARN_VERSION" | grep -q "^4"; then
 fi
 
 echo '🔄 Pulling latest changes from master...'
-git pull origin master
+# git pull origin master
 
 echo '🌿 Creating release branch...'
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
