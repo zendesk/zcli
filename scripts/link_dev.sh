@@ -14,9 +14,9 @@ fi
 npx lerna link
 
 # determine where we should install the stub to
-YARN_GLOBAL_BIN_DIR="$(yarn global bin)"
-TYPESCRIPT_ENTRYPOINT_PATH="$YARN_GLOBAL_BIN_DIR/zcli"
-mkdir -p "$YARN_GLOBAL_BIN_DIR"
+GLOBAL_BIN_DIR="$(npm config get prefix)/bin"
+TYPESCRIPT_ENTRYPOINT_PATH="$GLOBAL_BIN_DIR/zcli"
+mkdir -p "$GLOBAL_BIN_DIR"
 
 printf '\n\nSetting up %s with contents below for ZCLI development\n\n' "$TYPESCRIPT_ENTRYPOINT_PATH"
 touch "$TYPESCRIPT_ENTRYPOINT_PATH"
