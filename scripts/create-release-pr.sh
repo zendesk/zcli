@@ -88,7 +88,7 @@ echo ''
 
 # Push branch and tags
 echo '⬆️  Pushing branch and tags to GitHub...'
-git push origin "$RELEASE_BRANCH" --follow-tags
+# git push origin "$RELEASE_BRANCH" --follow-tags
 
 if [ $? -ne 0 ]; then
     echo ''
