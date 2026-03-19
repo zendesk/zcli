@@ -43,20 +43,20 @@ echo '📝 Analyzing commits and determining version bump...'
 echo '   (using conventional commits since last release)'
 echo ''
 
-# Run lerna version without pushing
+# Run lerna version without git operations
 # This will:
 # - Analyze commits since last tag
 # - Determine version bump (major/minor/patch)
 # - Update package.json files
 # - Update lerna.json
-# - Create git commit
-# - Create git tags
+# - Generate CHANGELOG.md files
+# Note: We use --no-git-tag-version to prevent tag creation
+# Tags will be created when PR is merged to master
 npx lerna version \
   --conventional-commits \
-  --no-push \
+  --no-git-tag-version \
   --yes \
-  --preid 'beta' \
-  --message "chore(release): publish %s"
+  --preid 'beta'
 
 if [ $? -ne 0 ]; then
     echo ''
@@ -77,10 +77,15 @@ if [ -z "$NEW_VERSION" ] || [ "$NEW_VERSION" = "null" ]; then
     exit 1
 fi
 
-# Rename branch to use the actual version
-RELEASE_BRANCH="release/$NEW_VERSION"
+# Commit the version changes
 echo ''
 echo "✅ Version bumped to: $NEW_VERSION"
+echo '📝 Committing version changes...'
+git add .
+git commit -m "chore(release): publish $NEW_VERSION"
+
+# Rename branch to use the actual version
+RELEASE_BRANCH="release/$NEW_VERSION"
 echo "🔄 Renaming branch to: $RELEASE_BRANCH"
 git branch -m "$RELEASE_BRANCH"
 echo ''
@@ -90,7 +95,7 @@ echo '📦 Packages to be published:'
 npx lerna changed --json 2>/dev/null | jq -r '.[].name' | sed 's/^/   - /'
 echo ''
 
-# Push branch only (not tags - for testing)
+# Push branch only
 echo '⬆️  Pushing branch to GitHub...'
 git push origin "$RELEASE_BRANCH"
 
@@ -107,7 +112,6 @@ echo '━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ''
 echo "📋 Version: $NEW_VERSION"
 echo "🌿 Branch:  $RELEASE_BRANCH"
-echo "🏷️  Tag:     v$NEW_VERSION (created locally, not pushed)"
 echo ''
 echo 'Next steps:'
 echo '1. Open a PR: https://github.com/zendesk/zcli/compare/'$RELEASE_BRANCH'?expand=1'
@@ -115,9 +119,7 @@ echo '2. Review the version bumps and changelog'
 echo '3. Merge the PR to trigger automated publishing'
 echo ''
 echo '⚠️  Publishing to npm will happen automatically when PR is merged!'
-echo ''
-echo '🧹 To clean up local tag after testing:'
-echo "   git tag -d v$NEW_VERSION"
+echo '   Git tags will be created automatically during the merge process.'
 echo ''
 
 # Switch back to master branch
