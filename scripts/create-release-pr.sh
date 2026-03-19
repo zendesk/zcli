@@ -30,10 +30,10 @@ fi
 echo '🔄 Pulling latest changes from master...'
 # git pull origin master
 
-echo '🌿 Creating release branch...'
-TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-RELEASE_BRANCH="release/$TIMESTAMP"
-git checkout -b "$RELEASE_BRANCH"
+echo '🌿 Creating temporary release branch...'
+# Create temporary branch - will be renamed after version is determined
+TEMP_BRANCH="release/pending-$(date +%Y%m%d-%H%M%S)"
+git checkout -b "$TEMP_BRANCH"
 
 echo '📦 Installing dependencies...'
 yarn install --immutable
@@ -62,7 +62,7 @@ if [ $? -ne 0 ]; then
     echo ''
     echo '❌ Lerna version failed. Cleaning up...'
     git checkout master
-    git branch -D "$RELEASE_BRANCH" 2>/dev/null || true
+    git branch -D "$TEMP_BRANCH" 2>/dev/null || true
     exit 1
 fi
 
@@ -73,12 +73,16 @@ if [ -z "$NEW_VERSION" ] || [ "$NEW_VERSION" = "null" ]; then
     echo ''
     echo '❌ Could not determine new version. Cleaning up...'
     git checkout master
-    git branch -D "$RELEASE_BRANCH" 2>/dev/null || true
+    git branch -D "$TEMP_BRANCH" 2>/dev/null || true
     exit 1
 fi
 
+# Rename branch to use the actual version
+RELEASE_BRANCH="release/$NEW_VERSION"
 echo ''
 echo "✅ Version bumped to: $NEW_VERSION"
+echo "🔄 Renaming branch to: $RELEASE_BRANCH"
+git branch -m "$RELEASE_BRANCH"
 echo ''
 
 # Get list of changed packages
@@ -114,4 +118,9 @@ echo '⚠️  Publishing to npm will happen automatically when PR is merged!'
 echo ''
 echo '🧹 To clean up local tag after testing:'
 echo "   git tag -d v$NEW_VERSION"
+echo ''
+
+# Switch back to master branch
+echo '🔄 Switching back to master branch...'
+git checkout master
 echo ''
