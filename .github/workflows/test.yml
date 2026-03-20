@@ -24,16 +24,13 @@ jobs:
         uses: zendesk/setup-node@v4
         with:
           node-version: "${{ matrix.node-version }}"
-          cache: "yarn"
       - uses: zendesk/cache@v3
         with:
-          path: |
-            .yarn/cache
-            node_modules
-          key: yarn-berry-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          path: .yarn/cache
+          key: yarn-berry-${{ runner.os }}-${{ hashFiles('yarn.lock', '.yarnrc.yml') }}
           restore-keys: |
             yarn-berry-${{ runner.os }}-
-      - run: yarn install
+      - run: yarn install --immutable
       - run: yarn lint
       - run: yarn test
       - run: yarn test:functional
