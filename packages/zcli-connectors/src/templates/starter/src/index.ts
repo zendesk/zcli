@@ -7,6 +7,7 @@ const connector = manifest({
   title: 'Starter Connector',
   description: 'Starter Connector',
   author: 'starter-author',
+  version: '0.0.1',
   authentication: authConfig,
   actions: [testAction],
 });
