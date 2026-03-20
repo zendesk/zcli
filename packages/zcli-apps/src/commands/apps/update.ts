@@ -42,7 +42,7 @@ export default class Update extends Command {
       this.log(chalk.green(`Successfully updated app: ${manifest.name} with app_id: ${app_id}`))
     } catch (error) {
       CliUx.ux.action.stop('Failed')
-      this.error(chalk.red(error))
+      this.error(chalk.red(error instanceof Error ? error.message : String(error)))
     }
   }
 
@@ -68,7 +68,7 @@ export default class Update extends Command {
       try {
         await this.installApp(appConfig, upload_id, appPath, manifest, appID)
       } catch (error) {
-        this.error(chalk.red(error))
+        this.error(chalk.red(error instanceof Error ? error.message : String(error)))
       }
     }
   }

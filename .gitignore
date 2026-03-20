@@ -7,3 +7,12 @@ packages/zcli-apps/tests/functional/mocks/*/tmp
 packages/**/dist
 .DS_Store
 .idea
+
+# Yarn Berry
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
