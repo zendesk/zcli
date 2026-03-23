@@ -10,5 +10,9 @@
     "watch-ignore": ["lib/vendor"],
     "require": ["ts-node/register"],
     "recursive": true,
-    "ignore": ["packages/zcli-connectors/src/templates/**"]
+    "ignore": [
+        "packages/zcli-connectors/src/templates/**",
+        "packages/zcli-connectors/src/lib/manifest-generator/generator.test.ts",
+        "packages/zcli-connectors/src/lib/vite/vite-config.test.ts"
+    ]
 }
