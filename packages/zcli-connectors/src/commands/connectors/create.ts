@@ -46,7 +46,8 @@ export default class Create extends Command {
     replaceInFile(indexTsPath, {
       "name: 'starter'": `name: '${connector}'`,
       "title: 'Starter Connector'": `title: '${toTitleCase(connector)}'`,
-      "description: 'Starter Connector'": `description: '${toTitleCase(connector)} connector'`
+      "description: 'Starter Connector'": `description: '${toTitleCase(connector)} connector'`,
+      "version: '0.0.1'": "version: '0.0.1'"
     })
 
     this.log(`✅ Connector '${connector}' created successfully!`)
