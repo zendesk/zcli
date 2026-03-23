@@ -20,6 +20,9 @@
       "message": "chore(release): publish"
     }
   },
+  "npmClientArgs": [
+    "--no-lockfile"
+  ],
   "npmClient": "yarn",
   "useWorkspaces": true,
   "version": "1.0.0-beta.55"
