@@ -142,9 +142,13 @@ git push origin "$RELEASE_BRANCH"
 
 if [ $? -ne 0 ]; then
     echo ''
-    echo '❌ Failed to push to GitHub. Please check your permissions.'
+    echo '❌ Failed to push to GitHub.'
     exit 1
 fi
+
+# Switch back to master branch
+echo '🔄 Switching back to master branch...'
+git checkout master
 
 echo ''
 echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
@@ -161,9 +165,4 @@ echo '3. Merge the PR to trigger automated publishing'
 echo ''
 echo '⚠️  Publishing to npm will happen automatically when PR is merged!'
 echo '   Git tags will be created automatically during the merge process.'
-echo ''
-
-# Switch back to master branch
-echo '🔄 Switching back to master branch...'
-git checkout master
 echo ''
