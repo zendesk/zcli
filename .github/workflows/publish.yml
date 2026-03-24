@@ -1,0 +1,232 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  check-release:
+    name: Check for Version Change
+    runs-on: ubuntu-latest
+    outputs:
+      should-publish: ${{ steps.check.outputs.should-publish }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # fetch-depth: 0 is REQUIRED to:
+          # 1. Access HEAD~1 for version comparison
+          # 2. Fetch all tags for tag existence checks
+          # 3. Support lerna publish from-git
+          fetch-depth: 0
+
+      - name: Check if version changed in lerna.json
+        id: check
+        run: |
+          # Get current version from lerna.json
+          CURRENT_VERSION=$(jq -r '.version' lerna.json)
+          echo "Current version: $CURRENT_VERSION"
+
+          # Get previous version from lerna.json (from previous commit)
+          PREVIOUS_VERSION=$(git show HEAD~1:lerna.json | jq -r '.version')
+          echo "Previous version: $PREVIOUS_VERSION"
+
+          # Check if version has changed
+          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
+            echo "should-publish=true" >> $GITHUB_OUTPUT
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            echo "Version changed from $PREVIOUS_VERSION to $CURRENT_VERSION - will publish"
+          else
+            echo "should-publish=false" >> $GITHUB_OUTPUT
+            echo "Version unchanged ($CURRENT_VERSION) - skipping publish"
+          fi
+
+  publish:
+    name: Build and Publish to NPM
+    needs: check-release
+    if: needs.check-release.outputs.should-publish == 'true'
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # fetch-depth: 0 is REQUIRED for:
+          # 1. Fetching all tags to check existence
+          # 2. Creating and pushing new tags
+          # 3. Lerna publish from-git to work correctly
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Configure Git
+        run: |
+          git config user.name "zendesk-ops-ci"
+          git config user.email "zendesk-ops-ci@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create Git Tag
+        id: create-tag
+        run: |
+          VERSION="${{ needs.check-release.outputs.version }}"
+
+          # Ensure we have all tags from remote
+          echo "Fetching all tags from remote..."
+          git fetch --tags --force
+
+          # Verify git history is available
+          if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo "Error: Cannot access previous commit (HEAD~1)"
+            echo "This should not happen with fetch-depth: 0"
+            exit 1
+          fi
+
+          # Check if unified version tag exists
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists - skipping creation"
+            echo "tag-created=false" >> $GITHUB_OUTPUT
+          else
+            echo "Creating tag: v${VERSION}"
+            git tag -a "v${VERSION}" -m "Release v${VERSION}"
+
+            echo "Pushing tag to remote..."
+            git push origin "v${VERSION}"
+
+            echo "tag-created=true" >> $GITHUB_OUTPUT
+            echo "✓ Tag v${VERSION} created and pushed"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install oathtool for 2FA
+        run: sudo apt-get install --fix-broken --yes oathtool
+
+      - name: Configure NPM Authentication
+        run: |
+          cat << EOF > .npmrc
+          //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          registry=https://registry.npmjs.org/
+          always-auth=true
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Check what needs publishing
+        id: check-publish
+        run: |
+          echo "Checking which packages need publishing..."
+          echo ""
+
+          # Get packages that have tags in current commit
+          PACKAGES=$(npx lerna list --json)
+          NEEDS_PUBLISH=false
+
+          while read -r PKG_VERSION; do
+            PKG_NAME=$(echo "$PKG_VERSION" | cut -d@ -f1)
+            PKG_VER=$(echo "$PKG_VERSION" | cut -d@ -f2)
+
+            # Check if this version exists in npm
+            if npm view "$PKG_NAME@$PKG_VER" version >/dev/null 2>&1; then
+              echo "  ✓ $PKG_VERSION (already in npm)"
+            else
+              echo "  → $PKG_VERSION (needs publishing)"
+              NEEDS_PUBLISH=true
+            fi
+          done < <(echo "$PACKAGES" | jq -r '.[] | "\(.name)@\(.version)"')
+
+          echo ""
+          if [ "$NEEDS_PUBLISH" = true ]; then
+            echo "Some packages need publishing"
+            echo "needs-publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "All packages already published to npm - skipping publish"
+            echo "needs-publish=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to NPM
+        if: steps.check-publish.outputs.needs-publish == 'true'
+        run: |
+          echo "Publishing packages to npm..."
+          echo ""
+
+          # Generate 2FA TOTP code
+          TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
+
+          # Publish packages using lerna from-git
+          # This publishes packages tagged in the current commit
+          # Note: lerna will skip packages that already exist in npm registry
+          npx lerna publish from-git \
+            --yes \
+            --no-verify-access \
+            --otp $TOTP
+
+          echo ""
+          echo "Publish completed successfully!"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
+
+      - name: Rollback Tag on Failure
+        if: failure() && steps.create-tag.outputs.tag-created == 'true'
+        run: |
+          VERSION="${{ needs.check-release.outputs.version }}"
+
+          echo "⚠️  Publish failed - rolling back git tag..."
+          echo ""
+          echo "Deleting tag: v${VERSION}"
+
+          # Delete from local
+          git tag -d "v${VERSION}" 2>/dev/null || true
+
+          # Delete from remote
+          git push origin ":refs/tags/v${VERSION}" 2>/dev/null || true
+
+          echo ""
+          echo "✓ Tag rolled back successfully"
+          echo "  You can retry the release after fixing the issue"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clean up NPM config
+        if: always()
+        run: rm -f .npmrc
+
+  publish-status:
+    name: Publish Status
+    needs: [check-release, publish]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check publish result
+        run: |
+          if [ "${{ needs.check-release.outputs.should-publish }}" = "true" ]; then
+            if [ "${{ needs.publish.result }}" = "success" ]; then
+              echo "✅ Successfully published version ${{ needs.check-release.outputs.version }} to NPM"
+              echo ""
+              echo "Git tag created: v${{ needs.check-release.outputs.version }}"
+              echo ""
+              echo "Published packages:"
+              echo "  - @zcli/cli@${{ needs.check-release.outputs.version }}"
+              echo "  - @zcli/core@${{ needs.check-release.outputs.version }}"
+              echo "  - @zcli/connectors@${{ needs.check-release.outputs.version }}"
+            elif [ "${{ needs.publish.result }}" = "skipped" ]; then
+              echo "⏭️  No packages needed publishing for version ${{ needs.check-release.outputs.version }}"
+              echo ""
+              echo "All packages already exist in npm registry"
+            else
+              echo "❌ Failed to publish version ${{ needs.check-release.outputs.version }}"
+              echo ""
+              echo "Git tag has been rolled back to maintain consistency"
+              echo "Please check the logs above, fix the issue, and re-run the workflow"
+              exit 1
+            fi
+          else
+            echo "Version unchanged - no publishing needed"
+          fi
