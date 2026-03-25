@@ -95,6 +95,7 @@ echo ''
 # Tags will be created when PR is merged to master
 npx lerna version \
   --conventional-commits \
+  --conventional-graduate \
   --no-git-tag-version \
   --yes
 
