@@ -60,25 +60,33 @@ export default class List extends Command {
         this.log(chalk.cyan(`Response data: ${JSON.stringify(response.data, null, 2)}`))
       }
 
-      // Check for non-200 status
+      const data = response.data as ListConnectorsResponse
+
+      // JSON output mode: always emit JSON to stdout
+      if (flags.json) {
+        if (response.status !== 200) {
+          // Route error to stderr and exit; no human-readable output on stdout
+          this.error(`API returned non-200 status: ${response.status}`, { exit: 1 })
+        }
+
+        const connectors = data.connectors ?? []
+        this.log(JSON.stringify(connectors, null, 2))
+        return
+      }
+
+      // Non-JSON output mode
       if (response.status !== 200) {
         this.log(chalk.red(`API returned non-200 status: ${response.status}`))
         this.log(chalk.yellow('Response data:'), JSON.stringify(response.data, null, 2))
         return
       }
 
-      const data = response.data as ListConnectorsResponse
-
       if (!data.connectors || data.connectors.length === 0) {
         this.log(chalk.yellow('No connectors found'))
         return
       }
 
-      if (flags.json) {
-        this.log(JSON.stringify(data.connectors, null, 2))
-      } else {
-        this.displayTable(data.connectors)
-      }
+      this.displayTable(data.connectors)
     } catch (error) {
       spinner.fail(chalk.red('Failed to fetch connectors'))
 
