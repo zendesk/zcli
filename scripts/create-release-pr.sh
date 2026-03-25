@@ -96,8 +96,7 @@ echo ''
 npx lerna version \
   --conventional-commits \
   --no-git-tag-version \
-  --yes \
-  --preid 'beta'
+  --yes
 
 if [ $? -ne 0 ]; then
     echo ''
@@ -164,5 +163,5 @@ echo '2. Review the version bumps and changelog'
 echo '3. Merge the PR to trigger automated publishing'
 echo ''
 echo '⚠️  Publishing to npm will happen automatically when PR is merged!'
-echo '   Git tags will be created automatically during the merge process.'
+echo '   Git tags will be created automatically by the GitHub Actions workflow.'
 echo ''
