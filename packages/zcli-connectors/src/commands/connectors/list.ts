@@ -131,12 +131,12 @@ export default class List extends Command {
       created_at: {
         header: 'Created',
         minWidth: 20,
-        get: (row: ConnectorListItem) => new Date(row.created_at).toLocaleString()
+        get: (row: ConnectorListItem) => row.created_at
       },
       updated_at: {
         header: 'Updated',
         minWidth: 20,
-        get: (row: ConnectorListItem) => new Date(row.updated_at).toLocaleString()
+        get: (row: ConnectorListItem) => row.updated_at
       }
     }, {
       printLine: this.log.bind(this)
