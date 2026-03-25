@@ -11,33 +11,41 @@
 #        ├─ 1. PRE-FLIGHT CHECKS ──────────────────────────────────┐
 #        │   • On master branch?                                   │
 #        │   • Working directory clean?                            │
-#        │                                                          │
+#        │                                                         │
 #        ├─ 2. SYNC & BRANCH ──────────────────────────────────────┤
 #        │   • git pull origin master                              │
 #        │   • git checkout -b release/pending-TIMESTAMP           │
-#        │                                                          │
+#        │                                                         │
 #        ├─ 3. INSTALL & VERSION ──────────────────────────────────┤
 #        │   • yarn install --frozen-lockfile                      │
+#        │   • Save current version from lerna.json                │
 #        │   • lerna version --conventional-commits                │
 #        │     ┌─ Analyzes commits since last git tag:            │
 #        │     │  - feat: → MINOR bump (1.0.0 → 1.1.0)            │
 #        │     │  - fix: → PATCH bump (1.0.0 → 1.0.1)             │
 #        │     │  - BREAKING CHANGE: → MAJOR (1.0.0 → 2.0.0)      │
-#        │     │  - chore/docs/etc → No version change            │
 #        │     ├─ For each changed package:                       │
 #        │     │  • Updates package.json version                  │
 #        │     │  • Generates/updates CHANGELOG.md                │
 #        │     └─ Updates lerna.json with new version             │
 #        │   • Extract version from lerna.json → NEW_VERSION      │
 #        │                                                          │
-#        ├─ 4. COMMIT & RENAME ────────────────────────────────────┤
-#        │   • git commit -m "chore(release): publish X.X.X"       │
-#        │   • git branch -m release/X.X.X                         │
+#        ├─ 4. VERSION CHECK ──────────────────────────────────────┤
+#        │   • Compare NEW_VERSION with the current version       │
+#        │   • If unchanged:                                      │
+#        │     ├─ Show info: "Nothing to release"                 │
+#        │     ├─ Cleanup: checkout master, delete temp branch    │
+#        │     └─ Exit 0 (success, no release needed)             │
+#        │   • If changed: Continue to next step                  │
 #        │                                                          │
-#        ├─ 5. PUSH TO GITHUB ─────────────────────────────────────┤
+#        ├─ 5. COMMIT & RENAME ────────────────────────────────────┤
+#        │   • git commit -m "chore(release): publish X.X.X"       │
+#        │   • git branch -m release/X.X.X                           │
+#        │                                                          │
+#        ├─ 6. PUSH TO GITHUB ─────────────────────────────────────┤
 #        │   • git push origin release/X.X.X                       │
 #        │                                                          │
-#        └─ 6. SWITCH BACK ────────────────────────────────────────┘
+#        └─ 7. SWITCH BACK ────────────────────────────────────────┘
 #            • git checkout master
 #
 #   Next Steps (Manual):
@@ -46,8 +54,9 @@
 #   │ 2. Review changes (version bumps, changelog)               │
 #   │ 3. Merge PR                                                 │
 #   │    └─> Triggers GitHub Actions: .github/workflows/publish.yml │
-#   │        • Publishes to npm (company service account)        │
-#   │        • Creates git tags                                  │
+#   │        • Detects version change in lerna.json              │
+#   │        • Creates git tag                          │
+#   │        • Publishes to npm        │
 #   └────────────────────────────────────────────────────────────┘
 #
 
@@ -84,6 +93,11 @@ echo '📝 Analyzing commits and determining version bump...'
 echo '   (using conventional commits since last release)'
 echo ''
 
+# Save current version before running lerna
+CURRENT_VERSION=$(jq -r '.version' lerna.json)
+echo "Current version: $CURRENT_VERSION"
+echo ''
+
 # Run lerna version without git operations
 # This will:
 # - Analyze commits since last tag
@@ -101,7 +115,9 @@ npx lerna version \
 
 if [ $? -ne 0 ]; then
     echo ''
-    echo '❌ Lerna version failed. Cleaning up...'
+    echo '❌ Lerna version command failed.'
+    echo ''
+    echo 'Cleaning up...'
     git checkout master
     git branch -D "$TEMP_BRANCH" 2>/dev/null || true
     exit 1
@@ -109,6 +125,22 @@ fi
 
 # Get the new version
 NEW_VERSION=$(jq -r '.version' lerna.json)
+
+# Check if version actually changed
+if [ "$NEW_VERSION" = "$CURRENT_VERSION" ]; then
+    echo ''
+    echo 'ℹ️  No version bump occurred - nothing to release.'
+    echo ''
+    echo '   No conventional commits found since last release.'
+    echo '   Current version: '$CURRENT_VERSION
+    echo ''
+    echo 'Cleaning up...'
+    git checkout master
+    git branch -D "$TEMP_BRANCH" 2>/dev/null || true
+    echo ''
+    echo '✅ No changes to release at this time.'
+    exit 0
+fi
 
 if [ -z "$NEW_VERSION" ] || [ "$NEW_VERSION" = "null" ]; then
     echo ''
