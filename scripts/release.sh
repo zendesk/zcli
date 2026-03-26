@@ -1,7 +1,27 @@
 #!/usr/bin/env bash
 
-# exit when any command fails
-set -e
+# ┌───────────────────────────────────────────────────────────────────────┐
+# │                           ⚠️  DEPRECATED                              │
+# ├───────────────────────────────────────────────────────────────────────┤
+# │ This script is deprecated and will be removed in a future release.   │
+# │                                                                       │
+# │ Please use the new Release PR workflow instead:                      │
+# │   1. Run: ./scripts/create-release-pr.sh                             │
+# │   2. Review and merge the generated PR                               │
+# │   3. Publishing happens automatically via GitHub Actions             │
+# │                                                                       │
+# │ See the "Releasing" section in README.md for detailed instructions.  │
+# └───────────────────────────────────────────────────────────────────────┘
+
+echo ""
+echo "⚠️  WARNING: This script is deprecated!"
+echo ""
+echo "Please use the new Release PR workflow:"
+echo "  $ ./scripts/create-release-pr.sh"
+echo ""
+echo "See README.md (Releasing section) for more details."
+echo ""
+exit 1
 
 if [[ "$(yarn config get @zendesk:registry)" == *'jfrog'* ]]; then
     # https://github.com/yarnpkg/yarn/issues/5310

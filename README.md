@@ -101,9 +101,18 @@ Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are 
 
 # Releasing
 
-Running the following command will create release tags, generate change logs docs and publish to npm.
+ZCLI uses an automated release workflow based on [conventional commits](https://www.conventionalcommits.org/) and GitHub Actions.
 
-[`$ ./scripts/release.sh`](./scripts/release.sh)
+## Process Overview
+
+1. **Create Release Branch**: Run [`./scripts/create-release-pr.sh`](./scripts/create-release-pr.sh) from `master` branch
+   - Analyzes commits and determines version bump (major/minor/patch)
+   - Updates versions and generates changelogs
+   - Creates and pushes a release branch
+
+2. **Open PR & Merge**: Create a PR from the release branch to `master`, review, and merge
+
+3. **Automated Publishing**: Once the release PR is merged, packages are automatically published to npm and git tags are created
 
 # License
 
