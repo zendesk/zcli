@@ -101,7 +101,7 @@ Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are 
 
 # Releasing
 
-ZCLI uses an automated release workflow based on [conventional commits](https://www.conventionalcommits.org/) and GitHub Actions.
+ZCLI uses an automated release workflow based on [conventional commits](https://www.conventionalcommits.org/).
 
 ## Process Overview
 

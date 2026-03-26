@@ -8,7 +8,7 @@
 # │ Please use the new Release PR workflow instead:                      │
 # │   1. Run: ./scripts/create-release-pr.sh                             │
 # │   2. Review and merge the generated PR                               │
-# │   3. Publishing happens automatically via GitHub Actions             │
+# │   3. Publishing happens automatically                                 │
 # │                                                                       │
 # │ See the "Releasing" section in README.md for detailed instructions.  │
 # └───────────────────────────────────────────────────────────────────────┘
