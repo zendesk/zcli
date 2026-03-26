@@ -1,5 +1,8 @@
 name: Publish to NPM
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -44,6 +47,8 @@ jobs:
     if: needs.check-release.outputs.should-publish == 'true'
     runs-on: ubuntu-latest
     environment: npm-publish
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
