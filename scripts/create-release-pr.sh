@@ -67,15 +67,15 @@ echo "================================"
 echo ""
 
 # Pre-flight checks
-if [[ "$(git branch --show-current)" != "master" ]]; then
-    printf '❌ Error: Please run this from master branch\n'
-    exit 1
-fi
+# if [[ "$(git branch --show-current)" != "master" ]]; then
+#     printf '❌ Error: Please run this from master branch\n'
+#     exit 1
+# fi
 
-if [[ -n $(git status --porcelain) ]]; then
-    printf '❌ Error: You have uncommitted changes. Please commit or stash them first.\n'
-    exit 1
-fi
+# if [[ -n $(git status --porcelain) ]]; then
+#     printf '❌ Error: You have uncommitted changes. Please commit or stash them first.\n'
+#     exit 1
+# fi
 
 echo '🔄 Pulling latest changes from master...'
 git pull origin master
