@@ -68,6 +68,12 @@ export default class List extends Command {
           // Route error to stderr and exit via outer catch; no human-readable output on stdout
           throw new Error(`API returned non-200 status: ${response.status}`)
         }
+
+        const connectors = data.connectors ?? []
+        this.log(JSON.stringify(connectors, null, 2))
+        return
+      }
+
       // Non-JSON output mode: handle non-200 responses with human-readable output
       if (response.status !== 200) {
         const errorMsg = `API returned non-200 status: ${response.status}`
@@ -86,7 +92,7 @@ export default class List extends Command {
       this.displayTable(data.connectors)
     } catch (error) {
       if (!flags.json) {
-        spinner.fail(chalk.red('Failed to fetch connectors'))
+        spinner?.fail(chalk.red('Failed to fetch connectors'))
       }
 
       const errorMessage = (error instanceof Error) ? error.message : String(error)
