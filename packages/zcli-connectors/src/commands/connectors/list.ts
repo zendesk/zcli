@@ -15,7 +15,7 @@ interface ConnectorListItem {
 }
 
 interface ListConnectorsResponse {
-  connectors: ConnectorListItem[]
+  connectors?: ConnectorListItem[]
 }
 
 export default class List extends Command {
@@ -65,8 +65,8 @@ export default class List extends Command {
       // JSON output mode: always emit JSON to stdout
       if (flags.json) {
         if (response.status !== 200) {
-          // Route error to stderr and exit; no human-readable output on stdout
-          this.error(`API returned non-200 status: ${response.status}`, { exit: 1 })
+          // Route error to stderr and exit via outer catch; no human-readable output on stdout
+          throw new Error(`API returned non-200 status: ${response.status}`)
         }
 
         const connectors = data.connectors ?? []
