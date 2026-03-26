@@ -73,39 +73,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create Git Tag
-        id: create-tag
-        run: |
-          VERSION="${{ needs.check-release.outputs.version }}"
-
-          # Ensure we have all tags from remote
-          echo "Fetching all tags from remote..."
-          git fetch --tags --force
-
-          # Verify git history is available
-          if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
-            echo "Error: Cannot access previous commit (HEAD~1)"
-            echo "This should not happen with fetch-depth: 0"
-            exit 1
-          fi
-
-          # Check if unified version tag exists
-          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
-            echo "Tag v${VERSION} already exists - skipping creation"
-            echo "tag-created=false" >> $GITHUB_OUTPUT
-          else
-            echo "Creating tag: v${VERSION}"
-            git tag -a "v${VERSION}" -m "Release v${VERSION}"
-
-            echo "Pushing tag to remote..."
-            git push origin "v${VERSION}"
-
-            echo "tag-created=true" >> $GITHUB_OUTPUT
-            echo "✓ Tag v${VERSION} created and pushed"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Install oathtool for 2FA
         run: sudo apt-get install --fix-broken --yes oathtool
 
@@ -118,6 +85,12 @@ jobs:
           EOF
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verify NPM Authentication
+        run: |
+          echo "Testing NPM authentication..."
+          NPM_USER=$(npm whoami)
+          echo "✓ Authenticated as: $NPM_USER"
 
       - name: Rollback Tag on Failure
         if: failure() && steps.create-tag.outputs.tag-created == 'true'
