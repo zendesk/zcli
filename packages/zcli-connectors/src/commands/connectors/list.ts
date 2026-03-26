@@ -49,7 +49,7 @@ export default class List extends Command {
     const spinner = flags.json ? null : ora('Fetching connectors...').start()
 
     try {
-      const response = await request.requestAPI('/flowstate/connectors/private/list', {
+      const response = await request.requestAPI('/flowstate/connectors/private', {
         method: 'GET'
       })
 
