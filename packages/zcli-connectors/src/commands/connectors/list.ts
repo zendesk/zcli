@@ -46,14 +46,14 @@ export default class List extends Command {
       this.logVerbose('Verbose mode enabled', flags.json)
     }
 
-    const spinner = ora('Fetching connectors...').start()
+    const spinner = flags.json ? null : ora('Fetching connectors...').start()
 
     try {
       const response = await request.requestAPI('/flowstate/connectors/private/list', {
         method: 'GET'
       })
 
-      spinner.stop()
+      spinner?.stop()
 
       if (flags.verbose) {
         this.logVerbose(`API response status: ${response.status}`, flags.json)
@@ -76,18 +76,12 @@ export default class List extends Command {
 
       // Non-JSON output mode
       if (response.status !== 200) {
-        const errorMsg = `API returned non-200 status: ${response.status}`
-        const responseData = JSON.stringify(response.data, null, 2)
+        const baseErrorMsg = `API returned non-200 status: ${response.status}`
+        const verboseSuffix = flags.verbose
+          ? '\n' + chalk.yellow('Response data: ') + JSON.stringify(response.data, null, 2)
+          : ''
 
-        if (flags.json) {
-          // In JSON mode, write error details to stderr
-          process.stderr.write(chalk.red(errorMsg) + '\n')
-          process.stderr.write(chalk.yellow('Response data: ') + responseData + '\n')
-        } else {
-          this.log(chalk.red(errorMsg))
-          this.log(chalk.yellow('Response data:'), responseData)
-        }
-        return
+        this.error(baseErrorMsg + verboseSuffix, { exit: 1 })
       }
 
       if (!data.connectors || data.connectors.length === 0) {
