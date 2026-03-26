@@ -1,6 +1,6 @@
 <img src="logo.png" alt="Zendesk Logo" width="100"/>
 
-# ZCLI
+# ZCLI - test v1
 
 [![npm version](https://badge.fury.io/js/%40zendesk%2Fzcli.svg)](https://www.npmjs.com/package/@zendesk/zcli)
 ![Test](https://github.com/zendesk/zcli/workflows/Test/badge.svg)
