@@ -85,7 +85,7 @@ describe('list command', () => {
 
       await listCommand.run()
 
-      expect(requestAPIStub).to.have.been.calledWith('/flowstate/connectors/private/list', {
+      expect(requestAPIStub).to.have.been.calledWith('/flowstate/connectors/private', {
         method: 'GET'
       })
       expect(logStub).to.have.been.calledWith(sinon.match(/Found 2 connector/))
