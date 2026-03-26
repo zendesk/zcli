@@ -1,4 +1,6 @@
+import { CLIError } from '@oclif/core/lib/errors'
 import * as fs from 'fs'
+import * as chalk from 'chalk'
 
 export default function rewriteAssets (themePath: string, assets: Record<string, string>) {
   const assetsDir = `${themePath}/assets`
@@ -6,7 +8,7 @@ export default function rewriteAssets (themePath: string, assets: Record<string,
   try {
     fs.mkdirSync(assetsDir, { recursive: true })
   } catch (error) {
-    // Ignore errors if directory can't be created
+    throw new CLIError(chalk.red(`Failed to create assets directory: ${assetsDir}`))
   }
 
   for (const [filename, base64Content] of Object.entries(assets)) {
@@ -15,7 +17,7 @@ export default function rewriteAssets (themePath: string, assets: Record<string,
     try {
       fs.writeFileSync(filePath, Buffer.from(base64Content, 'base64'))
     } catch (error) {
-      // Ignore errors if file can't be written
+      throw new CLIError(chalk.red(`Failed to write asset file: ${filePath}`))
     }
   }
 }

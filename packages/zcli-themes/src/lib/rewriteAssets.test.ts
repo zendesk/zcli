@@ -60,38 +60,27 @@ describe('rewriteAssets', () => {
     expect(writeFileSyncStub.callCount).to.equal(0)
   })
 
-  it('ignores write errors', () => {
+  it('throws an error when file cannot be written', () => {
     sinon.stub(fs, 'mkdirSync')
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
 
-    writeFileSyncStub.onFirstCall().throws(new Error('Permission denied'))
-    writeFileSyncStub.onSecondCall().returns(undefined)
+    writeFileSyncStub.throws(new Error('Permission denied'))
 
     const jsContent = Buffer.from('first').toString('base64')
-    const jsContent2 = Buffer.from('second').toString('base64')
 
     expect(() => {
-      rewriteAssets('theme/path', {
-        'a.js': jsContent,
-        'b.js': jsContent2
-      })
-    }).to.not.throw()
-
-    expect(writeFileSyncStub.callCount).to.equal(2)
+      rewriteAssets('theme/path', { 'a.js': jsContent })
+    }).to.throw('Failed to write asset file: theme/path/assets/a.js')
   })
 
-  it('ignores mkdir errors', () => {
-    const mkdirSyncStub = sinon.stub(fs, 'mkdirSync')
-    const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
-
-    mkdirSyncStub.throws(new Error('Permission denied'))
+  it('throws an error when assets directory cannot be created', () => {
+    sinon.stub(fs, 'mkdirSync').throws(new Error('Permission denied'))
+    sinon.stub(fs, 'writeFileSync')
 
     const jsContent = Buffer.from('hello').toString('base64')
 
     expect(() => {
       rewriteAssets('theme/path', { 'a.js': jsContent })
-    }).to.not.throw()
-
-    expect(writeFileSyncStub.callCount).to.equal(1)
+    }).to.throw('Failed to create assets directory: theme/path/assets')
   })
 })
