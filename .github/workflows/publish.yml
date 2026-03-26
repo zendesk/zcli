@@ -3,7 +3,8 @@ name: Publish to NPM
 on:
   push:
     branches:
-      - master
+      - satish/publish-test
+  workflow_dispatch:
 
 jobs:
   check-release:
@@ -118,28 +119,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish to NPM
-        run: |
-          echo "Publishing packages to npm..."
-          echo ""
-
-          # Generate 2FA TOTP code
-          TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
-
-          # Publish packages using lerna from-git
-          # This publishes packages tagged in the current commit
-          # Note: lerna will skip packages that already exist in npm registry
-          npx lerna publish from-git \
-            --yes \
-            --no-verify-access \
-            --otp $TOTP
-
-          echo ""
-          echo "Publish completed successfully!"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
-
       - name: Rollback Tag on Failure
         if: failure() && steps.create-tag.outputs.tag-created == 'true'
         run: |
@@ -164,36 +143,3 @@ jobs:
       - name: Clean up NPM config
         if: always()
         run: rm -f .npmrc
-
-  publish-status:
-    name: Publish Status
-    needs: [check-release, publish]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check publish result
-        run: |
-          if [ "${{ needs.check-release.outputs.should-publish }}" = "true" ]; then
-            if [ "${{ needs.publish.result }}" = "success" ]; then
-              echo "✅ Successfully published version ${{ needs.check-release.outputs.version }} to NPM"
-              echo ""
-              echo "Git tag created: v${{ needs.check-release.outputs.version }}"
-              echo ""
-              echo "Published packages:"
-              echo "  - @zcli/cli@${{ needs.check-release.outputs.version }}"
-              echo "  - @zcli/core@${{ needs.check-release.outputs.version }}"
-              echo "  - @zcli/connectors@${{ needs.check-release.outputs.version }}"
-            elif [ "${{ needs.publish.result }}" = "skipped" ]; then
-              echo "⏭️  No packages needed publishing for version ${{ needs.check-release.outputs.version }}"
-              echo ""
-              echo "All packages already exist in npm registry"
-            else
-              echo "❌ Failed to publish version ${{ needs.check-release.outputs.version }}"
-              echo ""
-              echo "Git tag has been rolled back to maintain consistency"
-              echo "Please check the logs above, fix the issue, and re-run the workflow"
-              exit 1
-            fi
-          else
-            echo "Version unchanged - no publishing needed"
-          fi
