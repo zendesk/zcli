@@ -43,7 +43,7 @@ export default class List extends Command {
     const { flags } = await this.parse(List)
 
     if (flags.verbose) {
-      this.log(chalk.cyan('Verbose mode enabled'))
+      this.logVerbose('Verbose mode enabled', flags.json)
     }
 
     const spinner = ora('Fetching connectors...').start()
@@ -56,8 +56,8 @@ export default class List extends Command {
       spinner.stop()
 
       if (flags.verbose) {
-        this.log(chalk.cyan(`API response status: ${response.status}`))
-        this.log(chalk.cyan(`Response data: ${JSON.stringify(response.data, null, 2)}`))
+        this.logVerbose(`API response status: ${response.status}`, flags.json)
+        this.logVerbose(`Response data: ${JSON.stringify(response.data, null, 2)}`, flags.json)
       }
 
       const data = response.data as ListConnectorsResponse
@@ -76,28 +76,53 @@ export default class List extends Command {
 
       // Non-JSON output mode
       if (response.status !== 200) {
-        this.log(chalk.red(`API returned non-200 status: ${response.status}`))
-        this.log(chalk.yellow('Response data:'), JSON.stringify(response.data, null, 2))
+        const errorMsg = `API returned non-200 status: ${response.status}`
+        const responseData = JSON.stringify(response.data, null, 2)
+
+        if (flags.json) {
+          // In JSON mode, write error details to stderr
+          process.stderr.write(chalk.red(errorMsg) + '\n')
+          process.stderr.write(chalk.yellow('Response data: ') + responseData + '\n')
+        } else {
+          this.log(chalk.red(errorMsg))
+          this.log(chalk.yellow('Response data:'), responseData)
+        }
         return
       }
 
       if (!data.connectors || data.connectors.length === 0) {
-        this.log(chalk.yellow('No connectors found'))
+        if (flags.json) {
+          this.log(JSON.stringify([], null, 2))
+        } else {
+          this.log(chalk.yellow('No connectors found'))
+        }
         return
       }
 
       this.displayTable(data.connectors)
     } catch (error) {
-      spinner.fail(chalk.red('Failed to fetch connectors'))
+      if (!flags.json) {
+        spinner.fail(chalk.red('Failed to fetch connectors'))
+      }
 
       const errorMessage = (error instanceof Error) ? error.message : String(error)
 
       if (flags.verbose) {
-        this.log('\n' + chalk.red('Error Details:'))
-        this.log(errorMessage)
+        this.logVerbose('\nError Details:', flags.json, 'red')
+        this.logVerbose(errorMessage, flags.json)
       }
 
       this.error(errorMessage, { exit: 1 })
+    }
+  }
+
+  private logVerbose (message: string, isJsonMode: boolean, color?: 'cyan' | 'red'): void {
+    const coloredMessage = color ? chalk[color](message) : chalk.cyan(message)
+    if (isJsonMode) {
+      // Write to stderr to avoid corrupting JSON output on stdout
+      process.stderr.write(coloredMessage + '\n')
+    } else {
+      this.log(coloredMessage)
     }
   }
 
