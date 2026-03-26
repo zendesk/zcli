@@ -68,28 +68,18 @@ export default class List extends Command {
           // Route error to stderr and exit via outer catch; no human-readable output on stdout
           throw new Error(`API returned non-200 status: ${response.status}`)
         }
+      // Non-JSON output mode: handle non-200 responses with human-readable output
+      if (response.status !== 200) {
+        const errorMsg = `API returned non-200 status: ${response.status}`
+        const responseData = JSON.stringify(response.data, null, 2)
 
-        const connectors = data.connectors ?? []
-        this.log(JSON.stringify(connectors, null, 2))
+        this.log(chalk.red(errorMsg))
+        this.log(chalk.yellow('Response data:'), responseData)
         return
       }
 
-      // Non-JSON output mode
-      if (response.status !== 200) {
-        const baseErrorMsg = `API returned non-200 status: ${response.status}`
-        const verboseSuffix = flags.verbose
-          ? '\n' + chalk.yellow('Response data: ') + JSON.stringify(response.data, null, 2)
-          : ''
-
-        this.error(baseErrorMsg + verboseSuffix, { exit: 1 })
-      }
-
       if (!data.connectors || data.connectors.length === 0) {
-        if (flags.json) {
-          this.log(JSON.stringify([], null, 2))
-        } else {
-          this.log(chalk.yellow('No connectors found'))
-        }
+        this.log(chalk.yellow('No connectors found'))
         return
       }
 
