@@ -118,40 +118,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Check what needs publishing
-        id: check-publish
-        run: |
-          echo "Checking which packages need publishing..."
-          echo ""
-
-          # Get packages that have tags in current commit
-          PACKAGES=$(npx lerna list --json)
-          NEEDS_PUBLISH=false
-
-          while read -r PKG_VERSION; do
-            PKG_NAME=$(echo "$PKG_VERSION" | cut -d@ -f1)
-            PKG_VER=$(echo "$PKG_VERSION" | cut -d@ -f2)
-
-            # Check if this version exists in npm
-            if npm view "$PKG_NAME@$PKG_VER" version >/dev/null 2>&1; then
-              echo "  ✓ $PKG_VERSION (already in npm)"
-            else
-              echo "  → $PKG_VERSION (needs publishing)"
-              NEEDS_PUBLISH=true
-            fi
-          done < <(echo "$PACKAGES" | jq -r '.[] | "\(.name)@\(.version)"')
-
-          echo ""
-          if [ "$NEEDS_PUBLISH" = true ]; then
-            echo "Some packages need publishing"
-            echo "needs-publish=true" >> $GITHUB_OUTPUT
-          else
-            echo "All packages already published to npm - skipping publish"
-            echo "needs-publish=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Publish to NPM
-        if: steps.check-publish.outputs.needs-publish == 'true'
         run: |
           echo "Publishing packages to npm..."
           echo ""
