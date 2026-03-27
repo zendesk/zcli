@@ -41,7 +41,7 @@ export class ViteConfigBuilder {
     return babel({
       babelHelpers: 'bundled',
       presets: [
-        ['@babel/preset-env', { targets: { ie: '11' }, modules: false }]
+        [require.resolve('@babel/preset-env'), { targets: { ie: '11' }, modules: false }]
       ],
       extensions: ['.js', '.ts']
     })
