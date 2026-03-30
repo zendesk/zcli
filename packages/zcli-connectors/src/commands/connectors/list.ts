@@ -120,11 +120,6 @@ export default class List extends Command {
     this.log(chalk.green(`\nFound ${connectors.length} connector(s):\n`))
 
     CliUx.ux.table(connectors, {
-      connector_nice_id: {
-        header: 'ID',
-        minWidth: 25,
-        get: (row: ConnectorListItem) => row.connector_nice_id || row.connector_name
-      },
       title: {
         header: 'Title',
         minWidth: 30,
@@ -132,7 +127,8 @@ export default class List extends Command {
       },
       connector_name: {
         header: 'Connector Name',
-        minWidth: 25
+        minWidth: 25,
+        get: (row: ConnectorListItem) => row.connector_nice_id || row.connector_name
       },
       version: {
         header: 'Version',
