@@ -105,7 +105,7 @@ ZCLI uses an automated release workflow based on [conventional commits](https://
 
 ## Process
 
-1. **Trigger Release Workflow**: Go to [Actions](https://github.com/zendesk/zcli/actions/workflows/create-release-pr.yml) → Run "Create Release PR" workflow
+1. **Trigger Release Workflow**: Go to [Actions](https://github.com/zendesk/zcli/actions) → Run "Create Release PR" workflow
    - Analyzes commits and determines version bump (major/minor/patch)
    - Creates `zcli-release` branch with updated versions and changelogs
 
