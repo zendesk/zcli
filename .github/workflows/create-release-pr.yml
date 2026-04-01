@@ -2,9 +2,6 @@ name: Create Release PR
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - satish/APPS-8078/npm-publish-workflow
 
 # Prevent multiple release workflows from running simultaneously
 # Queued runs will fail fast when they detect the existing release branch
