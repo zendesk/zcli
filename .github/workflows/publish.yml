@@ -18,7 +18,7 @@ jobs:
       should-publish: ${{ steps.check.outputs.should-publish }}
       version: ${{ steps.check.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: zendesk/checkout@v3
         with:
           fetch-depth: 0
 
@@ -52,13 +52,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: zendesk/checkout@v3
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: zendesk/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'yarn'
