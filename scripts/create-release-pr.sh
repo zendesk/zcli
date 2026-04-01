@@ -14,7 +14,8 @@
 #        │                                                         │
 #        ├─ 2. SYNC & BRANCH ──────────────────────────────────────┤
 #        │   • git pull origin master                              │
-#        │   • git checkout -b release/pending-TIMESTAMP           │
+#        │   • Check if zcli-release exists on remote (error if found) │
+#        │   • git checkout -b zcli-release                        │
 #        │                                                         │
 #        ├─ 3. INSTALL & VERSION ──────────────────────────────────┤
 #        │   • yarn install --frozen-lockfile                      │
@@ -38,19 +39,18 @@
 #        │     └─ Exit 0 (success, no release needed)             │
 #        │   • If changed: Continue to next step                  │
 #        │                                                          │
-#        ├─ 5. COMMIT & RENAME ────────────────────────────────────┤
+#        ├─ 5. COMMIT ─────────────────────────────────────────────┤
 #        │   • git commit -m "chore(release): publish X.X.X"       │
-#        │   • git branch -m release/X.X.X                           │
 #        │                                                          │
 #        ├─ 6. PUSH TO GITHUB ─────────────────────────────────────┤
-#        │   • git push origin release/X.X.X                       │
+#        │   • git push origin zcli-release                        │
 #        │                                                          │
 #        └─ 7. SWITCH BACK ────────────────────────────────────────┘
 #            • git checkout master
 #
 #   Next Steps (Manual):
 #   ┌────────────────────────────────────────────────────────────┐
-#   │ 1. Create PR: release/X.X.X → master                       │
+#   │ 1. Create PR: zcli-release → master                        │
 #   │ 2. Review changes (version bumps, changelog)               │
 #   │ 3. Merge PR                                                 │
 #   │    └─> Triggers GitHub Actions: .github/workflows/publish.yml │
@@ -80,10 +80,19 @@ fi
 echo '🔄 Pulling latest changes from master...'
 git pull origin master
 
-echo '🌿 Creating temporary release branch...'
-# Create temporary branch - will be renamed after version is determined
-TEMP_BRANCH="release/pending-$(date +%Y%m%d-%H%M%S)"
-git checkout -b "$TEMP_BRANCH"
+# Check if release branch already exists on remote
+RELEASE_BRANCH="zcli-release"
+
+if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+    echo ''
+    echo "❌ Error: Release branch '$RELEASE_BRANCH' already exists on remote."
+    echo ''
+    echo '   Please close/merge the existing release PR first, then delete the branch.'
+    exit 1
+fi
+
+echo "🌿 Creating release branch: $RELEASE_BRANCH"
+git checkout -b "$RELEASE_BRANCH"
 
 echo '📦 Installing dependencies...'
 yarn install --frozen-lockfile
@@ -119,7 +128,7 @@ if [ $? -ne 0 ]; then
     echo ''
     echo 'Cleaning up...'
     git checkout master
-    git branch -D "$TEMP_BRANCH" 2>/dev/null || true
+    git branch -D "$RELEASE_BRANCH" 2>/dev/null || true
     exit 1
 fi
 
@@ -136,7 +145,7 @@ if [ "$NEW_VERSION" = "$CURRENT_VERSION" ]; then
     echo ''
     echo 'Cleaning up...'
     git checkout master
-    git branch -D "$TEMP_BRANCH" 2>/dev/null || true
+    git branch -D "$RELEASE_BRANCH" 2>/dev/null || true
     echo ''
     echo '✅ No changes to release at this time.'
     exit 0
@@ -146,7 +155,7 @@ if [ -z "$NEW_VERSION" ] || [ "$NEW_VERSION" = "null" ]; then
     echo ''
     echo '❌ Could not determine new version. Cleaning up...'
     git checkout master
-    git branch -D "$TEMP_BRANCH" 2>/dev/null || true
+    git branch -D "$RELEASE_BRANCH" 2>/dev/null || true
     exit 1
 fi
 
@@ -156,11 +165,6 @@ echo "✅ Version bumped to: $NEW_VERSION"
 echo '📝 Committing version changes...'
 git add .
 git commit -m "chore(release): publish $NEW_VERSION"
-
-# Rename branch to use the actual version
-RELEASE_BRANCH="release/$NEW_VERSION"
-echo "🔄 Renaming branch to: $RELEASE_BRANCH"
-git branch -m "$RELEASE_BRANCH"
 echo ''
 
 # Get list of changed packages
@@ -191,7 +195,7 @@ echo "📋 Version: $NEW_VERSION"
 echo "🌿 Branch:  $RELEASE_BRANCH"
 echo ''
 echo 'Next steps:'
-echo '1. Open a PR: https://github.com/zendesk/zcli/compare/'$RELEASE_BRANCH'?expand=1'
+echo '1. Open a PR: https://github.com/zendesk/zcli/compare/zcli-release?expand=1'
 echo '2. Review the version bumps and changelog'
 echo '3. Merge the PR to trigger automated publishing'
 echo ''
