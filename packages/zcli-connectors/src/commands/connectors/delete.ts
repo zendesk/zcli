@@ -1,0 +1,137 @@
+import { Command, Flags, CliUx } from '@oclif/core'
+import * as chalk from 'chalk'
+import * as ora from 'ora'
+import { request } from '@zendesk/zcli-core'
+
+export default class Delete extends Command {
+  static description = 'delete a private connector from your account'
+
+  static examples = [
+    '<%= config.bin %> <%= command.id %> my-connector',
+    '<%= config.bin %> <%= command.id %>',
+    '<%= config.bin %> <%= command.id %> my-connector --force',
+    '<%= config.bin %> <%= command.id %> --json'
+  ]
+
+  static flags = {
+    help: Flags.help({ char: 'h' }),
+    json: Flags.boolean({
+      description: 'output in JSON format',
+      default: false
+    }),
+    verbose: Flags.boolean({
+      char: 'v',
+      description: 'verbose output',
+      default: false
+    }),
+    force: Flags.boolean({
+      char: 'f',
+      description: 'skip confirmation prompt',
+      default: false
+    })
+  }
+
+  static args = [
+    {
+      name: 'connector',
+      description: 'name of the connector to delete',
+      required: false
+    }
+  ]
+
+  async run (): Promise<void> {
+    const { args, flags } = await this.parse(Delete)
+
+    let connectorName = args.connector
+    if (!connectorName) {
+      connectorName = await CliUx.ux.prompt('Connector name')
+    }
+
+    connectorName = connectorName.trim()
+
+    if (!connectorName) {
+      this.error('Connector name cannot be empty', { exit: 1 })
+    }
+
+    if (flags.verbose) {
+      this.logVerbose('Verbose mode enabled', flags.json)
+      this.logVerbose(`Connector name: ${connectorName}`, flags.json)
+    }
+
+    // Confirmation prompt (skip if --force or --json)
+    if (!flags.force && !flags.json) {
+      const confirmation = await CliUx.ux.prompt(
+        `Are you sure you want to delete connector '${connectorName}'? Type the connector name to confirm`
+      )
+
+      if (confirmation !== connectorName) {
+        this.log(chalk.yellow('Deletion cancelled'))
+        return
+      }
+    }
+
+    const spinner = flags.json ? null : ora('Deleting connector...').start()
+
+    try {
+      const response = await request.requestAPI(
+        `/flowstate/connectors/private/${encodeURIComponent(connectorName)}`,
+        { method: 'DELETE' }
+      )
+
+      spinner?.stop()
+
+      if (flags.verbose) {
+        this.logVerbose(`API response status: ${response.status}`, flags.json)
+        if (response.data) {
+          this.logVerbose(`Response data: ${JSON.stringify(response.data, null, 2)}`, flags.json)
+        }
+      }
+
+      // Handle success
+      if (response.status === 200 || response.status === 204) {
+        if (flags.json) {
+          this.log(JSON.stringify({
+            connectorName,
+            status: 'deleted'
+          }, null, 2))
+        } else {
+          this.log(chalk.green(`✓ Connector '${connectorName}' deleted successfully`))
+        }
+      } else {
+        // Non-2xx response - construct error message
+        const errorDetails = response.data?.message || response.data?.error || JSON.stringify(response.data)
+        throw new Error(`Failed to delete connector: HTTP ${response.status} - ${errorDetails}`)
+      }
+    } catch (error) {
+      if (!flags.json) {
+        spinner?.fail(chalk.red('Failed to delete connector'))
+      }
+
+      let errorMessage = (error instanceof Error) ? error.message : String(error)
+
+      // Provide helpful error messages for common cases
+      if (errorMessage.includes('404')) {
+        errorMessage = `Connector '${connectorName}' not found. Use 'zcli connectors:list' to see available connectors.`
+      } else if (errorMessage.includes('403')) {
+        errorMessage = 'Permission denied. You don\'t have access to delete this connector.'
+      }
+
+      if (flags.verbose) {
+        this.logVerbose('\nError Details:', flags.json, 'red')
+        this.logVerbose(errorMessage, flags.json, 'red')
+      }
+
+      this.error(errorMessage, { exit: 1 })
+    }
+  }
+
+  private logVerbose (message: string, isJsonMode: boolean, color?: 'cyan' | 'red'): void {
+    const coloredMessage = color ? chalk[color](message) : chalk.cyan(message)
+    if (isJsonMode) {
+      // Write to stderr to avoid corrupting JSON output on stdout
+      process.stderr.write(coloredMessage + '\n')
+    } else {
+      this.log(coloredMessage)
+    }
+  }
+}
