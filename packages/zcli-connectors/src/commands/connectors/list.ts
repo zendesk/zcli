@@ -41,7 +41,7 @@ export default class List extends Command {
       this.logVerbose('Verbose mode enabled')
     }
 
-    const spinner = ora('Fetching connectors...').start()
+    const spinner = (ora as any)('Fetching connectors...').start()
 
     try {
       const response = await request.requestAPI('/flowstate/connectors/private', {
@@ -57,7 +57,7 @@ export default class List extends Command {
 
       const data = response.data as ListConnectorsResponse
 
-      // Handle non-200 responses with human-readable output
+      // Handle non-200 responses
       if (response.status !== 200) {
         const errorMsg = `API returned non-200 status: ${response.status}`
         const responseData = JSON.stringify(response.data, null, 2)

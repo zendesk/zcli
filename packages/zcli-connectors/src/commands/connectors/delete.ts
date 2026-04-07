@@ -3,6 +3,8 @@ import * as chalk from 'chalk'
 import * as ora from 'ora'
 import { request } from '@zendesk/zcli-core'
 
+export const { ux } = CliUx
+
 export default class Delete extends Command {
   static description = 'delete a private connector from your account'
 
@@ -39,7 +41,7 @@ export default class Delete extends Command {
 
     let connectorName = args.connector
     if (!connectorName) {
-      connectorName = await CliUx.ux.prompt('Connector name')
+      connectorName = await ux.prompt('Connector name')
     }
 
     connectorName = connectorName.trim()
@@ -55,9 +57,9 @@ export default class Delete extends Command {
 
     // Confirmation prompt (skip if --force)
     if (!flags.force) {
-      const confirmation = (await CliUx.ux.prompt(
+      const confirmation = await ux.prompt(
         `Are you sure you want to delete connector '${connectorName}'? Type the connector name to confirm`
-      )).trim()
+      )
 
       if (confirmation !== connectorName) {
         this.log(chalk.yellow('Deletion cancelled'))
@@ -65,7 +67,7 @@ export default class Delete extends Command {
       }
     }
 
-    const spinner = ora('Deleting connector...').start()
+    const spinner = (ora as any)('Deleting connector...').start()
 
     try {
       const response = await request.requestAPI(
@@ -82,30 +84,25 @@ export default class Delete extends Command {
         }
       }
 
-      // Handle success
+      // Handle response
       if (response.status === 200 || response.status === 204) {
         this.log(chalk.green(`✓ Connector '${connectorName}' deleted successfully`))
       } else {
-        // Non-2xx response - construct error message
-        const serializedResponseData = JSON.stringify(response.data)
-        const errorDetails =
-          response.data?.message ||
-          response.data?.error ||
-          serializedResponseData ||
-          'No additional error details provided'
-        throw new Error(`Failed to delete connector: HTTP ${response.status} - ${errorDetails}`)
+        // Handle error response
+        spinner?.stop()
+        const errorDetails = response.data?.message || response.data?.error || 'Unknown error'
+        const errorMessage = `Failed to delete connector: HTTP ${response.status} - ${errorDetails}`
+        if (flags.verbose) {
+          this.logVerbose('\nError Details:', 'red')
+          this.logVerbose(errorMessage, 'red')
+        }
+        this.error(errorMessage, { exit: 1 })
       }
     } catch (error) {
+      // Handle network errors and other exceptions
       spinner?.fail(chalk.red('Failed to delete connector'))
 
-      let errorMessage = (error instanceof Error) ? error.message : String(error)
-
-      // Provide helpful error messages for common cases
-      if (errorMessage.includes('404')) {
-        errorMessage = `Connector '${connectorName}' not found. Use 'zcli connectors:list' to see available connectors.`
-      } else if (errorMessage.includes('403')) {
-        errorMessage = 'Permission denied. You don\'t have access to delete this connector.'
-      }
+      const errorMessage = (error instanceof Error) ? error.message : String(error)
 
       if (flags.verbose) {
         this.logVerbose('\nError Details:', 'red')
