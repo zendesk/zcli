@@ -13,7 +13,6 @@ describe('delete command', () => {
   let deleteCommand: DeleteCommand
   let logStub: sinon.SinonStub
   let requestAPIStub: sinon.SinonStub
-  let stderrWriteStub: sinon.SinonStub
   let parseStub: sinon.SinonStub
   let promptStub: sinon.SinonStub
 
@@ -21,7 +20,6 @@ describe('delete command', () => {
     deleteCommand = new DeleteCommand([], {} as any)
     logStub = sinon.stub(deleteCommand, 'log')
     requestAPIStub = sinon.stub(request, 'requestAPI')
-    stderrWriteStub = sinon.stub(process.stderr, 'write')
     promptStub = sinon.stub(CliUx.ux, 'prompt')
   })
 
@@ -32,12 +30,6 @@ describe('delete command', () => {
   describe('command flags', () => {
     it('should have help flag', () => {
       expect(DeleteCommand.flags.help).to.exist
-    })
-
-    it('should have json flag', () => {
-      expect(DeleteCommand.flags.json).to.exist
-      expect(DeleteCommand.flags.json.type).to.equal('boolean')
-      expect(DeleteCommand.flags.json.default).to.equal(false)
     })
 
     it('should have verbose flag with char v', () => {
@@ -69,7 +61,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test-connector' },
         flags: {
-          json: false,
           verbose: false,
           force: true,
           help: false
@@ -112,7 +103,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test connector/with-chars' },
         flags: {
-          json: false,
           verbose: false,
           force: true,
           help: false
@@ -138,7 +128,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test-connector' },
         flags: {
-          json: false,
           verbose: false,
           force: false,
           help: false
@@ -176,32 +165,8 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test-connector' },
         flags: {
-          json: false,
           verbose: false,
           force: true,
-          help: false
-        }
-      })
-
-      requestAPIStub.resolves({
-        status: 200,
-        data: {}
-      })
-
-      await deleteCommand.run()
-
-      expect(promptStub).to.not.have.been.called
-      expect(requestAPIStub).to.have.been.called
-    })
-
-    it('should skip confirmation in JSON mode', async () => {
-      parseStub.restore()
-      parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
-        args: { connector: 'test-connector' },
-        flags: {
-          json: true,
-          verbose: false,
-          force: false,
           help: false
         }
       })
@@ -223,7 +188,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: undefined },
         flags: {
-          json: false,
           verbose: false,
           force: true,
           help: false
@@ -252,7 +216,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: '  test-connector  ' },
         flags: {
-          json: false,
           verbose: false,
           force: true,
           help: false
@@ -277,7 +240,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: '   ' },
         flags: {
-          json: false,
           verbose: false,
           force: true,
           help: false
@@ -302,55 +264,11 @@ describe('delete command', () => {
     })
   })
 
-  describe('JSON output mode', () => {
-    beforeEach(() => {
-      parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
-        args: { connector: 'test-connector' },
-        flags: {
-          json: true,
-          verbose: false,
-          force: false,
-          help: false
-        }
-      })
-    })
-
-    it('should output JSON format when --json flag is set', async () => {
-      requestAPIStub.resolves({
-        status: 200,
-        data: {}
-      })
-
-      await deleteCommand.run()
-
-      expect(logStub).to.have.been.calledOnce
-      const outputArg = logStub.firstCall.args[0]
-      const parsedOutput = JSON.parse(outputArg)
-
-      expect(parsedOutput).to.be.an('object')
-      expect(parsedOutput).to.have.property('connectorName', 'test-connector')
-      expect(parsedOutput).to.have.property('status', 'deleted')
-    })
-
-    it('should not output spinner in JSON mode', async () => {
-      requestAPIStub.resolves({
-        status: 200,
-        data: {}
-      })
-
-      await deleteCommand.run()
-
-      // In JSON mode, only JSON output should be on stdout
-      expect(logStub).to.have.been.calledOnce
-    })
-  })
-
   describe('verbose mode', () => {
     beforeEach(() => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test-connector' },
         flags: {
-          json: false,
           verbose: true,
           force: true,
           help: false
@@ -370,36 +288,6 @@ describe('delete command', () => {
       expect(logStub).to.have.been.calledWith(sinon.match(/Connector name: test-connector/))
       expect(logStub).to.have.been.calledWith(sinon.match(/API response status: 200/))
     })
-
-    it('should log verbose messages to stderr in JSON mode', async () => {
-      parseStub.restore()
-      parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
-        args: { connector: 'test-connector' },
-        flags: {
-          json: true,
-          verbose: true,
-          force: false,
-          help: false
-        }
-      })
-
-      requestAPIStub.resolves({
-        status: 200,
-        data: {}
-      })
-
-      await deleteCommand.run()
-
-      // Verbose logs should go to stderr, not stdout
-      expect(stderrWriteStub).to.have.been.called
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/Verbose mode enabled/))
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/API response status: 200/))
-
-      // Only JSON output should be on stdout
-      expect(logStub).to.have.been.calledOnce
-      const outputArg = logStub.firstCall.args[0]
-      expect(() => JSON.parse(outputArg)).to.not.throw()
-    })
   })
 
   describe('error handling - non-2xx responses', () => {
@@ -409,7 +297,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test-connector' },
         flags: {
-          json: false,
           verbose: false,
           force: true,
           help: false
@@ -510,7 +397,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test-connector' },
         flags: {
-          json: false,
           verbose: false,
           force: true,
           help: false
@@ -569,7 +455,6 @@ describe('delete command', () => {
       parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
         args: { connector: 'test-connector' },
         flags: {
-          json: false,
           verbose: true,
           force: true,
           help: false
@@ -588,33 +473,6 @@ describe('delete command', () => {
 
       expect(logStub).to.have.been.calledWith(sinon.match(/Error Details:/))
       expect(logStub).to.have.been.calledWith(sinon.match(/Detailed error message/))
-    })
-
-    it('should route verbose error details to stderr in JSON mode', async () => {
-      parseStub.restore()
-      parseStub = sinon.stub(deleteCommand, 'parse' as any).resolves({
-        args: { connector: 'test-connector' },
-        flags: {
-          json: true,
-          verbose: true,
-          force: false,
-          help: false
-        }
-      })
-
-      const detailedError = new Error('Error in JSON mode')
-      requestAPIStub.rejects(detailedError)
-
-      try {
-        await deleteCommand.run()
-        expect.fail('Should have thrown an error')
-      } catch (error) {
-        caughtError = error as Error
-      }
-
-      // Verbose error details should go to stderr
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/Error Details:/))
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/Error in JSON mode/))
     })
   })
 })
