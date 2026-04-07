@@ -3,12 +3,8 @@ import { expect, test } from '@oclif/test'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as sinon from 'sinon'
-import sinonChai from 'sinon-chai'
-import { use } from 'chai'
 import { ManifestGenerator } from './generator'
 import { ConnectorConfig } from './types'
-
-use(sinonChai)
 
 describe('ManifestGenerator', () => {
   const mockOutputPath = './test/output'
@@ -63,11 +59,12 @@ describe('ManifestGenerator', () => {
           }
         }
 
-        expect(writeFileSyncStub).to.have.been.calledWith(
+        expect(writeFileSyncStub.calledOnce).to.equal(true)
+        expect(writeFileSyncStub.firstCall.args).to.deep.equal([
           mockManifestPath,
           JSON.stringify(expectedManifest, null, 2),
           'utf-8'
-        )
+        ])
       })
 
     test
@@ -92,11 +89,12 @@ describe('ManifestGenerator', () => {
           }
         }
 
-        expect(writeFileSyncStub).to.have.been.calledWith(
+        expect(writeFileSyncStub.calledOnce).to.equal(true)
+        expect(writeFileSyncStub.firstCall.args).to.deep.equal([
           mockManifestPath,
           JSON.stringify(expectedManifest, null, 2),
           'utf-8'
-        )
+        ])
       })
 
     test
@@ -130,11 +128,12 @@ describe('ManifestGenerator', () => {
           }
         }
 
-        expect(writeFileSyncStub).to.have.been.calledWith(
+        expect(writeFileSyncStub.calledOnce).to.equal(true)
+        expect(writeFileSyncStub.firstCall.args).to.deep.equal([
           mockManifestPath,
           JSON.stringify(expectedManifest, null, 2),
           'utf-8'
-        )
+        ])
       })
   })
 

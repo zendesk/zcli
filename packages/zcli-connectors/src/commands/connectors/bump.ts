@@ -5,10 +5,10 @@ import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join, resolve } from 'path'
 
 export default class Bump extends Command {
-  static description = 'bumps the version of your connector in the manifest. Accepts major, minor and patch; defaults to patch.'
+  static description = 'bumps the version of your connector'
 
   static args = [
-    { name: 'path', description: 'relative path to connector root directory (optional, defaults to current directory)' }
+    { name: 'path', description: 'path to connector directory (defaults to current directory)', default: '.' }
   ]
 
   static examples = [
@@ -21,9 +21,9 @@ export default class Bump extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    major: Flags.boolean({ char: 'M', description: 'Increments the major version by 1' }),
-    minor: Flags.boolean({ char: 'm', description: 'Increments the minor version by 1' }),
-    patch: Flags.boolean({ char: 'p', description: 'Increments the patch version by 1' })
+    major: Flags.boolean({ char: 'M', description: 'increments the major version by 1' }),
+    minor: Flags.boolean({ char: 'm', description: 'increments the minor version by 1' }),
+    patch: Flags.boolean({ char: 'p', description: 'increments the patch version by 1' })
   }
 
   async run (): Promise<void> {

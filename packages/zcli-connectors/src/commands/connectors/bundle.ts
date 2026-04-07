@@ -7,9 +7,13 @@ import { ViteConfigBuilder, ViteRunner } from '../../lib/vite'
 import * as ora from 'ora'
 
 export default class Bundle extends Command {
+  static description = 'bundles your connector for distribution'
+
   static examples = [
     '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> ./example-connector'
+    '<%= config.bin %> <%= command.id %> ./example-connector',
+    '<%= config.bin %> <%= command.id %> --watch',
+    '<%= config.bin %> <%= command.id %> ./example-connector --watch'
   ]
 
   static flags = {
@@ -21,7 +25,7 @@ export default class Bundle extends Command {
     }),
     watch: Flags.boolean({
       char: 'w',
-      description: 'watch for changes and rebuild',
+      description: 'watch for file changes and automatically rebundle the connector',
       default: false
     })
   }
@@ -29,7 +33,8 @@ export default class Bundle extends Command {
   static args = [
     {
       name: 'path',
-      description: 'relative path to connector root directory (optional, defaults to current directory)'
+      description: 'path to connector directory (defaults to current directory)',
+      default: '.'
     }
   ]
 

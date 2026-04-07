@@ -3,23 +3,22 @@ import { existsSync } from 'fs'
 import { resolve, join } from 'path'
 import * as chalk from 'chalk'
 import * as ora from 'ora'
-import { runValidationChecks } from '../../../lib/validations'
-import { createConnector, uploadConnectorPackage } from '../../../lib/publish/publish'
-import { pollProvisioningStatus } from '../../../lib/publish/poller'
+import { runValidationChecks } from '../../lib/validations'
+import { createConnector, uploadConnectorPackage } from '../../lib/publish/publish'
+import { pollProvisioningStatus } from '../../lib/publish/poller'
 
 export default class Publish extends Command {
-  static description = 'publish a connector'
+  static description = 'publish a connector to the current account'
 
   static examples = [
-    '<%= config.bin %> <%= command.id %> ./example-connector --validationOnly',
-    '<%= config.bin %> <%= command.id %> ./src --validationOnly',
-    '<%= config.bin %> <%= command.id %> --validationOnly'
+    '<%= config.bin %> <%= command.id %> ./example-connector',
+    '<%= config.bin %> <%= command.id %> ./example-connector --validationOnly'
   ]
 
   static flags = {
     help: Flags.help({ char: 'h' }),
     validationOnly: Flags.boolean({
-      description: 'run validation checks only without publishing',
+      description: 'validate the connector without publishing',
       default: false
     }),
     verbose: Flags.boolean({
@@ -32,7 +31,7 @@ export default class Publish extends Command {
   static args = [
     {
       name: 'path',
-      description: 'path to connector directory',
+      description: 'path to connector directory (defaults to current directory)',
       required: false,
       default: '.'
     }
