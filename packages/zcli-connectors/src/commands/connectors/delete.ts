@@ -55,9 +55,9 @@ export default class Delete extends Command {
 
     // Confirmation prompt (skip if --force)
     if (!flags.force) {
-      const confirmation = await CliUx.ux.prompt(
+      const confirmation = (await CliUx.ux.prompt(
         `Are you sure you want to delete connector '${connectorName}'? Type the connector name to confirm`
-      )
+      )).trim()
 
       if (confirmation !== connectorName) {
         this.log(chalk.yellow('Deletion cancelled'))
@@ -87,7 +87,12 @@ export default class Delete extends Command {
         this.log(chalk.green(`✓ Connector '${connectorName}' deleted successfully`))
       } else {
         // Non-2xx response - construct error message
-        const errorDetails = response.data?.message || response.data?.error || JSON.stringify(response.data)
+        const serializedResponseData = JSON.stringify(response.data)
+        const errorDetails =
+          response.data?.message ||
+          response.data?.error ||
+          serializedResponseData ||
+          'No additional error details provided'
         throw new Error(`Failed to delete connector: HTTP ${response.status} - ${errorDetails}`)
       }
     } catch (error) {
