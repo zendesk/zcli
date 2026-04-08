@@ -101,19 +101,8 @@ Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are 
 
 # Releasing
 
-ZCLI uses an automated release workflow based on [conventional commits](https://www.conventionalcommits.org/).
-
-## Process
-
-1. **Trigger Release Workflow**: Go to [Actions](https://github.com/zendesk/zcli/actions) → Run "Create Release PR" workflow
-   - Analyzes commits and determines version bump (major/minor/patch)
-   - Creates `zcli-release` branch with updated versions and changelogs
-
-2. **Review & Merge**: Create a PR from `zcli-release` to `master`, review the changes, and merge
-
-3. **Automatic Publishing**: Once the release PR is merged, packages are automatically published to npm and git tags are created
-
-**Note**: Only one release can be in progress at a time. Merge or close the existing release PR before starting a new one.
+1. Run the ["Create Release PR" workflow](https://github.com/zendesk/zcli/actions/workflows/create-release-pr.yml)
+2. Once the release PR is merged, a new version will be released and published to [npm](https://www.npmjs.com/package/@zendesk/zcli).
 
 # License
 
