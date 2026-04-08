@@ -3,8 +3,6 @@ import * as chalk from 'chalk'
 import * as ora from 'ora'
 import { request } from '@zendesk/zcli-core'
 
-export const { ux } = CliUx
-
 export default class Delete extends Command {
   static description = 'delete a private connector from your account'
 
@@ -41,7 +39,7 @@ export default class Delete extends Command {
 
     let connectorName = args.connector
     if (!connectorName) {
-      connectorName = await ux.prompt('Connector name')
+      connectorName = await CliUx.ux.prompt('Connector name')
     }
 
     connectorName = connectorName.trim()
@@ -57,7 +55,7 @@ export default class Delete extends Command {
 
     // Confirmation prompt (skip if --force)
     if (!flags.force) {
-      const confirmation = await ux.prompt(
+      const confirmation = await CliUx.ux.prompt(
         `Are you sure you want to delete connector '${connectorName}'? Type the connector name to confirm`
       )
 

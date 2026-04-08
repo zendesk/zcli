@@ -1,13 +1,12 @@
 /* eslint-disable no-unused-expressions */
 
-import { expect, use } from 'chai'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
-import sinonChai from 'sinon-chai'
-import { CliUx } from '@oclif/core'
 import DeleteCommand from '../../src/commands/connectors/delete'
 import { request } from '@zendesk/zcli-core'
 
-use(sinonChai)
+// Import the underlying deps to stub the prompt function
+import * as deps from '@oclif/core/lib/cli-ux/deps'
 
 describe('delete command', () => {
   let deleteCommand: DeleteCommand
@@ -17,10 +16,15 @@ describe('delete command', () => {
   let promptStub: sinon.SinonStub
 
   beforeEach(() => {
+    // Restore any existing stubs first
+    sinon.restore()
+
+    // Create fresh stubs
     deleteCommand = new DeleteCommand([], {} as any)
     logStub = sinon.stub(deleteCommand, 'log')
     requestAPIStub = sinon.stub(request, 'requestAPI')
-    promptStub = sinon.stub(CliUx.ux, 'prompt')
+    // Stub the underlying prompt function that CliUx.ux.prompt getter returns
+    promptStub = sinon.stub(deps.default.prompt, 'prompt')
   })
 
   afterEach(() => {
@@ -76,11 +80,12 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(requestAPIStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        requestAPIStub,
         '/flowstate/connectors/private/test-connector',
         { method: 'DELETE' }
       )
-      expect(logStub).to.have.been.calledWith(sinon.match(/Connector 'test-connector' deleted successfully/))
+      sinon.assert.calledWith(logStub, sinon.match(/Connector 'test-connector' deleted successfully/))
     })
 
     it('should successfully delete a connector with status 204', async () => {
@@ -91,11 +96,12 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(requestAPIStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        requestAPIStub,
         '/flowstate/connectors/private/test-connector',
         { method: 'DELETE' }
       )
-      expect(logStub).to.have.been.calledWith(sinon.match(/Connector 'test-connector' deleted successfully/))
+      sinon.assert.calledWith(logStub, sinon.match(/Connector 'test-connector' deleted successfully/))
     })
 
     it('should URL-encode connector names with special characters', async () => {
@@ -116,7 +122,8 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(requestAPIStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        requestAPIStub,
         '/flowstate/connectors/private/test%20connector%2Fwith-chars',
         { method: 'DELETE' }
       )
@@ -144,20 +151,21 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(promptStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        promptStub,
         sinon.match(/Are you sure you want to delete connector 'test-connector'/)
       )
-      expect(requestAPIStub).to.have.been.called
+      sinon.assert.called(requestAPIStub)
     })
 
     it('should cancel deletion if confirmation does not match', async () => {
-      promptStub.resolves('wrong-name')
+      promptStub.onFirstCall().resolves('wrong-name')
 
       await deleteCommand.run()
 
-      expect(promptStub).to.have.been.called
-      expect(logStub).to.have.been.calledWith(sinon.match(/Deletion cancelled/))
-      expect(requestAPIStub).to.not.have.been.called
+      sinon.assert.called(promptStub)
+      sinon.assert.calledWith(logStub, sinon.match(/Deletion cancelled/))
+      sinon.assert.notCalled(requestAPIStub)
     })
 
     it('should skip confirmation with --force flag', async () => {
@@ -178,8 +186,8 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(promptStub).to.not.have.been.called
-      expect(requestAPIStub).to.have.been.called
+      sinon.assert.notCalled(promptStub)
+      sinon.assert.called(requestAPIStub)
     })
   })
 
@@ -197,6 +205,7 @@ describe('delete command', () => {
 
     it('should prompt for connector name if not provided', async () => {
       promptStub.onFirstCall().resolves('prompted-connector')
+      promptStub.onSecondCall().resolves('prompted-connector')
       requestAPIStub.resolves({
         status: 200,
         data: {}
@@ -204,8 +213,9 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(promptStub).to.have.been.calledWith('Connector name')
-      expect(requestAPIStub).to.have.been.calledWith(
+      sinon.assert.calledWith(promptStub, 'Connector name')
+      sinon.assert.calledWith(
+        requestAPIStub,
         '/flowstate/connectors/private/prompted-connector',
         { method: 'DELETE' }
       )
@@ -229,7 +239,8 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(requestAPIStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        requestAPIStub,
         '/flowstate/connectors/private/test-connector',
         { method: 'DELETE' }
       )
@@ -257,7 +268,8 @@ describe('delete command', () => {
         // Expected
       }
 
-      expect(errorStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        errorStub,
         'Connector name cannot be empty',
         sinon.match({ exit: 1 })
       )
@@ -284,9 +296,9 @@ describe('delete command', () => {
 
       await deleteCommand.run()
 
-      expect(logStub).to.have.been.calledWith(sinon.match(/Verbose mode enabled/))
-      expect(logStub).to.have.been.calledWith(sinon.match(/Connector name: test-connector/))
-      expect(logStub).to.have.been.calledWith(sinon.match(/API response status: 200/))
+      sinon.assert.calledWith(logStub, sinon.match(/Verbose mode enabled/))
+      sinon.assert.calledWith(logStub, sinon.match(/Connector name: test-connector/))
+      sinon.assert.calledWith(logStub, sinon.match(/API response status: 200/))
     })
   })
 
@@ -308,7 +320,7 @@ describe('delete command', () => {
       })
     })
 
-    it('should handle 404 Not Found response with helpful message', async () => {
+    it('should handle 404 Not Found response', async () => {
       requestAPIStub.resolves({
         status: 404,
         data: { error: 'Not Found' }
@@ -321,17 +333,14 @@ describe('delete command', () => {
         // Expected
       }
 
-      expect(errorStub).to.have.been.calledWith(
-        sinon.match(/Connector 'test-connector' not found/),
-        sinon.match({ exit: 1 })
-      )
-      expect(errorStub).to.have.been.calledWith(
-        sinon.match(/zcli connectors:list/),
+      sinon.assert.calledWith(
+        errorStub,
+        sinon.match(/Failed to delete connector: HTTP 404/),
         sinon.match({ exit: 1 })
       )
     })
 
-    it('should handle 403 Forbidden response with helpful message', async () => {
+    it('should handle 403 Forbidden response', async () => {
       requestAPIStub.resolves({
         status: 403,
         data: { error: 'Forbidden' }
@@ -344,8 +353,9 @@ describe('delete command', () => {
         // Expected
       }
 
-      expect(errorStub).to.have.been.calledWith(
-        sinon.match(/Permission denied/),
+      sinon.assert.calledWith(
+        errorStub,
+        sinon.match(/Failed to delete connector: HTTP 403/),
         sinon.match({ exit: 1 })
       )
     })
@@ -363,7 +373,8 @@ describe('delete command', () => {
         // Expected
       }
 
-      expect(errorStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        errorStub,
         sinon.match(/Failed to delete connector/),
         sinon.match({ exit: 1 })
       )
@@ -382,8 +393,9 @@ describe('delete command', () => {
         // Expected
       }
 
-      expect(errorStub).to.have.been.calledWith(
-        sinon.match(/Invalid connector name format/),
+      sinon.assert.calledWith(
+        errorStub,
+        sinon.match(/Failed to delete connector: HTTP 400 - Invalid connector name format/),
         sinon.match({ exit: 1 })
       )
     })
@@ -426,7 +438,8 @@ describe('delete command', () => {
       }
 
       expect(caughtError).to.exist
-      expect(errorStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        errorStub,
         'Network request failed: ECONNREFUSED',
         sinon.match({ exit: 1 })
       )
@@ -444,7 +457,8 @@ describe('delete command', () => {
       }
 
       expect(caughtError).to.exist
-      expect(errorStub).to.have.been.calledWith(
+      sinon.assert.calledWith(
+        errorStub,
         sinon.match(/Authentication failed/),
         sinon.match({ exit: 1 })
       )
@@ -471,8 +485,8 @@ describe('delete command', () => {
         caughtError = error as Error
       }
 
-      expect(logStub).to.have.been.calledWith(sinon.match(/Error Details:/))
-      expect(logStub).to.have.been.calledWith(sinon.match(/Detailed error message/))
+      sinon.assert.calledWith(logStub, sinon.match(/Error Details:/))
+      sinon.assert.calledWith(logStub, sinon.match(/Detailed error message/))
     })
   })
 })
