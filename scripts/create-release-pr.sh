@@ -4,15 +4,15 @@ set -e
 
 RELEASE_TYPE="$1"
 
-# if [ "$GITHUB_ACTIONS" != "true" ]; then
-#     echo ""
-#     echo "Error: This script should only be run via GitHub Actions"
-#     echo ""
-#     echo "   Please use the GitHub Actions workflow to create a release:"
-#     echo "   https://github.com/zendesk/zcli/actions/workflows/create-release-pr.yml"
-#     echo ""
-#     exit 1
-# fi
+if [ "$GITHUB_ACTIONS" != "true" ]; then
+    echo ""
+    echo "Error: This script should only be run via GitHub Actions"
+    echo ""
+    echo "   Please use the GitHub Actions workflow to create a release:"
+    echo "   https://github.com/zendesk/zcli/actions/workflows/create-release-pr.yml"
+    echo ""
+    exit 1
+fi
 
 RELEASE_BRANCH="zcli-release"
 
