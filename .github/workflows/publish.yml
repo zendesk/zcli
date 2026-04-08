@@ -1,8 +1,5 @@
 name: Publish to NPM
 
-permissions:
-  contents: read
-
 on:
   push:
     branches:
@@ -20,20 +17,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Check if version changed in lerna.json
         id: check
         run: |
-          # Get current version from lerna.json
           CURRENT_VERSION=$(jq -r '.version' lerna.json)
           echo "Current version: $CURRENT_VERSION"
 
-          # Get previous version from lerna.json (from previous commit)
           PREVIOUS_VERSION=$(git show HEAD~1:lerna.json | jq -r '.version')
           echo "Previous version: $PREVIOUS_VERSION"
 
-          # Check if version has changed
           if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
             echo "should-publish=true" >> $GITHUB_OUTPUT
             echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
@@ -50,23 +44,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm-publish
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 2
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           cache: 'yarn'
-
-      - name: Configure Git
-        run: |
-          git config user.name "zendesk-ops-ci"
-          git config user.email "zendesk-ops-ci@users.noreply.github.com"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -88,113 +76,28 @@ jobs:
         run: |
           echo "Testing NPM authentication..."
           NPM_USER=$(npm whoami)
-          echo "✓ Authenticated as: $NPM_USER"
-
-      - name: Create Git Tag
-        id: create-tag
-        run: |
-          VERSION="${{ needs.check-release.outputs.version }}"
-
-          # Ensure we have all tags from remote
-          echo "Fetching all tags from remote..."
-          git fetch --tags --force
-
-          # Verify git history is available
-          if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
-            echo "Error: Cannot access previous commit (HEAD~1)"
-            echo "This should not happen with fetch-depth: 0"
-            exit 1
-          fi
-
-          # Check if unified version tag exists
-          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
-            echo "Tag v${VERSION} already exists - skipping creation"
-            echo "tag-created=false" >> $GITHUB_OUTPUT
-          else
-            echo "Creating tag: v${VERSION}"
-            git tag -a "v${VERSION}" -m "Release v${VERSION}"
-
-            echo "Pushing tag to remote..."
-            git push origin "v${VERSION}"
-
-            echo "tag-created=true" >> $GITHUB_OUTPUT
-            echo "✓ Tag v${VERSION} created and pushed"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "Authenticated as: $NPM_USER"
 
       - name: Publish to NPM
         run: |
           echo "Publishing packages to npm..."
           echo ""
 
-          # Generate 2FA TOTP code
           TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
 
-          # Publish packages using lerna from-git
-          # This publishes packages tagged in the current commit
-          # Note: lerna will skip packages that already exist in npm registry
-          npx lerna publish from-git \
+          yarn lerna publish from-package \
             --yes \
             --no-verify-access \
             --otp $TOTP
 
           echo ""
           echo "Publish completed successfully!"
+          echo "Packages published to NPM"
+          echo "Git tag v${{ needs.check-release.outputs.version }} was created during PR merge"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
 
-      - name: Rollback Tag on Failure
-        if: failure() && steps.create-tag.outputs.tag-created == 'true'
-        run: |
-          VERSION="${{ needs.check-release.outputs.version }}"
-
-          echo "⚠️  Publish failed - rolling back git tag..."
-          echo ""
-          echo "Deleting tag: v${VERSION}"
-
-          # Delete from local
-          git tag -d "v${VERSION}" 2>/dev/null || true
-
-          # Delete from remote
-          git push origin ":refs/tags/v${VERSION}" 2>/dev/null || true
-
-          echo ""
-          echo "✓ Tag rolled back successfully"
-          echo "  You can retry the release after fixing the issue"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Clean up NPM config
         if: always()
         run: rm -f .npmrc
-
-  publish-status:
-    name: Publish Status
-    needs: [check-release, publish]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check publish result
-        run: |
-          if [ "${{ needs.check-release.outputs.should-publish }}" = "true" ]; then
-            if [ "${{ needs.publish.result }}" = "success" ]; then
-              echo "✅ Successfully published version ${{ needs.check-release.outputs.version }} to NPM"
-              echo ""
-              echo "Git tag created: v${{ needs.check-release.outputs.version }}"
-              echo ""
-            elif [ "${{ needs.publish.result }}" = "skipped" ]; then
-              echo "⏭️  No packages needed publishing for version ${{ needs.check-release.outputs.version }}"
-              echo ""
-              echo "All packages already exist in npm registry"
-            else
-              echo "❌ Failed to publish version ${{ needs.check-release.outputs.version }}"
-              echo ""
-              echo "Git tag has been rolled back to maintain consistency"
-              echo "Please check the logs above, fix the issue, and re-run the workflow"
-              exit 1
-            fi
-          else
-            echo "Version unchanged - no publishing needed"
-          fi

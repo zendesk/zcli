@@ -2,9 +2,17 @@ name: Create Release PR
 
 on:
   workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Release type (leave empty for standard stable release)'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - prerelease
+          - graduate
 
-# Prevent multiple release workflows from running simultaneously
-# Queued runs will fail fast when they detect the existing release branch
 concurrency:
   group: "release-pr"
   cancel-in-progress: false
@@ -24,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20.x"
+          node-version: "24.x"
           cache: "yarn"
 
       - name: Configure git
@@ -33,4 +41,4 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Run release script
-        run: bash scripts/create-release-pr.sh
+        run: bash scripts/create-release-pr.sh "${{ inputs.release-type }}"
