@@ -6,6 +6,8 @@ import { mkdirSync } from 'fs-extra'
 import { dirname, join, resolve } from 'path'
 
 export default class Create extends Command {
+  static description = 'scaffolds a new connector project'
+
   static examples = [
     '<%= config.bin %> <%= command.id %> connector-name'
   ]
@@ -17,7 +19,7 @@ export default class Create extends Command {
   static args = [
     {
       name: 'connector',
-      description: 'Name of the connector',
+      description: 'name of the connector',
       required: true
     }
   ]

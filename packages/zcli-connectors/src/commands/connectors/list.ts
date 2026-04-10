@@ -19,7 +19,7 @@ interface ListConnectorsResponse {
 }
 
 export default class List extends Command {
-  static description = 'list all private connectors for the current account'
+  static description = 'list private connectors for the current account'
 
   static examples = [
     '<%= config.bin %> <%= command.id %>'

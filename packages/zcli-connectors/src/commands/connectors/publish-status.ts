@@ -3,14 +3,14 @@ import { existsSync, readFileSync } from 'fs'
 import { join, resolve } from 'path'
 import * as chalk from 'chalk'
 import * as ora from 'ora'
-import { getProvisioningStatus } from '../../../lib/publish/status'
+import { getProvisioningStatus } from '../../lib/publish/status'
 
 export default class PublishStatus extends Command {
-  static description = 'check the provisioning status of a published connector'
+  static description = 'check the provisioning status of a connector'
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> ./example-connector'
+    '<%= config.bin %> <%= command.id %> ./my-connector'
   ]
 
   static flags = {

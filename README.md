@@ -60,6 +60,7 @@ WSL2 now [supports running Linux GUI application](https://docs.microsoft.com/en-
 ZCLI supports numerous commands. Further documentation on available commands can be found [here.](/docs)
 
 - [`$ zcli apps`](/docs/apps.md) - manage zendesk apps workflow.
+- [`$ zcli connectors`](/docs/connectors.md) - manage zendesk connectors workflow.
 - [`$ zcli themes`](/docs/themes.md) - manage zendesk themes workflow.
 - [`$ zcli profiles`](/docs/profiles.md) - manage zcli profiles.
 - [`$ zcli login`](/docs/login.md) - login to zendesk account.

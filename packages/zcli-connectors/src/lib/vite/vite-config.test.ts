@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable no-unused-expressions */
-import { expect, use } from 'chai'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
-import sinonChai from 'sinon-chai'
 import * as fs from 'fs'
+import { join } from 'path'
 import { ViteConfigBuilder, createConnectorViteConfig } from './vite-config'
 import { ManifestGenerator } from '../manifest-generator/generator'
-
-use(sinonChai)
 
 describe('ViteConfigBuilder', () => {
   let fsStubs: any
@@ -70,14 +68,28 @@ describe('ViteConfigBuilder', () => {
       await assetPlugin.writeBundle()
 
       // Verify directories were created - use flexible path matching
-      expect(fsStubs.mkdirSync).to.have.been.calledWith(sinon.match(/assets/), { recursive: true })
-      expect(fsStubs.mkdirSync).to.have.been.calledWith(sinon.match(/translations/), { recursive: true })
-      expect(fsStubs.mkdirSync).to.have.been.calledWith(sinon.match(/assets.*subdir/), { recursive: true })
+      expect(fsStubs.mkdirSync.called).to.be.true
+      expect(fsStubs.mkdirSync.firstCall.args).to.deep.equal([
+        join('/output', 'assets'), { recursive: true }
+      ])
+      expect(fsStubs.mkdirSync.secondCall.args).to.deep.equal([
+        join('/output', 'assets', 'subdir'), { recursive: true }
+      ])
+      expect(fsStubs.mkdirSync.thirdCall.args).to.deep.equal([
+        join('/output', 'translations'), { recursive: true }
+      ])
 
       // Verify files were copied
-      expect(fsStubs.copyFileSync).to.have.been.calledWith(sinon.match(/file1\.png/), sinon.match(/file1\.png/))
-      expect(fsStubs.copyFileSync).to.have.been.calledWith(sinon.match(/en\.json/), sinon.match(/en\.json/))
-      expect(fsStubs.copyFileSync).to.have.been.calledWith(sinon.match(/file2\.png/), sinon.match(/file2\.png/))
+      expect(fsStubs.copyFileSync.called).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/input', 'src', 'assets', 'file1.png'), join('/output', 'assets', 'file1.png')
+      ])
+      expect(fsStubs.copyFileSync.secondCall.args).to.deep.equal([
+        join('/input', 'src', 'assets', 'subdir', 'file2.png'), join('/output', 'assets', 'subdir', 'file2.png')
+      ])
+      expect(fsStubs.copyFileSync.thirdCall.args).to.deep.equal([
+        join('/input', 'src', 'translations', 'en.json'), join('/output', 'translations', 'en.json')
+      ])
     })
 
     it('should not copy assets or translations if directories do not exist', async () => {
@@ -97,7 +109,7 @@ describe('ViteConfigBuilder', () => {
 
       await assetPlugin.writeBundle()
 
-      expect(fsStubs.copyFileSync).not.to.have.been.called
+      expect(fsStubs.copyFileSync.called).to.be.false
     })
   })
 
@@ -132,11 +144,23 @@ describe('ViteConfigBuilder', () => {
       )
 
       await manifestPlugin.writeBundle()
+      expect(manifestStub.calledOnce).to.be.true
+      expect(manifestStub.firstCall.args).to.deep.equal([
+        { outputPath }
+      ])
 
-      expect(manifestStub).to.have.been.calledWith({ outputPath })
-      expect(fsStubs.mkdirSync).to.have.been.calledWith(sinon.match(/target/), { recursive: true })
-      expect(fsStubs.copyFileSync).to.have.been.calledWith(sinon.match(/manifest\.json/), sinon.match(/manifest\.json/))
-      expect(fsStubs.copyFileSync).to.have.been.calledWith(sinon.match(/connector\.js/), sinon.match(/connector\.js/))
+      expect(fsStubs.mkdirSync.called).to.be.true
+      expect(fsStubs.mkdirSync.firstCall.args).to.deep.equal([
+        targetDir, { recursive: true }
+      ])
+
+      expect(fsStubs.copyFileSync.called).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/output', 'manifest.json'), join('/target', 'manifest.json')
+      ])
+      expect(fsStubs.copyFileSync.secondCall.args).to.deep.equal([
+        join('/output', 'connector.js'), join('/target', 'connector.js')
+      ])
     })
 
     it('should handle manifest generation error', async () => {
@@ -157,16 +181,18 @@ describe('ViteConfigBuilder', () => {
         expect.fail('Should have thrown error')
       } catch (e) {
         expect(e).to.equal(error)
-        expect(consoleErrorStub).to.have.been.calledWith('Failed to generate manifest:', error)
+        expect(consoleErrorStub.called).to.be.true
+        expect(consoleErrorStub.firstCall.args).to.deep.equal(['Failed to generate manifest:', error])
       }
     })
 
     it('should generate manifest without copying in production mode', async () => {
       manifestStub.resolves()
 
+      const outputPath = '/output'
       const config = ViteConfigBuilder.createConfig({
         inputPath: '/input',
-        outputPath: '/output',
+        outputPath,
         mode: 'production'
       })
 
@@ -176,9 +202,12 @@ describe('ViteConfigBuilder', () => {
 
       await manifestPlugin.writeBundle()
 
-      expect(manifestStub).to.have.been.calledWith({ outputPath: '/output' })
-      expect(fsStubs.mkdirSync).not.to.have.been.called
-      expect(fsStubs.copyFileSync).not.to.have.been.called
+      expect(manifestStub.calledOnce).to.be.true
+      expect(manifestStub.firstCall.args).to.deep.equal([
+        { outputPath }
+      ])
+      expect(fsStubs.mkdirSync.called).to.be.false
+      expect(fsStubs.copyFileSync.called).to.be.false
     })
 
     it('should skip copying if no targetDir specified in development mode', async () => {
@@ -197,9 +226,9 @@ describe('ViteConfigBuilder', () => {
 
       await manifestPlugin.writeBundle()
 
-      expect(manifestStub).to.have.been.called
-      expect(fsStubs.mkdirSync).not.to.have.been.called
-      expect(fsStubs.copyFileSync).not.to.have.been.called
+      expect(manifestStub.calledOnce).to.be.true
+      expect(fsStubs.mkdirSync.called).to.be.false
+      expect(fsStubs.copyFileSync.called).to.be.false
     })
   })
 
@@ -253,10 +282,24 @@ describe('ViteConfigBuilder', () => {
 
       await manifestPlugin.writeBundle()
 
-      expect(fsStubs.mkdirSync).to.have.been.calledWith(sinon.match(/target/), { recursive: true })
-      expect(fsStubs.mkdirSync).to.have.been.calledWith(sinon.match(/target.*subdir/), { recursive: true })
-      expect(fsStubs.copyFileSync).to.have.been.calledWith(sinon.match(/file\.js/), sinon.match(/file\.js/))
-      expect(fsStubs.copyFileSync).to.have.been.calledWith(sinon.match(/nested\.js/), sinon.match(/nested\.js/))
+      expect(fsStubs.mkdirSync.called).to.be.true
+      expect(fsStubs.mkdirSync.firstCall.args).to.deep.equal([
+        targetDir, { recursive: true }
+      ])
+      expect(fsStubs.mkdirSync.secondCall.args).to.deep.equal([
+        targetDir, { recursive: true }
+      ])
+      expect(fsStubs.mkdirSync.thirdCall.args).to.deep.equal([
+        join(targetDir, 'subdir'), { recursive: true }
+      ])
+
+      expect(fsStubs.copyFileSync.called).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/output', 'subdir', 'nested.js'), join('/target', 'subdir', 'nested.js')
+      ])
+      expect(fsStubs.copyFileSync.secondCall.args).to.deep.equal([
+        join('/output', 'file.js'), join('/target', 'file.js')
+      ])
     })
   })
 })

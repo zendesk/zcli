@@ -19,6 +19,7 @@
     "@zendesk/zcli-apps": "^1.0.0-beta.54",
     "@zendesk/zcli-core": "^1.0.0-beta.55",
     "@zendesk/zcli-themes": "^1.0.0-beta.55",
+    "@zendesk/zcli-connectors": "^1.0.0-beta.55",
     "chalk": "^4.1.2",
     "tslib": "^2.4.0"
   },
@@ -49,7 +50,8 @@
       "@oclif/plugin-not-found",
       "@oclif/plugin-warn-if-update-available",
       "@zendesk/zcli-apps",
-      "@zendesk/zcli-themes"
+      "@zendesk/zcli-themes",
+      "@zendesk/zcli-connectors"
     ],
     "warn-if-update-available": {
       "timeoutInDays": 7,
@@ -64,6 +66,9 @@
       },
       "profiles": {
         "description": "manage cli user profiles"
+      },
+      "connectors": {
+        "description": "manage Zendesk connectors workflow"
       }
     }
   },

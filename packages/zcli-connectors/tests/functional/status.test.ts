@@ -5,7 +5,7 @@ import * as sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import * as path from 'path'
 import * as fs from 'fs'
-import PublishStatusCommand from '../../src/commands/connectors/publish/status'
+import PublishStatusCommand from '../../src/commands/connectors/publish-status'
 import * as statusModule from '../../src/lib/publish/status'
 import type { ProvisioningStatus } from '../../src/lib/publish/poller'
 
@@ -39,7 +39,7 @@ describe('publish:status', () => {
 
   describe('command configuration', () => {
     it('should have correct description', () => {
-      expect(PublishStatusCommand.description).to.equal('check the provisioning status of a published connector')
+      expect(PublishStatusCommand.description).to.equal('check the provisioning status of a connector')
     })
 
     it('should have help flag', () => {
@@ -56,7 +56,7 @@ describe('publish:status', () => {
     it('should have correct examples', () => {
       expect(PublishStatusCommand.examples).to.include.members([
         '<%= config.bin %> <%= command.id %>',
-        '<%= config.bin %> <%= command.id %> ./example-connector'
+        '<%= config.bin %> <%= command.id %> ./my-connector'
       ])
     })
   })
