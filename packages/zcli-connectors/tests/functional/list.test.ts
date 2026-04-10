@@ -12,7 +12,6 @@ describe('list command', () => {
   let listCommand: ListCommand
   let logStub: sinon.SinonStub
   let requestAPIStub: sinon.SinonStub
-  let stderrWriteStub: sinon.SinonStub
   let parseStub: sinon.SinonStub
 
   const mockConnectorData = [
@@ -40,7 +39,6 @@ describe('list command', () => {
     listCommand = new ListCommand([], {} as any)
     logStub = sinon.stub(listCommand, 'log')
     requestAPIStub = sinon.stub(request, 'requestAPI')
-    stderrWriteStub = sinon.stub(process.stderr, 'write')
   })
 
   afterEach(() => {
@@ -50,12 +48,6 @@ describe('list command', () => {
   describe('command flags', () => {
     it('should have help flag', () => {
       expect(ListCommand.flags.help).to.exist
-    })
-
-    it('should have json flag', () => {
-      expect(ListCommand.flags.json).to.exist
-      expect(ListCommand.flags.json.type).to.equal('boolean')
-      expect(ListCommand.flags.json.default).to.equal(false)
     })
 
     it('should have verbose flag with char v', () => {
@@ -70,7 +62,6 @@ describe('list command', () => {
     beforeEach(() => {
       parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
         flags: {
-          json: false,
           verbose: false,
           help: false
         }
@@ -125,69 +116,10 @@ describe('list command', () => {
     })
   })
 
-  describe('JSON output mode', () => {
-    beforeEach(() => {
-      parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
-        flags: {
-          json: true,
-          verbose: false,
-          help: false
-        }
-      })
-    })
-
-    it('should output JSON format when --json flag is set', async () => {
-      requestAPIStub.resolves({
-        status: 200,
-        data: { connectors: mockConnectorData }
-      })
-
-      await listCommand.run()
-
-      expect(logStub).to.have.been.calledOnce
-      const outputArg = logStub.firstCall.args[0]
-      const parsedOutput = JSON.parse(outputArg)
-
-      expect(parsedOutput).to.be.an('array')
-      expect(parsedOutput).to.have.lengthOf(2)
-      expect(parsedOutput[0]).to.have.property('connector_name', 'test-connector-1')
-      expect(parsedOutput[1]).to.have.property('connector_name', 'test-connector-2')
-    })
-
-    it('should output empty JSON array when no connectors exist', async () => {
-      requestAPIStub.resolves({
-        status: 200,
-        data: { connectors: [] }
-      })
-
-      await listCommand.run()
-
-      expect(logStub).to.have.been.calledOnce
-      const outputArg = logStub.firstCall.args[0]
-      const parsedOutput = JSON.parse(outputArg)
-
-      expect(parsedOutput).to.be.an('array')
-      expect(parsedOutput).to.have.lengthOf(0)
-    })
-
-    it('should not output spinner in JSON mode', async () => {
-      requestAPIStub.resolves({
-        status: 200,
-        data: { connectors: mockConnectorData }
-      })
-
-      await listCommand.run()
-
-      // In JSON mode, no spinner-related logs should be on stdout
-      expect(logStub).to.have.been.calledOnce
-    })
-  })
-
   describe('verbose mode', () => {
     beforeEach(() => {
       parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
         flags: {
-          json: false,
           verbose: true,
           help: false
         }
@@ -205,41 +137,12 @@ describe('list command', () => {
       expect(logStub).to.have.been.calledWith(sinon.match(/Verbose mode enabled/))
       expect(logStub).to.have.been.calledWith(sinon.match(/API response status: 200/))
     })
-
-    it('should log verbose messages to stderr in JSON mode', async () => {
-      parseStub.restore()
-      parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
-        flags: {
-          json: true,
-          verbose: true,
-          help: false
-        }
-      })
-
-      requestAPIStub.resolves({
-        status: 200,
-        data: { connectors: mockConnectorData }
-      })
-
-      await listCommand.run()
-
-      // Verbose logs should go to stderr, not stdout
-      expect(stderrWriteStub).to.have.been.called
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/Verbose mode enabled/))
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/API response status: 200/))
-
-      // Only JSON output should be on stdout
-      expect(logStub).to.have.been.calledOnce
-      const outputArg = logStub.firstCall.args[0]
-      expect(() => JSON.parse(outputArg)).to.not.throw()
-    })
   })
 
   describe('error handling - non-200 responses', () => {
     beforeEach(() => {
       parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
         flags: {
-          json: false,
           verbose: false,
           help: false
         }
@@ -267,40 +170,6 @@ describe('list command', () => {
 
       expect(logStub).to.have.been.calledWith(sinon.match(/API returned non-200 status: 500/))
     })
-
-    it('should route non-200 errors to stderr in JSON mode', async () => {
-      parseStub.restore()
-      parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
-        flags: {
-          json: true,
-          verbose: false,
-          help: false
-        }
-      })
-
-      const errorStub = sinon.stub(listCommand, 'error').callsFake((message: any) => {
-        const err = new Error(String(message))
-        throw err
-      })
-
-      requestAPIStub.resolves({
-        status: 404,
-        data: { error: 'Not Found' }
-      })
-
-      try {
-        await listCommand.run()
-        expect.fail('Should have thrown an error')
-      } catch (error) {
-        // Expected to throw
-      }
-
-      // Error should go through this.error() in JSON mode
-      expect(errorStub).to.have.been.calledWith(
-        'API returned non-200 status: 404',
-        sinon.match({ exit: 1 })
-      )
-    })
   })
 
   describe('error handling - API failures', () => {
@@ -310,7 +179,6 @@ describe('list command', () => {
     beforeEach(() => {
       parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
         flags: {
-          json: false,
           verbose: false,
           help: false
         }
@@ -367,7 +235,6 @@ describe('list command', () => {
       parseStub.restore()
       parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
         flags: {
-          json: false,
           verbose: true,
           help: false
         }
@@ -386,38 +253,12 @@ describe('list command', () => {
       expect(logStub).to.have.been.calledWith(sinon.match(/Error Details:/))
       expect(logStub).to.have.been.calledWith(sinon.match(/Detailed error message/))
     })
-
-    it('should route verbose error details to stderr in JSON mode', async () => {
-      parseStub.restore()
-      parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
-        flags: {
-          json: true,
-          verbose: true,
-          help: false
-        }
-      })
-
-      const detailedError = new Error('Error in JSON mode')
-      requestAPIStub.rejects(detailedError)
-
-      try {
-        await listCommand.run()
-        expect.fail('Should have thrown an error')
-      } catch (error) {
-        caughtError = error as Error
-      }
-
-      // Verbose error details should go to stderr
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/Error Details:/))
-      expect(stderrWriteStub).to.have.been.calledWith(sinon.match(/Error in JSON mode/))
-    })
   })
 
   describe('API response edge cases', () => {
     beforeEach(() => {
       parseStub = sinon.stub(listCommand, 'parse' as any).resolves({
         flags: {
-          json: false,
           verbose: false,
           help: false
         }
