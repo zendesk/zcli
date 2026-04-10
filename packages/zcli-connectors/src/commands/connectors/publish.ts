@@ -61,7 +61,6 @@ export default class Publish extends Command {
       await this.validateConnector(inputPath, flags)
       if (!flags.validationOnly) {
         await this.publishConnector(inputPath)
-        this.log(chalk.green('✓ Connector published successfully!'))
       } else {
         this.log(chalk.green('✓ Connector validation completed successfully!'))
       }

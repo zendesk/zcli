@@ -6,6 +6,7 @@ The `zcli connectors` commands help manage Zendesk connector workflows.
 * [`zcli connectors:bump [PATH]`](#zcli-connectorsbump-path)
 * [`zcli connectors:bundle [PATH]`](#zcli-connectorsbundle-path)
 * [`zcli connectors:create CONNECTOR`](#zcli-connectorscreate-connector)
+* [`zcli connectors:delete [CONNECTOR]`](#zcli-connectorsdelete-connector)
 * [`zcli connectors:list`](#zcli-connectorslist)
 * [`zcli connectors:publish [PATH]`](#zcli-connectorspublish-path)
 * [`zcli connectors:publish-status [PATH]`](#zcli-connectorspublish-status-path)
@@ -68,6 +69,28 @@ ARGUMENTS
 
 EXAMPLE
   $ zcli connectors:create connector-name
+```
+
+## `zcli connectors:delete [CONNECTOR]`
+
+delete a private connector from your account
+
+```
+USAGE
+  $ zcli connectors:delete [CONNECTOR]
+
+ARGUMENTS
+  CONNECTOR  name of the connector to delete
+
+OPTIONS
+  -h, --help     show CLI help
+  -v, --verbose  verbose output
+  -f, --force    skip confirmation prompt
+
+EXAMPLES
+  $ zcli connectors:delete my-connector
+  $ zcli connectors:delete
+  $ zcli connectors:delete my-connector --force
 ```
 
 ## `zcli connectors:list`
