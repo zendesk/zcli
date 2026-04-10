@@ -34,22 +34,18 @@ describe('rewriteTemplates', () => {
     ])
   })
 
-  it('ignores write errors', () => {
+  it('throws an error when file cannot be written', () => {
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
 
-    writeFileSyncStub.onFirstCall().throws(new Error('Permission denied'))
-    writeFileSyncStub.onSecondCall().returns(undefined)
+    writeFileSyncStub.throws(new Error('Permission denied'))
 
     const templates = {
-      home_page: '<h1>Updated Home</h1>',
-      article_page: '<h1>Updated Article</h1>'
+      home_page: '<h1>Updated Home</h1>'
     }
 
     expect(() => {
       rewriteTemplates('theme/path', templates)
-    }).to.not.throw()
-
-    expect(writeFileSyncStub.callCount).to.equal(2)
+    }).to.throw('Failed to write template file: theme/path/templates/home_page.hbs')
   })
 
   it('handles empty templates object', () => {
