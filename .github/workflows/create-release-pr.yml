@@ -1,0 +1,44 @@
+name: Create Release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Release type (leave empty for standard stable release)'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - prerelease
+          - graduate
+
+concurrency:
+  group: "release-pr"
+  cancel-in-progress: false
+
+jobs:
+  create-release-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: "yarn"
+
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Run release script
+        run: bash scripts/create-release-pr.sh "${{ inputs.release-type }}"

@@ -102,9 +102,8 @@ Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are 
 
 # Releasing
 
-Running the following command will create release tags, generate change logs docs and publish to npm.
-
-[`$ ./scripts/release.sh`](./scripts/release.sh)
+1. Run the ["Create Release PR" workflow](https://github.com/zendesk/zcli/actions/workflows/create-release-pr.yml)
+2. Once the release PR is merged, a new version will be released and published to [npm](https://www.npmjs.com/package/@zendesk/zcli).
 
 # License
 
