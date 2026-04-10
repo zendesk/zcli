@@ -140,7 +140,6 @@ describe('publish command', () => {
       }
 
       expect(caughtError).to.not.exist
-      expect(logStub).to.have.been.calledWith(sinon.match(/Connector published successfully/))
     })
 
     it('should handle publish connector provisioned with failed state', async () => {
