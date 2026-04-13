@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     env:
       RELEASE_BRANCH: zcli-release
     steps:
@@ -57,6 +58,7 @@ jobs:
           yarn install --frozen-lockfile
 
       - name: Version bump and update changelog
+        id: version_bump
         run: |
           yarn lerna version \
             --conventional-commits \
@@ -64,7 +66,24 @@ jobs:
             --no-git-tag-version \
             --yes
 
+          VERSION=$(node -p "require('./lerna.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Commit and push changes
         run: |
           git commit -am "chore(release): version bump"
           git push origin $RELEASE_BRANCH
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version_bump.outputs.version }}"
+
+          gh pr create \
+            --base master \
+            --head $RELEASE_BRANCH \
+            --title "chore(release): v$VERSION" \
+            --body "## Release v$VERSION
+          Version bump and changelog updates.
+          Merging this PR will trigger the release process."
