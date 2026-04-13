@@ -8,47 +8,17 @@ on:
       - 'lerna.json'
 
 jobs:
-  check-release:
-    name: Check for Version Change
-    runs-on: ubuntu-latest
-    outputs:
-      should-publish: ${{ steps.check.outputs.should-publish }}
-      version: ${{ steps.check.outputs.version }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 2
-
-      - name: Check if version changed in lerna.json
-        id: check
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' lerna.json)
-          echo "Current version: $CURRENT_VERSION"
-
-          PREVIOUS_VERSION=$(git show HEAD~1:lerna.json | jq -r '.version')
-          echo "Previous version: $PREVIOUS_VERSION"
-
-          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
-            echo "should-publish=true" >> $GITHUB_OUTPUT
-            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-            echo "Version changed from $PREVIOUS_VERSION to $CURRENT_VERSION - will publish"
-          else
-            echo "should-publish=false" >> $GITHUB_OUTPUT
-            echo "Version unchanged ($CURRENT_VERSION) - skipping publish"
-          fi
-
   publish:
     name: Build and Publish to NPM
-    needs: check-release
-    if: needs.check-release.outputs.should-publish == 'true'
     runs-on: ubuntu-latest
     environment: npm-publish
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -72,31 +42,39 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
       - name: Verify NPM Authentication
         run: |
-          echo "Testing NPM authentication..."
           NPM_USER=$(npm whoami)
           echo "Authenticated as: $NPM_USER"
 
+      - name: Create git tag
+        id: version
+        run: |
+          VERSION=$(node -p "require('./lerna.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+
       - name: Publish to NPM
         run: |
-          echo "Publishing packages to npm..."
-          echo ""
-
           TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
 
-          yarn lerna publish from-package \
+          yarn lerna publish from-git \
             --yes \
             --no-verify-access \
             --otp $TOTP
-
-          echo ""
-          echo "Publish completed successfully!"
-          echo "Packages published to NPM"
-          echo "Git tag v${{ needs.check-release.outputs.version }} was created during PR merge"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
+
+      - name: Push git tag
+        if: success()
+        run: |
+          git push origin "v${{ steps.version.outputs.version }}"
 
       - name: Clean up NPM config
         if: always()

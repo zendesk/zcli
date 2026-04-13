@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      RELEASE_BRANCH: zcli-release
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -40,5 +42,31 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: Run release script
-        run: bash scripts/create-release-pr.sh "${{ inputs.release-type }}"
+      - name: Check if release branch exists
+        run: |
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+              echo "Error: Release branch '$RELEASE_BRANCH' already exists on remote."
+              echo 'Please close/merge the existing release PR first, then delete the branch.'
+              exit 1
+          fi
+
+      - name: Create release branch
+        run: |
+          git checkout -b "$RELEASE_BRANCH"
+
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Version bump and update changelog
+        run: |
+          yarn lerna version \
+            --conventional-commits \
+            ${{ inputs.release-type }} \
+            --no-git-tag-version \
+            --yes
+
+      - name: Commit and push changes
+        run: |
+          git commit -am "chore(release): version bump"
+          git push origin $RELEASE_BRANCH
