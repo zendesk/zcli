@@ -4,14 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       release-type:
-        description: 'Release type (leave empty for standard stable release)'
-        required: false
-        default: ''
+        description: 'Release type'
+        required: true
         type: choice
         options:
-          - ''
-          - prerelease
-          - graduate
+          - '--preid beta'
+          - '--conventional-graduate'
 
 concurrency:
   group: "release-pr"

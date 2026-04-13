@@ -53,7 +53,7 @@ jobs:
           echo "Authenticated as: $NPM_USER"
 
       - name: Create git tag
-        id: version
+        id: create_tag
         run: |
           VERSION=$(node -p "require('./lerna.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -74,7 +74,7 @@ jobs:
       - name: Push git tag
         if: success()
         run: |
-          git push origin "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.create_tag.outputs.version }}"
 
       - name: Clean up NPM config
         if: always()
