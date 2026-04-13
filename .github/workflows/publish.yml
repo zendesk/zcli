@@ -72,7 +72,6 @@ jobs:
           NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
 
       - name: Push git tag
-        if: success()
         run: |
           git push origin "v${{ steps.create_tag.outputs.version }}"
 
