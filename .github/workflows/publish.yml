@@ -34,7 +34,9 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install oathtool for 2FA
-        run: sudo apt-get install --fix-broken --yes oathtool
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes oathtool
 
       - name: Configure NPM Authentication
         run: |
