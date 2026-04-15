@@ -1,0 +1,42 @@
+name: Create Version Tag
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'lerna.json'
+
+concurrency:
+  group: "version-tag"
+  cancel-in-progress: false
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if version changed
+        id: check_version
+        run: |
+          if git diff HEAD^ lerna.json | grep -q '^+.*"version":'; then
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: steps.check_version.outputs.version_changed == 'true'
+        run: |
+          VERSION=$(grep '"version":' lerna.json | sed 's/.*"version": "\([^"]*\)".*/\1/')
+          TAG_NAME="v$VERSION"
+
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "$TAG_NAME"
