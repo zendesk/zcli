@@ -87,7 +87,4 @@ jobs:
             --body "## Release v$VERSION
           Version bump and changelog updates.
 
-          Release type: ${{ inputs.release-type }}
-          Triggered by: ${{ github.actor }}
-
-          Merging this PR will trigger the release process."
+          Triggered by: ${{ github.actor }}"
