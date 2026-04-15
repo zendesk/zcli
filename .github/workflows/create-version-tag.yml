@@ -28,7 +28,7 @@ jobs:
       - name: Create and push tag
         if: steps.check_version.outputs.version_changed == 'true'
         run: |
-          VERSION=$(grep '^  "version":' lerna.json | sed 's/"version": "\([^"]*\)"/\1/')
+          VERSION=$(grep '^  "version":' lerna.json | sed 's/.*"version": "\([^"]*\)".*/\1/')
           TAG_NAME="v$VERSION"
 
           git config --global user.name "${{ github.actor }}"
