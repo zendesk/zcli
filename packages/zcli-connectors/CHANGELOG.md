@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.57](https://github.com/zendesk/zcli/compare/v1.0.0-beta.56...v1.0.0-beta.57) (2026-04-17)
+
+
+### Bug Fixes
+
+* dedicated 404 error handling and improved error messages for connectors delete command ([103fb63](https://github.com/zendesk/zcli/commit/103fb634af7e33459c1034ba8f68a3c3baf5e673))
+* use project-local tsc for type checking ([d51c611](https://github.com/zendesk/zcli/commit/d51c61187e327ef2db227887ff03c611160ffd02))
+
+
+
+
+
 # [1.0.0-beta.56](https://github.com/zendesk/zcli/compare/v1.0.0-beta.55...v1.0.0-beta.56) (2026-04-10)
 
 
