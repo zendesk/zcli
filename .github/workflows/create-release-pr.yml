@@ -84,18 +84,21 @@ jobs:
             --base master \
             --head $RELEASE_BRANCH \
             --title "chore(release): v$VERSION" \
-            --body "## Release v$VERSION
-          Version bump and changelog updates.
+            --body "$(cat <<EOF
+## Release v$VERSION
+Version bump and changelog updates.
 
-          Triggered by: ${{ github.actor }}
+Triggered by: ${{ github.actor }}
 
-          <!-- === GH HISTORY FORMAT FENCE === -->
-          <!--
-          ### [\`%h\`]({{.url}}/commits/%H) %s%n%n%b%n
-          -->
-          <!-- === GH HISTORY FORMAT FENCE === -->
-          <!-- === GH HISTORY FENCE === -->
-          Do NOT write here! This section will be filled in by GitHub Action
-          automatically. If you don't want this, either remove the markers or write
-          outside the fences.
-          <!-- === GH HISTORY FENCE === -->"
+<!-- === GH HISTORY FORMAT FENCE === -->
+<!--
+### [\`%h\`]({{.url}}/commits/%H) %s%n%n%b%n
+-->
+<!-- === GH HISTORY FORMAT FENCE === -->
+<!-- === GH HISTORY FENCE === -->
+Do NOT write here! This section will be filled in by GitHub Action
+automatically. If you don't want this, either remove the markers or write
+outside the fences.
+<!-- === GH HISTORY FENCE === -->
+EOF
+)"
