@@ -49,7 +49,7 @@ jobs:
         run: |
           TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
 
-          yarn lerna publish from-git \
+          yarn lerna publish from-package \
             --yes \
             --no-verify-access \
             --otp $TOTP
