@@ -81,7 +81,7 @@ jobs:
           VERSION="${{ steps.version_bump.outputs.version }}"
 
           gh pr create \
-            --base master \
+            --base "test/pr-creation" \
             --head $RELEASE_BRANCH \
             --title "chore(release): v$VERSION" \
             --body-file - <<EOF
