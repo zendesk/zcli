@@ -40,9 +40,11 @@ jobs:
         run: |
           TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
 
+          npm whoami
+
           yarn lerna publish from-package \
             --yes \
-            --otp $TOTP
+            --otp "${TOTP}"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
