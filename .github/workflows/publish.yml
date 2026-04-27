@@ -51,7 +51,6 @@ jobs:
 
           yarn lerna publish from-package \
             --yes \
-            --no-verify-access \
             --otp $TOTP
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
