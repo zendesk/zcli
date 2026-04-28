@@ -23,7 +23,7 @@ export default class List extends Command {
   async run () {
     let { flags: { brandId } } = await this.parse(List)
 
-    brandId = brandId || await getBrandId()
+    brandId = brandId || await getBrandId('What brand should the themes be listed for?')
 
     try {
       CliUx.ux.action.start('Listing themes')
