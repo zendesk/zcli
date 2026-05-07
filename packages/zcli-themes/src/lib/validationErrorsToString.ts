@@ -6,7 +6,7 @@ export default function validationErrorsToString (themePath: string, validationE
 
   for (const [template, errors] of Object.entries(validationErrors)) {
     for (const { line, column, description } of errors) {
-      string += `\n${chalk.bold('Validation error')} ${themePath}/${template}${line && column ? `:${line}:${column}` : ''}\n ${description}\n`
+      string += `\n${chalk.bold('Validation error')} ${themePath}/${template}${line !== undefined && column !== undefined ? `:${line}:${column}` : ''}\n ${description}\n`
     }
   }
 
