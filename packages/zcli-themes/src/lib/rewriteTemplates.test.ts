@@ -9,6 +9,7 @@ describe('rewriteTemplates', () => {
   })
 
   it('writes templates to the correct file paths', () => {
+    sinon.stub(fs, 'mkdirSync')
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
 
     const templates = {
@@ -35,6 +36,7 @@ describe('rewriteTemplates', () => {
   })
 
   it('throws an error when file cannot be written', () => {
+    sinon.stub(fs, 'mkdirSync')
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
 
     writeFileSyncStub.throws(new Error('Permission denied'))
@@ -58,7 +60,8 @@ describe('rewriteTemplates', () => {
     expect(writeFileSyncStub.callCount).to.equal(0)
   })
 
-  it('handles nested template paths correctly', () => {
+  it('creates intermediate directories for nested template paths', () => {
+    const mkdirSyncStub = sinon.stub(fs, 'mkdirSync')
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
 
     const templates = {
@@ -68,6 +71,15 @@ describe('rewriteTemplates', () => {
 
     rewriteTemplates('theme/path', templates)
 
+    expect(mkdirSyncStub.callCount).to.equal(2)
+    expect(mkdirSyncStub.firstCall.args).to.deep.equal([
+      'theme/path/templates/article_pages',
+      { recursive: true }
+    ])
+    expect(mkdirSyncStub.secondCall.args).to.deep.equal([
+      'theme/path/templates/custom_pages/deep/nested',
+      { recursive: true }
+    ])
     expect(writeFileSyncStub.callCount).to.equal(2)
     expect(writeFileSyncStub.firstCall.args).to.deep.equal([
       'theme/path/templates/article_pages/product_updates.hbs',
