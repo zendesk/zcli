@@ -18,9 +18,9 @@ export default class Migrate extends Command {
   static strict = false
 
   async run () {
-    const { flags, argv: [themeDirectory] } = await this.parse(Migrate)
+    const { argv: [themeDirectory] } = await this.parse(Migrate)
     const themePath = path.resolve(themeDirectory)
 
-    await migrate(themePath, flags)
+    await migrate(themePath)
   }
 }

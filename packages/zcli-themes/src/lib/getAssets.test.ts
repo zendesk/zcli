@@ -39,6 +39,30 @@ describe('getAssets', () => {
     ])
   })
 
+  it('returns basenames as urls when flags are not provided', () => {
+    const existsSyncStub = sinon.stub(fs, 'existsSync')
+    const readdirSyncStub = sinon.stub(fs, 'readdirSync')
+
+    existsSyncStub
+      .withArgs('theme/path/assets')
+      .returns(true)
+
+    readdirSyncStub.returns(['foo.png', 'bar.png'] as any)
+
+    const assets = getAssets('theme/path')
+
+    expect(assets).to.deep.equal([
+      [
+        { base: 'foo.png', dir: '', ext: '.png', name: 'foo', root: '' },
+        'foo.png'
+      ],
+      [
+        { base: 'bar.png', dir: '', ext: '.png', name: 'bar', root: '' },
+        'bar.png'
+      ]
+    ])
+  })
+
   it('throws an error when an asset has illegal characters in its name', () => {
     const existsSyncStub = sinon.stub(fs, 'existsSync')
     const readdirSyncStub = sinon.stub(fs, 'readdirSync')

@@ -4,7 +4,7 @@ import * as path from 'path'
 import { CLIError } from '@oclif/core/lib/errors'
 import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
 
-export default function getVariables (themePath: string, settings: Setting[], flags: Flags): Variable[] {
+export default function getVariables (themePath: string, settings: Setting[], flags?: Flags): Variable[] {
   const settingsPath = `${themePath}/settings`
   const filenames = fs.existsSync(settingsPath) ? fs.readdirSync(settingsPath) : []
 
@@ -18,7 +18,7 @@ export default function getVariables (themePath: string, settings: Setting[], fl
             `The setting "${variable.identifier}" of type "file" does not have a matching file within the "settings" folder`
           )
         }
-        variable.value = file && `${getLocalServerBaseUrl(flags)}/guide/settings/${file}`
+        variable.value = flags ? `${getLocalServerBaseUrl(flags)}/guide/settings/${file}` : file
       }
       return variable
     })

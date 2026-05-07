@@ -27,13 +27,6 @@ const manifest = {
   ]
 }
 
-const flags = {
-  bind: 'localhost',
-  port: 1000,
-  logs: true,
-  livereload: false
-}
-
 describe('migrate', () => {
   beforeEach(() => {
     sinon.restore()
@@ -56,16 +49,16 @@ describe('migrate', () => {
       'custom_pages/faq': '<h1>FAQ</h1>'
     })
 
-    getVariablesStub.withArgs('theme/path', manifest.settings, flags).returns([
+    getVariablesStub.withArgs('theme/path', manifest.settings).returns([
       { identifier: 'color', type: 'color', value: '#999' },
       {
         identifier: 'logo',
         type: 'file',
-        value: 'http://localhost:1000/guide/settings/logo.png'
+        value: 'logo.png'
       }
     ])
 
-    getAssetsStub.withArgs('theme/path', flags).returns([
+    getAssetsStub.withArgs('theme/path').returns([
       [
         {
           base: 'background.png',
@@ -74,7 +67,7 @@ describe('migrate', () => {
           name: 'background',
           root: ''
         },
-        'http://localhost:1000/guide/assets/background.png'
+        'background.png'
       ]
     ])
 
@@ -98,7 +91,7 @@ describe('migrate', () => {
       }) as axios.AxiosPromise
     )
 
-    await migrate('theme/path', flags)
+    await migrate('theme/path')
 
     expect(
       requestStub.calledWith(
@@ -114,12 +107,11 @@ describe('migrate', () => {
               'article_pages/product_updates': '<h1>Product updates</h1>',
               'custom_pages/faq': '<h1>FAQ</h1>',
               assets: {
-                'background.png':
-                  'http://localhost:1000/guide/assets/background.png'
+                'background.png': 'background.png'
               },
               variables: {
                 color: '#999',
-                logo: 'http://localhost:1000/guide/settings/logo.png'
+                logo: 'logo.png'
               },
               metadata: { api_version: 1 }
             }
@@ -178,7 +170,7 @@ describe('migrate', () => {
     const errorStub = sinon.stub(errors, 'error').callThrough()
 
     try {
-      await migrate('theme/path', flags)
+      await migrate('theme/path')
     } catch {
       const [call] = errorStub.getCalls()
       const [error] = call.args
@@ -206,7 +198,7 @@ describe('migrate', () => {
     const errorStub = sinon.stub(errors, 'error').callThrough()
 
     try {
-      await migrate('theme/path', flags)
+      await migrate('theme/path')
     } catch {
       const [call] = errorStub.getCalls()
       const [error] = call.args
@@ -230,7 +222,7 @@ describe('migrate', () => {
     const errorStub = sinon.stub(errors, 'error').callThrough()
 
     try {
-      await migrate('theme/path', flags)
+      await migrate('theme/path')
     } catch {
       const [call] = errorStub.getCalls()
       const [error] = call.args
@@ -250,7 +242,7 @@ describe('migrate', () => {
     const errorStub = sinon.stub(errors, 'error').callThrough()
 
     try {
-      await migrate('theme/path', flags)
+      await migrate('theme/path')
     } catch {
       const [call] = errorStub.getCalls()
       const [error] = call.args

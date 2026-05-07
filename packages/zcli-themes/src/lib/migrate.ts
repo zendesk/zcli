@@ -1,4 +1,4 @@
-import type { Flags, ValidationErrors } from '../types'
+import type { ValidationErrors } from '../types'
 import getManifest from './getManifest'
 import getTemplates from './getTemplates'
 import getVariables from './getVariables'
@@ -14,11 +14,11 @@ import rewriteAssets from './rewriteAssets'
 import handleTemplateError from './handleTemplateError'
 import parseAxiosError from './parseAxiosError'
 
-export default async function migrate (themePath: string, flags: Flags): Promise<string | void> {
+export default async function migrate (themePath: string): Promise<string | void> {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
-  const variables = getVariables(themePath, manifest.settings, flags)
-  const assets = getAssets(themePath, flags)
+  const variables = getVariables(themePath, manifest.settings)
+  const assets = getAssets(themePath)
 
   const variablesPayload = variables.reduce((payload, variable) => ({
     ...payload,
