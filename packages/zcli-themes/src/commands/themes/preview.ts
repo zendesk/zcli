@@ -99,7 +99,7 @@ export default class Preview extends Command {
       `${themePath}/style.css`
     ]
 
-    const watcher = chokidar.watch(monitoredPaths).on('change', async (path) => {
+    const handleThemeChange = async (path: string) => {
       this.log(chalk.bold('Change'), path)
       try {
         await preview(themePath, flags)
@@ -111,7 +111,12 @@ export default class Preview extends Command {
       } catch (e) {
         this.error(e as Error, { exit: false })
       }
-    })
+    }
+
+    const watcher = chokidar.watch(monitoredPaths, { ignoreInitial: true })
+      .on('add', handleThemeChange)
+      .on('change', handleThemeChange)
+      .on('unlink', handleThemeChange)
 
     return {
       close: () => {
