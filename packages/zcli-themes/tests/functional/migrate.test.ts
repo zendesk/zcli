@@ -11,6 +11,7 @@ describe('themes:migrate', function () {
   let fetchStub: sinon.SinonStub
   let manifestBackup: string
   let templateBackup: string
+  const migratedAssetPath = path.join(baseThemePath, 'assets/category_tree.js')
 
   beforeEach(() => {
     fetchStub = sinon.stub(global, 'fetch')
@@ -33,6 +34,10 @@ describe('themes:migrate', function () {
       path.join(baseThemePath, 'templates/document_head.hbs'),
       templateBackup
     )
+    // Clean up migrated asset
+    if (fs.existsSync(migratedAssetPath)) {
+      fs.unlinkSync(migratedAssetPath)
+    }
   })
 
   describe('successful migration', () => {
@@ -55,6 +60,9 @@ describe('themes:migrate', function () {
                 },
                 templates: {
                   document_head: '{{!chat (obsolete)}}'
+                },
+                assets: {
+                  'category_tree.js': Buffer.from('console.log("category_tree");\n').toString('base64')
                 }
               })
             )
@@ -77,6 +85,10 @@ describe('themes:migrate', function () {
           'utf8'
         )
         expect(template).to.contain('{{!chat (obsolete)}}')
+
+        // Verify asset was written
+        const asset = fs.readFileSync(migratedAssetPath, 'utf8')
+        expect(asset).to.equal('console.log("category_tree");\n')
       })
   })
 

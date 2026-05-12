@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'lerna.json'
+      - lerna.json
 
 jobs:
   create-tag:

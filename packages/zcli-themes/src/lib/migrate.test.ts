@@ -6,6 +6,7 @@ import * as getVariables from './getVariables'
 import * as getAssets from './getAssets'
 import * as rewriteManifest from './rewriteManifest'
 import * as rewriteTemplates from './rewriteTemplates'
+import * as rewriteAssets from './rewriteAssets'
 import * as axios from 'axios'
 import { request } from '@zendesk/zcli-core'
 import * as errors from '@oclif/core/lib/errors'
@@ -45,6 +46,7 @@ describe('migrate', () => {
     const getAssetsStub = sinon.stub(getAssets, 'default')
     const rewriteManifestStub = sinon.stub(rewriteManifest, 'default')
     const rewriteTemplatesStub = sinon.stub(rewriteTemplates, 'default')
+    const rewriteAssetsStub = sinon.stub(rewriteAssets, 'default')
     const requestStub = sinon.stub(request, 'requestAPI')
 
     getManifestStub.withArgs('theme/path').returns(manifest)
@@ -88,6 +90,9 @@ describe('migrate', () => {
             home_page: '<h1>Updated Home</h1>',
             'article_pages/product_updates': '<h1>Updated Product updates</h1>',
             'custom_pages/faq': '<h1>Updated FAQ</h1>'
+          },
+          assets: {
+            'category_tree.js': Buffer.from('console.log("tree")').toString('base64')
           }
         }
       }) as axios.AxiosPromise
@@ -129,6 +134,12 @@ describe('migrate', () => {
         home_page: '<h1>Updated Home</h1>',
         'article_pages/product_updates': '<h1>Updated Product updates</h1>',
         'custom_pages/faq': '<h1>Updated FAQ</h1>'
+      })
+    ).to.equal(true)
+
+    expect(
+      rewriteAssetsStub.calledWith('theme/path', {
+        'category_tree.js': Buffer.from('console.log("tree")').toString('base64')
       })
     ).to.equal(true)
   })

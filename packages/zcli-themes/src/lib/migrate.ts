@@ -10,6 +10,7 @@ import { CliUx } from '@oclif/core'
 import type { AxiosError } from 'axios'
 import rewriteTemplates from './rewriteTemplates'
 import rewriteManifest from './rewriteManifest'
+import rewriteAssets from './rewriteAssets'
 import handleTemplateError from './handleTemplateError'
 import parseAxiosError from './parseAxiosError'
 
@@ -50,6 +51,7 @@ export default async function migrate (themePath: string, flags: Flags): Promise
     })
     rewriteManifest(themePath, data.metadata.api_version)
     rewriteTemplates(themePath, data.templates)
+    rewriteAssets(themePath, data.assets)
     CliUx.ux.action.stop('Ok')
   } catch (e) {
     CliUx.ux.action.stop(chalk.bold.red('!'))

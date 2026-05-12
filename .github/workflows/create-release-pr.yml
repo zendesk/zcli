@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       release-type:
-        description: 'Release type. `--conventional-prerelease` for prerelease or `--conventional-graduate` for stable.'
+        description: Release type. `--conventional-prerelease` for prerelease or `--conventional-graduate` for stable.
         required: true
         type: choice
         options:
-          - '--conventional-prerelease --preid beta'
-          - '--conventional-graduate'
+          - --conventional-prerelease --preid beta
+          - --conventional-graduate
 
 concurrency:
-  group: "release-pr"
+  group: release-pr
   cancel-in-progress: false
 
 jobs:
@@ -33,8 +33,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
-          cache: "yarn"
+          node-version-file: .node-version
+          cache: yarn
 
       - name: Configure git
         run: |

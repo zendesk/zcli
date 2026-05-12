@@ -21,8 +21,8 @@ jobs:
       - name: Use Node.js
         uses: zendesk/setup-node@v4
         with:
-          node-version: "${{ matrix.node-version }}"
-          cache: "yarn"
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
       - uses: zendesk/cache@v3
         with:
           path: |

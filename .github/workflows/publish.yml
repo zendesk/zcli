@@ -3,7 +3,7 @@ name: Publish to NPM
 on:
   push:
     tags:
-      - 'v*'
+      - v*
 
 permissions:
   contents: read
@@ -19,8 +19,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
-          cache: 'yarn'
+          node-version-file: .node-version
+          cache: yarn
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -32,31 +32,16 @@ jobs:
 
       - name: Configure NPM Authentication
         run: |
-          cat << EOF > .npmrc
-          //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          registry=https://registry.npmjs.org/
-          always-auth=true
-          EOF
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Verify NPM Authentication
-        run: |
-          NPM_USER=$(npm whoami)
-          echo "Authenticated as: $NPM_USER"
+          npm config set //registry.npmjs.org/:_authToken \${NPM_TOKEN} \
+            --location=project
 
       - name: Publish to NPM
         run: |
           TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
 
-          yarn lerna publish from-package \
+          yarn --silent lerna publish from-package \
             --yes \
-            --no-verify-access \
             --otp $TOTP
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
-
-      - name: Clean up NPM config
-        if: always()
-        run: rm -f .npmrc
