@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
 
-export default function getAssets (themePath: string, flags: Flags): [path.ParsedPath, string][] {
+export default function getAssets (themePath: string, flags?: Flags): [path.ParsedPath, string][] {
   const assetsPath = `${themePath}/assets`
   const filenames = fs.existsSync(assetsPath) ? fs.readdirSync(assetsPath) : []
   const assets: [path.ParsedPath, string][] = []
@@ -18,7 +18,8 @@ export default function getAssets (themePath: string, flags: Flags): [path.Parse
       )
     }
     if (!name.startsWith('.')) {
-      assets.push([parsedPath, `${getLocalServerBaseUrl(flags)}/guide/assets/${filename}`])
+      const url = flags ? `${getLocalServerBaseUrl(flags)}/guide/assets/${filename}` : filename
+      assets.push([parsedPath, url])
     }
   })
 

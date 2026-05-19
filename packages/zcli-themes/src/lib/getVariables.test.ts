@@ -40,6 +40,23 @@ describe('getVariables', () => {
     ])
   })
 
+  it('uses the matched filename as the value when flags are not provided', () => {
+    const existsSyncStub = sinon.stub(fs, 'existsSync')
+    const readdirSyncStub = sinon.stub(fs, 'readdirSync')
+
+    existsSyncStub
+      .withArgs('theme/path/settings')
+      .returns(true)
+
+    readdirSyncStub.returns(['logo.png', 'favicon.png'] as any)
+
+    expect(getVariables('theme/path', settings)).to.deep.equal([
+      { identifier: 'color', type: 'color', value: '#999' },
+      { identifier: 'logo', type: 'file', value: 'logo.png' },
+      { identifier: 'favicon', type: 'file', value: 'favicon.png' }
+    ])
+  })
+
   it('throws an error when it doesn\'t find an asset within the settings folder for a variable of type "file"', () => {
     const existsSyncStub = sinon.stub(fs, 'existsSync')
     const readdirSyncStub = sinon.stub(fs, 'readdirSync')
