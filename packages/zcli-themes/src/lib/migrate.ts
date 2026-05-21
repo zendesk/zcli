@@ -1,20 +1,14 @@
-import type { ValidationErrors } from '../types'
+import type { MigrateResponse, MigrationReport } from '../types'
 import getManifest from './getManifest'
 import getTemplates from './getTemplates'
 import getVariables from './getVariables'
 import getAssets from './getAssets'
-import * as chalk from 'chalk'
 import { request } from '@zendesk/zcli-core'
-import { error } from '@oclif/core/lib/errors'
-import { CliUx } from '@oclif/core'
-import type { AxiosError } from 'axios'
 import rewriteTemplates from './rewriteTemplates'
 import rewriteManifest from './rewriteManifest'
 import rewriteAssets from './rewriteAssets'
-import handleTemplateError from './handleTemplateError'
-import parseAxiosError from './parseAxiosError'
 
-export default async function migrate (themePath: string): Promise<string | void> {
+export default async function migrate (themePath: string): Promise<MigrationReport> {
   const manifest = getManifest(themePath)
   const templates = getTemplates(themePath)
   const variables = getVariables(themePath, manifest.settings)
@@ -32,42 +26,25 @@ export default async function migrate (themePath: string): Promise<string | void
 
   const metadataPayload = { api_version: manifest.api_version }
 
-  try {
-    CliUx.ux.action.start('Migrating theme')
-    const { data } = await request.requestAPI('/hc/api/internal/theming/migrations', {
-      method: 'POST',
-      headers: {
-        'X-Zendesk-Request-Originator': 'zcli themes:migrate'
-      },
-      data: {
-        templates: {
-          ...templates,
-          assets: assetsPayload,
-          variables: variablesPayload,
-          metadata: metadataPayload
-        }
-      },
-      validateStatus: (status: number) => status === 200
-    })
-    rewriteManifest(themePath, data.metadata.api_version)
-    rewriteTemplates(themePath, data.templates)
-    rewriteAssets(themePath, data.assets)
-    CliUx.ux.action.stop('Ok')
-  } catch (e) {
-    CliUx.ux.action.stop(chalk.bold.red('!'))
-    const { message, response } = parseAxiosError(e as AxiosError)
+  const { data } = await request.requestAPI('/hc/api/internal/theming/migrations', {
+    method: 'POST',
+    headers: {
+      'X-Zendesk-Request-Originator': 'zcli themes:migrate'
+    },
+    data: {
+      templates: {
+        ...templates,
+        assets: assetsPayload,
+        variables: variablesPayload,
+        metadata: metadataPayload
+      }
+    },
+    validateStatus: (status: number) => status === 200
+  })
 
-    if (response) {
-      const { template_errors: templateErrors, general_error: generalError } =
-        response.data as {
-          template_errors: ValidationErrors;
-          general_error: string;
-        }
-      if (templateErrors) handleTemplateError(themePath, templateErrors)
-      else if (generalError) error(generalError)
-      else error(message)
-    } else {
-      error(e as AxiosError)
-    }
-  }
+  const response = data as MigrateResponse
+  rewriteManifest(themePath, response.metadata.api_version)
+  rewriteTemplates(themePath, response.templates)
+  rewriteAssets(themePath, response.assets)
+  return response.migration_report
 }

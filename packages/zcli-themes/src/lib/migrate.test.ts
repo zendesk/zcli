@@ -9,7 +9,6 @@ import * as rewriteTemplates from './rewriteTemplates'
 import * as rewriteAssets from './rewriteAssets'
 import * as axios from 'axios'
 import { request } from '@zendesk/zcli-core'
-import * as errors from '@oclif/core/lib/errors'
 import migrate from './migrate'
 
 const manifest = {
@@ -32,7 +31,7 @@ describe('migrate', () => {
     sinon.restore()
   })
 
-  it('calls the migrations endpoint with the correct payload and rewrites files', async () => {
+  it('calls the migrations endpoint, rewrites files, and returns the migration_report', async () => {
     const getManifestStub = sinon.stub(getManifest, 'default')
     const getTemplatesStub = sinon.stub(getTemplates, 'default')
     const getVariablesStub = sinon.stub(getVariables, 'default')
@@ -71,6 +70,12 @@ describe('migrate', () => {
       ]
     ])
 
+    const migrationReport = {
+      home_page: [
+        { target: 'logo_url', strategy: 'inline', description: 'desc', test_plan: 'test' }
+      ]
+    }
+
     requestStub.returns(
       Promise.resolve({
         status: 200,
@@ -86,12 +91,13 @@ describe('migrate', () => {
           },
           assets: {
             'category_tree.js': Buffer.from('console.log("tree")').toString('base64')
-          }
+          },
+          migration_report: migrationReport
         }
       }) as axios.AxiosPromise
     )
 
-    await migrate('theme/path')
+    const result = await migrate('theme/path')
 
     expect(
       requestStub.calledWith(
@@ -134,103 +140,11 @@ describe('migrate', () => {
         'category_tree.js': Buffer.from('console.log("tree")').toString('base64')
       })
     ).to.equal(true)
+
+    expect(result).to.deep.equal(migrationReport)
   })
 
-  it('throws an error when validation fails with template errors', async () => {
-    sinon.stub(getManifest, 'default').returns(manifest)
-    sinon.stub(getTemplates, 'default').returns({})
-    sinon.stub(getVariables, 'default').returns([])
-    sinon.stub(getAssets, 'default').returns([])
-
-    sinon.stub(request, 'requestAPI').throws({
-      response: {
-        data: {
-          template_errors: {
-            home_page: [
-              {
-                description: "'articles' does not exist",
-                line: 10,
-                column: 6,
-                length: 7
-              }
-            ],
-            footer: [
-              {
-                description: "'alternative_locales' does not exist",
-                line: 6,
-                column: 12,
-                length: 10
-              }
-            ]
-          }
-        }
-      }
-    })
-
-    const errorStub = sinon.stub(errors, 'error').callThrough()
-
-    try {
-      await migrate('theme/path')
-    } catch {
-      const [call] = errorStub.getCalls()
-      const [error] = call.args
-      expect(error).to.contain('theme/path/templates/home_page.hbs:10:6')
-      expect(error).to.contain("'articles' does not exist")
-      expect(error).to.contain('theme/path/templates/footer.hbs:6:12')
-      expect(error).to.contain("'alternative_locales' does not exist")
-    }
-  })
-
-  it('throws an error when there is a general error', async () => {
-    sinon.stub(getManifest, 'default').returns(manifest)
-    sinon.stub(getTemplates, 'default').returns({})
-    sinon.stub(getVariables, 'default').returns([])
-    sinon.stub(getAssets, 'default').returns([])
-
-    sinon.stub(request, 'requestAPI').throws({
-      response: {
-        data: {
-          general_error: 'Something went wrong'
-        }
-      }
-    })
-
-    const errorStub = sinon.stub(errors, 'error').callThrough()
-
-    try {
-      await migrate('theme/path')
-    } catch {
-      const [call] = errorStub.getCalls()
-      const [error] = call.args
-      expect(error).to.equal('Something went wrong')
-    }
-  })
-
-  it('throws an error when there is a response with a message', async () => {
-    sinon.stub(getManifest, 'default').returns(manifest)
-    sinon.stub(getTemplates, 'default').returns({})
-    sinon.stub(getVariables, 'default').returns([])
-    sinon.stub(getAssets, 'default').returns([])
-
-    sinon.stub(request, 'requestAPI').throws({
-      response: {
-        data: {}
-      },
-      message: 'Network error'
-    })
-
-    const errorStub = sinon.stub(errors, 'error').callThrough()
-
-    try {
-      await migrate('theme/path')
-    } catch {
-      const [call] = errorStub.getCalls()
-      const [error] = call.args
-      expect(error).to.equal('Network error')
-    }
-  })
-
-  it('throws an error when there is no response', async () => {
+  it('propagates AxiosError on request failure', async () => {
     sinon.stub(getManifest, 'default').returns(manifest)
     sinon.stub(getTemplates, 'default').returns({})
     sinon.stub(getVariables, 'default').returns([])
@@ -239,14 +153,11 @@ describe('migrate', () => {
     const axiosError = new Error('Connection refused')
     sinon.stub(request, 'requestAPI').throws(axiosError)
 
-    const errorStub = sinon.stub(errors, 'error').callThrough()
-
     try {
       await migrate('theme/path')
-    } catch {
-      const [call] = errorStub.getCalls()
-      const [error] = call.args
-      expect(error).to.equal(axiosError)
+      throw new Error('Should have thrown')
+    } catch (e) {
+      expect(e).to.equal(axiosError)
     }
   })
 })

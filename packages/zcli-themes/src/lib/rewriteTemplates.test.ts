@@ -50,6 +50,31 @@ describe('rewriteTemplates', () => {
     }).to.throw('Failed to write template file: theme/path/templates/home_page.hbs')
   })
 
+  it('writes partials to a partials/ subdirectory', () => {
+    const mkdirSyncStub = sinon.stub(fs, 'mkdirSync')
+    const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
+
+    const templates = {
+      'partials/user_info': '<div>{{user.name}}</div>',
+      'partials/breadcrumbs': '<nav>...</nav>'
+    }
+
+    rewriteTemplates('theme/path', templates)
+
+    expect(mkdirSyncStub.firstCall.args).to.deep.equal([
+      'theme/path/templates/partials',
+      { recursive: true }
+    ])
+    expect(writeFileSyncStub.firstCall.args).to.deep.equal([
+      'theme/path/templates/partials/user_info.hbs',
+      '<div>{{user.name}}</div>'
+    ])
+    expect(writeFileSyncStub.secondCall.args).to.deep.equal([
+      'theme/path/templates/partials/breadcrumbs.hbs',
+      '<nav>...</nav>'
+    ])
+  })
+
   it('handles empty templates object', () => {
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
 
