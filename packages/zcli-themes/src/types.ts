@@ -36,7 +36,6 @@ export type ValidationErrors = {
 
 export type TemplateErrors = Record<string, ValidationError[]>
 
-
 export type MigrationStrategy = 'inline' | 'partial' | 'prefix'
 
 export type MigrationReportEntry = {
