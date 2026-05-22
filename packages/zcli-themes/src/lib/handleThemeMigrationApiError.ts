@@ -4,7 +4,7 @@ import type { MigrateErrorBody } from '../types'
 import parseAxiosError from './parseAxiosError'
 import handleTemplateError from './handleTemplateError'
 
-export default function handleThemeMigrationApiError (e: AxiosError, themePath: string): never {
+export default function handleThemeMigrationApiError (e: AxiosError, themePath: string) {
   const { message, response } = parseAxiosError(e)
 
   if (!response) error(e)
@@ -22,6 +22,4 @@ export default function handleThemeMigrationApiError (e: AxiosError, themePath: 
   } else {
     error(message)
   }
-
-  throw new Error('unreachable')
 }

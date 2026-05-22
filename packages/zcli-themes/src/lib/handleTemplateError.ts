@@ -1,15 +1,14 @@
-import { ValidationError, ValidationErrors } from '../types'
+import { TemplateErrors, ValidationErrors } from '../types'
 import validationErrorsToString from './validationErrorsToString'
 import * as chalk from 'chalk'
 import { error } from '@oclif/core/lib/errors'
 
-export default function handleTemplateError (themePath: string, templateErrors: ValidationErrors) {
+export default function handleTemplateError (themePath: string, templateErrors: TemplateErrors) {
+  // The theming endpoints key these by template identifier (e.g. `home_page`).
+  // `validationErrorsToString` expects a path-keyed shape, so we convert here.
   const validationErrors: ValidationErrors = {}
-  for (const [template, errors] of Object.entries(templateErrors)) {
-    // the theming endpoints return the template identifier as the 'key' instead of
-    // the template path. We must fix this so we can reuse `validationErrorsToString`
-    // and align with the job import error handling
-    validationErrors[`templates/${template}.hbs`] = errors as ValidationError[]
+  for (const [identifier, errors] of Object.entries(templateErrors)) {
+    validationErrors[`templates/${identifier}.hbs`] = errors
   }
 
   const title = `${chalk.bold('InvalidTemplates')} - Template(s) with syntax error(s)`

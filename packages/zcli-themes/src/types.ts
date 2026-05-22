@@ -34,6 +34,9 @@ export type ValidationErrors = {
   [path: `templates/${string}.hbs`]: ValidationError[]
 }
 
+export type TemplateErrors = Record<string, ValidationError[]>
+
+
 export type MigrationStrategy = 'inline' | 'partial' | 'prefix'
 
 export type MigrationReportEntry = {
@@ -55,7 +58,7 @@ export type MigrateResponse = {
 }
 
 export type MigrateErrorBody = {
-  template_errors?: ValidationErrors,
+  template_errors?: TemplateErrors,
   general_error?: string
 }
 
