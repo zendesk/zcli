@@ -12,6 +12,7 @@ describe('themes:migrate', function () {
   let manifestBackup: string
   let templateBackup: string
   const migratedAssetPath = path.join(baseThemePath, 'assets/category_tree.js')
+  const partialsDir = path.join(baseThemePath, 'templates/partials')
 
   beforeEach(() => {
     fetchStub = sinon.stub(global, 'fetch')
@@ -38,6 +39,10 @@ describe('themes:migrate', function () {
     if (fs.existsSync(migratedAssetPath)) {
       fs.unlinkSync(migratedAssetPath)
     }
+    // Clean up partials/ directory created by the migration
+    if (fs.existsSync(partialsDir)) {
+      fs.rmSync(partialsDir, { recursive: true, force: true })
+    }
   })
 
   describe('successful migration', () => {
@@ -56,13 +61,24 @@ describe('themes:migrate', function () {
             Promise.resolve(
               JSON.stringify({
                 metadata: {
-                  api_version: 2
+                  api_version: 3
                 },
                 templates: {
-                  document_head: '{{!chat (obsolete)}}'
+                  document_head: '{{!chat (obsolete)}}',
+                  'partials/user_info': '<div>{{user.name}}</div>'
                 },
                 assets: {
                   'category_tree.js': Buffer.from('console.log("category_tree");\n').toString('base64')
+                },
+                migration_report: {
+                  document_head: [
+                    {
+                      target: 'chat',
+                      strategy: 'inline',
+                      description: 'The `chat` helper is no longer rendered.',
+                      test_plan: 'Confirm no chat-related markup is rendered.'
+                    }
+                  ]
                 }
               })
             )
@@ -71,13 +87,13 @@ describe('themes:migrate', function () {
 
     success
       .stdout()
-      .it('should migrate theme successfully and update files', async () => {
+      .it('should migrate theme successfully and update files', async (ctx) => {
         await MigrateCommand.run([baseThemePath])
 
         const manifest = JSON.parse(
           fs.readFileSync(path.join(baseThemePath, 'manifest.json'), 'utf8')
         )
-        expect(manifest.api_version).to.equal(2)
+        expect(manifest.api_version).to.equal(3)
 
         // Verify template was updated
         const template = fs.readFileSync(
@@ -86,9 +102,64 @@ describe('themes:migrate', function () {
         )
         expect(template).to.contain('{{!chat (obsolete)}}')
 
+        // Verify partial was written under templates/partials/
+        const partial = fs.readFileSync(
+          path.join(baseThemePath, 'templates/partials/user_info.hbs'),
+          'utf8'
+        )
+        expect(partial).to.contain('{{user.name}}')
+
         // Verify asset was written
         const asset = fs.readFileSync(migratedAssetPath, 'utf8')
         expect(asset).to.equal('console.log("category_tree");\n')
+
+        // Verify migration report was printed
+        expect(ctx.stdout).to.contain('Theme migrated successfully')
+        expect(ctx.stdout).to.contain('document_head')
+        expect(ctx.stdout).to.contain('chat')
+        expect(ctx.stdout).to.contain('Confirm no chat-related markup is rendered.')
+      })
+  })
+
+  describe('migration with internal server error', () => {
+    test
+      .env(env)
+      .stderr()
+      .do(() => {
+        fetchStub
+          .withArgs(
+            sinon.match({
+              url: 'https://z3ntest.zendesk.com/hc/api/internal/theming/migrations',
+              method: 'POST'
+            })
+          )
+          .resolves({
+            status: 500,
+            ok: false,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  general_error: 'Failed to migrate the theme.'
+                })
+              )
+          })
+      })
+      .it('should print a short failure message and a plain issues URL', async () => {
+        try {
+          await MigrateCommand.run([baseThemePath])
+          throw new Error('Should have thrown an error')
+        } catch (error) {
+          if (
+            error instanceof Error &&
+            error.message === 'Should have thrown an error'
+          ) {
+            throw error
+          }
+          const message = (error as CLIError).message
+          expect(message).to.contain('Failed to migrate the theme')
+          expect(message).to.contain('https://github.com/zendesk/zcli/issues/new')
+          expect(message).to.not.contain('themes-migrate')
+        }
       })
   })
 

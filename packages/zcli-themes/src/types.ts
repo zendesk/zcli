@@ -34,6 +34,33 @@ export type ValidationErrors = {
   [path: `templates/${string}.hbs`]: ValidationError[]
 }
 
+export type TemplateErrors = Record<string, ValidationError[]>
+
+export type MigrationStrategy = 'inline' | 'partial' | 'prefix'
+
+export type MigrationReportEntry = {
+  target: string | null,
+  strategy: MigrationStrategy,
+  description: string,
+  test_plan: string
+}
+
+export type MigrationReport = {
+  [identifier: string]: MigrationReportEntry[]
+}
+
+export type MigrateResponse = {
+  templates: Record<string, string>,
+  metadata: { api_version: number },
+  assets: Record<string, string>,
+  migration_report: MigrationReport
+}
+
+export type MigrateErrorBody = {
+  template_errors?: TemplateErrors,
+  general_error?: string
+}
+
 export type Brand = {
   id: number,
   name: string,

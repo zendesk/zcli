@@ -1,4 +1,4 @@
-import type { Flags, ValidationErrors } from '../types'
+import type { Flags, TemplateErrors } from '../types'
 import getManifest from './getManifest'
 import getTemplates from './getTemplates'
 import getVariables from './getVariables'
@@ -65,7 +65,7 @@ export default async function preview (themePath: string, flags: Flags): Promise
         template_errors: templateErrors,
         general_error: generalError
       } = response.data as {
-          template_errors: ValidationErrors,
+          template_errors: TemplateErrors,
           general_error: string
         }
       if (templateErrors) handleTemplateError(themePath, templateErrors)
