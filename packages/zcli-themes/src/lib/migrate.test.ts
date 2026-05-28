@@ -1,5 +1,6 @@
 import * as sinon from 'sinon'
 import * as fs from 'fs'
+import * as path from 'path'
 import { expect } from '@oclif/test'
 import * as getManifest from './getManifest'
 import * as getTemplates from './getTemplates'
@@ -45,8 +46,8 @@ describe('migrate', () => {
     const readFileSyncStub = sinon.stub(fs, 'readFileSync')
     const requestStub = sinon.stub(request, 'requestAPI')
 
-    readFileSyncStub.withArgs('theme/path/style.css', 'utf8').returns('body { color: red; }')
-    readFileSyncStub.withArgs('theme/path/script.js', 'utf8').returns('console.log("hi")')
+    readFileSyncStub.withArgs(path.join('theme/path', 'style.css'), 'utf8').returns('body { color: red; }')
+    readFileSyncStub.withArgs(path.join('theme/path', 'script.js'), 'utf8').returns('console.log("hi")')
 
     getManifestStub.withArgs('theme/path').returns(manifest)
     getTemplatesStub.withArgs('theme/path').returns({
