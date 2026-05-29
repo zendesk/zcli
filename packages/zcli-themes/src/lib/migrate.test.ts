@@ -1,4 +1,6 @@
 import * as sinon from 'sinon'
+import * as fs from 'fs'
+import * as path from 'path'
 import { expect } from '@oclif/test'
 import * as getManifest from './getManifest'
 import * as getTemplates from './getTemplates'
@@ -7,6 +9,7 @@ import * as getAssets from './getAssets'
 import * as rewriteManifest from './rewriteManifest'
 import * as rewriteTemplates from './rewriteTemplates'
 import * as rewriteAssets from './rewriteAssets'
+import * as rewriteJsAndCss from './rewriteJsAndCss'
 import * as axios from 'axios'
 import { request } from '@zendesk/zcli-core'
 import migrate from './migrate'
@@ -39,7 +42,12 @@ describe('migrate', () => {
     const rewriteManifestStub = sinon.stub(rewriteManifest, 'default')
     const rewriteTemplatesStub = sinon.stub(rewriteTemplates, 'default')
     const rewriteAssetsStub = sinon.stub(rewriteAssets, 'default')
+    const rewriteJsAndCssStub = sinon.stub(rewriteJsAndCss, 'default')
+    const readFileSyncStub = sinon.stub(fs, 'readFileSync')
     const requestStub = sinon.stub(request, 'requestAPI')
+
+    readFileSyncStub.withArgs(path.join('theme/path', 'style.css'), 'utf8').returns('body { color: red; }')
+    readFileSyncStub.withArgs(path.join('theme/path', 'script.js'), 'utf8').returns('console.log("hi")')
 
     getManifestStub.withArgs('theme/path').returns(manifest)
     getTemplatesStub.withArgs('theme/path').returns({
@@ -87,7 +95,9 @@ describe('migrate', () => {
           templates: {
             home_page: '<h1>Updated Home</h1>',
             'article_pages/product_updates': '<h1>Updated Product updates</h1>',
-            'custom_pages/faq': '<h1>Updated FAQ</h1>'
+            'custom_pages/faq': '<h1>Updated FAQ</h1>',
+            css: '/* migrated css */',
+            js: '/* migrated js */'
           },
           assets: {
             'category_tree.js': Buffer.from('console.log("tree")').toString('base64')
@@ -112,6 +122,8 @@ describe('migrate', () => {
               home_page: '<h1>Home</h1>',
               'article_pages/product_updates': '<h1>Product updates</h1>',
               'custom_pages/faq': '<h1>FAQ</h1>',
+              css: 'body { color: red; }',
+              js: 'console.log("hi")',
               assets: {
                 'background.png': 'background.png'
               },
@@ -136,6 +148,13 @@ describe('migrate', () => {
     ).to.equal(true)
 
     expect(
+      rewriteJsAndCssStub.calledWith('theme/path', {
+        css: '/* migrated css */',
+        js: '/* migrated js */'
+      })
+    ).to.equal(true)
+
+    expect(
       rewriteAssetsStub.calledWith('theme/path', {
         'category_tree.js': Buffer.from('console.log("tree")').toString('base64')
       })
@@ -145,6 +164,7 @@ describe('migrate', () => {
   })
 
   it('propagates AxiosError on request failure', async () => {
+    sinon.stub(fs, 'readFileSync').returns('')
     sinon.stub(getManifest, 'default').returns(manifest)
     sinon.stub(getTemplates, 'default').returns({})
     sinon.stub(getVariables, 'default').returns([])

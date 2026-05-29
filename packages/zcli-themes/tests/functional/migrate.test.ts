@@ -11,6 +11,8 @@ describe('themes:migrate', function () {
   let fetchStub: sinon.SinonStub
   let manifestBackup: string
   let templateBackup: string
+  let styleBackup: string
+  let scriptBackup: string
   const migratedAssetPath = path.join(baseThemePath, 'assets/category_tree.js')
   const partialsDir = path.join(baseThemePath, 'templates/partials')
 
@@ -25,6 +27,8 @@ describe('themes:migrate', function () {
       path.join(baseThemePath, 'templates/document_head.hbs'),
       'utf8'
     )
+    styleBackup = fs.readFileSync(path.join(baseThemePath, 'style.css'), 'utf8')
+    scriptBackup = fs.readFileSync(path.join(baseThemePath, 'script.js'), 'utf8')
   })
 
   afterEach(() => {
@@ -35,6 +39,8 @@ describe('themes:migrate', function () {
       path.join(baseThemePath, 'templates/document_head.hbs'),
       templateBackup
     )
+    fs.writeFileSync(path.join(baseThemePath, 'style.css'), styleBackup)
+    fs.writeFileSync(path.join(baseThemePath, 'script.js'), scriptBackup)
     // Clean up migrated asset
     if (fs.existsSync(migratedAssetPath)) {
       fs.unlinkSync(migratedAssetPath)
@@ -65,7 +71,9 @@ describe('themes:migrate', function () {
                 },
                 templates: {
                   document_head: '{{!chat (obsolete)}}',
-                  'partials/user_info': '<div>{{user.name}}</div>'
+                  'partials/user_info': '<div>{{user.name}}</div>',
+                  css: '/* migrated */\nbody {}',
+                  js: '/* migrated */\nconsole.log("hi")'
                 },
                 assets: {
                   'category_tree.js': Buffer.from('console.log("category_tree");\n').toString('base64')
@@ -112,6 +120,12 @@ describe('themes:migrate', function () {
         // Verify asset was written
         const asset = fs.readFileSync(migratedAssetPath, 'utf8')
         expect(asset).to.equal('console.log("category_tree");\n')
+
+        // Verify root style.css and script.js were rewritten
+        const style = fs.readFileSync(path.join(baseThemePath, 'style.css'), 'utf8')
+        expect(style).to.equal('/* migrated */\nbody {}')
+        const script = fs.readFileSync(path.join(baseThemePath, 'script.js'), 'utf8')
+        expect(script).to.equal('/* migrated */\nconsole.log("hi")')
 
         // Verify migration report was printed
         expect(ctx.stdout).to.contain('Theme migrated successfully')
