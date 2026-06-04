@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/zendesk/zcli/compare/v1.0.1...v1.1.0) (2026-06-04)
+
+
+### Bug Fixes
+
+* create intermediate directories when rewriting nested templates ([806b6f8](https://github.com/zendesk/zcli/commit/806b6f868758b8982757983c7a4dfae6e8452213))
+* preserve :line:column suffix when either is 0 in validationErrorsToString ([de10e46](https://github.com/zendesk/zcli/commit/de10e464141159f63830ad373d527e3445d7b191))
+* revalidate theme on file add/delete during themes:preview ([7c64a1d](https://github.com/zendesk/zcli/commit/7c64a1d40a20479b5d929ed8d92be0978101c936))
+* stop sending local preview URLs in themes:migrate payload ([264ef00](https://github.com/zendesk/zcli/commit/264ef00872959c7a0a68b618e460c9ed6bb63070))
+* **themes:** drop extra blank line in types.ts to satisfy eslint ([c029b11](https://github.com/zendesk/zcli/commit/c029b11ffe5b26e1a4a30732f9642bc393d62968))
+* throw CLIError on write failures in rewriteAssets and rewriteTemplates ([3ac1b31](https://github.com/zendesk/zcli/commit/3ac1b31c676281f25dbcb51797493bdbc92f1a14))
+
+
+### Features
+
+* **themes:** send style.css and script.js through themes:migrate ([f1d96f3](https://github.com/zendesk/zcli/commit/f1d96f3e35abd5951419d29be888d91fce221f4c))
+* **themes:** wire themes:migrate to the new endpoint contract ([1bbac7b](https://github.com/zendesk/zcli/commit/1bbac7bf0e9d8b98978e31873dba8414bb5ca65d))
+* write migrated assets to theme during themes:migrate ([1cc34d5](https://github.com/zendesk/zcli/commit/1cc34d50d3485962356c788593fd7389a0856abf))
+
+
+
+
+
 # [1.0.0](https://github.com/zendesk/zcli/compare/v1.0.0-beta.57...v1.0.0) (2026-04-23)
 
 **Note:** Version bump only for package @zendesk/zcli-themes
