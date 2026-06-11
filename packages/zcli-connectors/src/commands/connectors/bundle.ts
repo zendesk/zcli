@@ -119,9 +119,12 @@ export default class Bundle extends Command {
       }
       execFileSync(tscPath, ['--noEmit', '--project', projectPath], { stdio: 'inherit' })
       spinner.succeed(chalk.green('TypeScript compilation check passed'))
-    } catch (error) {
+    } catch (error: any) {
       spinner.fail(chalk.red('TypeScript type check failed'))
-      throw new Error('TypeScript compilation check failed. Please fix the errors above.')
+      const detail = error?.stderr
+        ? error.stderr.toString()
+        : (error?.message || String(error))
+      throw new Error(`TypeScript compilation check failed:\n${detail}`)
     }
   }
 
