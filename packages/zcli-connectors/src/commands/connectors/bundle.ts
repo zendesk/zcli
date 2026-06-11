@@ -117,7 +117,10 @@ export default class Bundle extends Command {
         spinner.info(chalk.yellow('TypeScript not found in node_modules/.bin/tsc, skipping type check.'))
         return
       }
-      execFileSync(tscPath, ['--noEmit', '--project', projectPath], { stdio: 'inherit' })
+      execFileSync(tscPath, ['--noEmit', '--project', projectPath], {
+        stdio: 'inherit',
+        shell: process.platform === 'win32'
+      })
       spinner.succeed(chalk.green('TypeScript compilation check passed'))
     } catch (error: any) {
       spinner.fail(chalk.red('TypeScript type check failed'))
