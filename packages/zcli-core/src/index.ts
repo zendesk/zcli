@@ -1,4 +1,4 @@
-export { default as Auth } from './lib/auth'
+export { default as Auth, OAUTH_LOOPBACK_PORT, OAUTH_LOOPBACK_PATH, OAUTH_REDIRECT_URI } from './lib/auth'
 export { getAccount, getProfileFromAccount } from './lib/authUtils'
 export { default as Config } from './lib/config'
 export { default as SecureStore } from './lib/secureStore'

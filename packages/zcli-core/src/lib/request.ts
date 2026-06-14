@@ -50,10 +50,36 @@ export const createRequestConfig = async (url: string, options: any = {}) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const requestAPI = async (url: string, options: any = {}, json = false) => {
   const requestConfig = await createRequestConfig(url, options)
-  return axios.request({
+  const response = await axios.request({
     ...requestConfig,
     adapter: 'fetch'
   })
+
+  if (response.status !== 401) return response
+
+  const secureStore = await loadSecureStoreIfNeeded()
+  const auth = secureStore ? new Auth({ secureStore }) : new Auth()
+  const newAuthHeader = await auth.refreshOAuthToken().catch(() => undefined)
+  if (!newAuthHeader) return response
+
+  const retryConfig = {
+    ...requestConfig,
+    headers: { ...(requestConfig.headers || {}), Authorization: newAuthHeader },
+    adapter: 'fetch' as const
+  }
+  return axios.request(retryConfig)
+}
+
+const loadSecureStoreIfNeeded = async (): Promise<SecureStore | undefined> => {
+  if (
+    varExists(EnvVars.SUBDOMAIN, EnvVars.OAUTH_TOKEN) ||
+    varExists(EnvVars.SUBDOMAIN, EnvVars.EMAIL, EnvVars.API_TOKEN)
+  ) {
+    return undefined
+  }
+  const store = new SecureStore()
+  await store.loadKeytar()
+  return store
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

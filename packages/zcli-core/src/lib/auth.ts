@@ -8,6 +8,15 @@ import { Profile } from '../types'
 import { getAccount, parseSubdomain } from './authUtils'
 import { getBaseUrl } from './requestUtils'
 import { SecretType } from './secretType'
+import { parseCredential, serializeCredential } from './credentialRecord'
+import * as oauth from './oauth'
+import * as loopback from './loopbackServer'
+import * as openBrowser from './openBrowser'
+
+export const OAUTH_LOOPBACK_PORT = 8976
+export const OAUTH_LOOPBACK_PATH = '/callback'
+export const OAUTH_REDIRECT_URI = `http://localhost:${OAUTH_LOOPBACK_PORT}${OAUTH_LOOPBACK_PATH}`
+export const OAUTH_DEFAULT_SCOPE = 'read write'
 
 export interface AuthOptions {
   secureStore: SecureStore;
@@ -35,8 +44,13 @@ export default class Auth {
     } else {
       const profile = await this.getLoggedInProfile()
       if (profile && this.secureStore) {
-        const authToken = await this.secureStore.getSecret(getAccount(profile.subdomain, profile.domain))
-        return authToken
+        const stored = await this.secureStore.getSecret(getAccount(profile.subdomain, profile.domain))
+        const record = parseCredential(stored ?? null)
+        if (!record) return undefined
+        if (record.type === 'oauth') {
+          return `Bearer ${record.accessToken}`
+        }
+        return record.authHeader
       }
 
       return undefined
@@ -76,13 +90,114 @@ export default class Auth {
       })
 
     if (testAuth.status === 200 && this.secureStore) {
-      await this.secureStore.setSecret(account, authToken)
+      const record = serializeCredential({
+        version: 2,
+        type: 'api_token',
+        authHeader: authToken
+      })
+      await this.secureStore.setSecret(account, record)
       await this.setLoggedInProfile(subdomain, domain)
 
       return true
     }
 
     return false
+  }
+
+  async loginViaOAuth (options: { subdomain: string; domain?: string; clientId: string }): Promise<boolean> {
+    if (!this.secureStore) {
+      throw new CLIError(chalk.red('Secure credentials store not found.'))
+    }
+
+    const subdomain = parseSubdomain(options.subdomain)
+    const domain = options.domain
+    const clientId = options.clientId
+    const account = getAccount(subdomain, domain)
+
+    const pkce = oauth.generatePkce()
+    const state = oauth.generateState()
+
+    const authorizeUrl = oauth.buildAuthorizeUrl({
+      subdomain,
+      domain,
+      clientId,
+      redirectUri: OAUTH_REDIRECT_URI,
+      scope: OAUTH_DEFAULT_SCOPE,
+      state,
+      codeChallenge: pkce.challenge
+    })
+
+    CliUx.ux.log(`Opening browser to: ${authorizeUrl}`)
+    CliUx.ux.log('If the browser does not open, copy and paste the URL above.')
+
+    let code: string
+    try {
+      const codePromise = loopback.awaitLoopbackCode({
+        port: OAUTH_LOOPBACK_PORT,
+        path: OAUTH_LOOPBACK_PATH,
+        expectedState: state
+      })
+      openBrowser.openBrowser(authorizeUrl)
+      code = await codePromise
+    } catch (err) {
+      CliUx.ux.log(chalk.red((err as Error).message))
+      return false
+    }
+
+    let tokens: oauth.TokenResult
+    try {
+      tokens = await oauth.exchangeCodeForToken({
+        subdomain,
+        domain,
+        clientId,
+        code,
+        redirectUri: OAUTH_REDIRECT_URI,
+        codeVerifier: pkce.verifier,
+        scope: OAUTH_DEFAULT_SCOPE
+      })
+    } catch (err) {
+      CliUx.ux.log(chalk.red((err as Error).message))
+      return false
+    }
+
+    const record = serializeCredential({
+      version: 2,
+      type: 'oauth',
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      clientId
+    })
+    await this.secureStore.setSecret(account, record)
+    await this.setLoggedInProfile(subdomain, domain)
+    return true
+  }
+
+  async refreshOAuthToken (): Promise<string | undefined> {
+    if (!this.secureStore) return undefined
+    const profile = await this.getLoggedInProfile()
+    if (!profile?.subdomain) return undefined
+
+    const account = getAccount(profile.subdomain, profile.domain)
+    const stored = await this.secureStore.getSecret(account)
+    const record = parseCredential(stored ?? null)
+    if (!record || record.type !== 'oauth' || !record.refreshToken) return undefined
+
+    const tokens = await oauth.refreshAccessToken({
+      subdomain: profile.subdomain,
+      domain: profile.domain,
+      clientId: record.clientId,
+      refreshToken: record.refreshToken
+    })
+
+    const updated = serializeCredential({
+      version: 2,
+      type: 'oauth',
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken ?? record.refreshToken,
+      clientId: record.clientId
+    })
+    await this.secureStore.setSecret(account, updated)
+    return `Bearer ${tokens.accessToken}`
   }
 
   async logout () {

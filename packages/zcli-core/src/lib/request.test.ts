@@ -190,3 +190,55 @@ describe('requestRaw', () => {
     }
   })
 })
+
+describe('requestAPI 401 refresh', () => {
+  let fetchStub: sinon.SinonStub
+  let refreshStub: sinon.SinonStub
+
+  beforeEach(() => {
+    fetchStub = sinon.stub(global, 'fetch')
+    refreshStub = sinon.stub(Auth.prototype, 'refreshOAuthToken')
+  })
+
+  afterEach(() => {
+    sinon.restore()
+  })
+
+  test
+    .env({ ZENDESK_SUBDOMAIN: 'z3ntest' })
+    .stub(requestUtils, 'getSubdomain', () => 'z3ntest')
+    .stub(requestUtils, 'getDomain', () => undefined)
+    .stub(Auth.prototype, 'getAuthorizationToken', () => Promise.resolve('Bearer OLD'))
+    .it('refreshes once and retries on 401 when refresh succeeds', async () => {
+      let firstCall = true
+      fetchStub.callsFake(async (req: Request) => {
+        if (firstCall) {
+          firstCall = false
+          expect(req.headers.get('Authorization')).to.equal('Bearer OLD')
+          return { status: 401, ok: false, text: () => Promise.resolve('') }
+        }
+        expect(req.headers.get('Authorization')).to.equal('Bearer NEW')
+        return { status: 200, ok: true, text: () => Promise.resolve('') }
+      })
+      refreshStub.resolves('Bearer NEW')
+
+      const response = await requestAPI('api/v2/me', { method: 'GET' })
+      expect(response.status).to.equal(200)
+      expect(refreshStub.calledOnce).to.equal(true)
+      expect(fetchStub.callCount).to.equal(2)
+    })
+
+  test
+    .env({ ZENDESK_SUBDOMAIN: 'z3ntest' })
+    .stub(requestUtils, 'getSubdomain', () => 'z3ntest')
+    .stub(requestUtils, 'getDomain', () => undefined)
+    .stub(Auth.prototype, 'getAuthorizationToken', () => Promise.resolve('Bearer OLD'))
+    .it('returns the original 401 when refresh returns undefined', async () => {
+      fetchStub.resolves({ status: 401, ok: false, text: () => Promise.resolve('') })
+      refreshStub.resolves(undefined)
+
+      const response = await requestAPI('api/v2/me', { method: 'GET' })
+      expect(response.status).to.equal(401)
+      expect(fetchStub.callCount).to.equal(1)
+    })
+})
