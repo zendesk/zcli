@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/zendesk/zcli/compare/v1.1.0...v1.1.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* **connectors:** add shell option for Windows tsc.cmd execution ([0b45571](https://github.com/zendesk/zcli/commit/0b45571483875d33dcde5c13789b97a110c6c478))
+* **connectors:** improve checkTypeScript error detail ([a607b56](https://github.com/zendesk/zcli/commit/a607b566b2e57d9b24bfc0e5081096cf85bcdd0c))
+
+
+
+
+
 # [1.1.0](https://github.com/zendesk/zcli/compare/v1.0.1...v1.1.0) (2026-06-04)
 
 **Note:** Version bump only for package @zendesk/zcli-connectors
