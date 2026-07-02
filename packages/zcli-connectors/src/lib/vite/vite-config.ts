@@ -2,7 +2,7 @@ import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
-import { join } from 'path'
+import { isAbsolute, join } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
 
 export interface ViteConfigOptions {
@@ -77,7 +77,7 @@ export class ViteConfigBuilder {
         return false
       }
 
-      return !id.startsWith('.') && !id.startsWith('/') && !id.includes('\\')
+      return !id.startsWith('.') && !isAbsolute(id)
     }
   }
 
