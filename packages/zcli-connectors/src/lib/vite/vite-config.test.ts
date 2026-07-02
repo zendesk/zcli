@@ -246,6 +246,48 @@ describe('ViteConfigBuilder', () => {
     })
   })
 
+  describe('external function', () => {
+    const getExternal = () =>
+      ViteConfigBuilder.createConfig({
+        inputPath: '/input',
+        outputPath: '/output'
+      }).build.rollupOptions.external
+
+    it('should bundle relative imports', () => {
+      const external = getExternal()
+      expect(external('./foo')).to.be.false
+      expect(external('../foo/bar')).to.be.false
+    })
+
+    it('should bundle posix absolute paths', () => {
+      const external = getExternal()
+      expect(external('/Users/dev/project/src/index.ts')).to.be.false
+    })
+
+    // Rollup normalizes ids to forward slashes even on Windows, so the entry
+    // arrives as e.g. C:/.../src/index.ts. isAbsolute (win32) must classify it
+    // as local so it is bundled, not treated as external. Regression for the
+    // "Entry module ... cannot be external" Windows bundle failure.
+    const winIt = process.platform === 'win32' ? it : it.skip
+    winIt('should bundle windows absolute paths (forward-slash normalized)', () => {
+      const external = getExternal()
+      expect(external('C:/Users/dev/project/src/index.ts')).to.be.false
+      expect(external('C:\\Users\\dev\\project\\src\\index.ts')).to.be.false
+    })
+
+    it('should treat bare module specifiers as external', () => {
+      const external = getExternal()
+      expect(external('lodash')).to.be.true
+      expect(external('lodash/get')).to.be.true
+    })
+
+    it('should always bundle @zendesk/connector-sdk', () => {
+      const external = getExternal()
+      expect(external('@zendesk/connector-sdk')).to.be.false
+      expect(external('@zendesk/connector-sdk/dist/index.js')).to.be.false
+    })
+  })
+
   describe('recursive directory copying', () => {
     it('should handle nested directories when copying to target directory', async () => {
       const outputPath = '/output'
