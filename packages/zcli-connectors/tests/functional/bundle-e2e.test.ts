@@ -26,8 +26,8 @@ describe('bundle (e2e real vite build)', function () {
   // A real Vite build is far slower than the default mocha timeout.
   this.timeout(120000)
 
-  let connectorDir: string
-  let distDir: string
+  let connectorDir = ''
+  let distDir = ''
 
   beforeEach(() => {
     // realpathSync canonicalizes symlinked temp roots (e.g. macOS /var ->
@@ -55,7 +55,11 @@ describe('bundle (e2e real vite build)', function () {
   })
 
   afterEach(() => {
-    fs.rmSync(connectorDir, { recursive: true, force: true })
+    // beforeEach may have failed before connectorDir was assigned; guard so
+    // cleanup never throws on an empty path.
+    if (connectorDir) {
+      fs.rmSync(connectorDir, { recursive: true, force: true })
+    }
   })
 
   it('bundles a connector without treating the entry as external', async () => {
