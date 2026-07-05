@@ -7,10 +7,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @zendesk/zcli
 
-
-
-
-
 ## [1.1.1](https://github.com/zendesk/zcli/compare/v1.1.0...v1.1.1) (2026-06-11)
 
 **Note:** Version bump only for package @zendesk/zcli
