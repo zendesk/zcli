@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.2](https://github.com/zendesk/zcli/compare/v1.1.1...v1.1.2) (2026-07-05)
+
+
+### Bug Fixes
+
+* **connectors:** resolve Windows Vite "Entry module cannot be external" ([2fe9e71](https://github.com/zendesk/zcli/commit/2fe9e715b5ca642baf0c6e16b280588e036659f1))
+
 ## [1.1.1](https://github.com/zendesk/zcli/compare/v1.1.0...v1.1.1) (2026-06-11)
 
 
