@@ -127,7 +127,11 @@ describe('themes:export', function () {
       .it('should report errors when creating the export job fails', async (ctx) => {
         try {
           await ExportCommand.run(['--themeId', '1234'])
+          throw new Error('Should have thrown an error')
         } catch (error) {
+          if (error instanceof Error && error.message === 'Should have thrown an error') {
+            throw error
+          }
           expect(ctx.stderr).to.contain('!')
           expect((error as CLIError).message).to.contain('ThemeNotFound')
           expect((error as CLIError).message).to.contain('Invalid id')
@@ -171,7 +175,11 @@ describe('themes:export', function () {
       .it('should report errors when the export job fails', async () => {
         try {
           await ExportCommand.run(['--themeId', '1234'])
+          throw new Error('Should have thrown an error')
         } catch (error) {
+          if (error instanceof Error && error.message === 'Should have thrown an error') {
+            throw error
+          }
           expect((error as CLIError).message).to.contain('ExportFailed')
           expect((error as CLIError).message).to.contain('Something went wrong')
         }

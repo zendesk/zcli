@@ -52,7 +52,11 @@ describe('createThemeExportJob', () => {
 
     try {
       await createThemeExportJob('1234')
-    } catch {
+      throw new Error('Should have thrown an error')
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Should have thrown an error') {
+        throw error
+      }
       expect(errorStub.calledWith(`${chalk.bold('ThemeNotFound')} - Invalid id`)).to.equal(true)
     }
   })

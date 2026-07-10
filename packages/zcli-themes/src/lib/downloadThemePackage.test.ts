@@ -14,6 +14,7 @@ describe('downloadThemePackage', () => {
 
   it('downloads the package from the presigned url and writes it to the destination', async () => {
     const requestStub = sinon.stub(request, 'requestRaw')
+    const mkdirStub = sinon.stub(fs, 'mkdirSync')
     const writeFileStub = sinon.stub(fs, 'writeFileSync')
 
     requestStub.returns(Promise.resolve({ data: Buffer.from('theme content') }) as axios.AxiosPromise)
@@ -26,6 +27,7 @@ describe('downloadThemePackage', () => {
     }))).to.equal(true)
 
     expect(filePath).to.equal(path.join('/tmp/exports', 'theme_1234.zip'))
+    expect(mkdirStub.calledWith('/tmp/exports', { recursive: true })).to.equal(true)
     expect(writeFileStub.calledWith(filePath, sinon.match.instanceOf(Buffer))).to.equal(true)
   })
 
@@ -38,7 +40,11 @@ describe('downloadThemePackage', () => {
 
     try {
       await downloadThemePackage('download/url', '1234', '/tmp/exports')
-    } catch {
+      throw new Error('Should have thrown an error')
+    } catch (thrown) {
+      if (thrown instanceof Error && thrown.message === 'Should have thrown an error') {
+        throw thrown
+      }
       expect(errorStub.calledWith(error)).to.equal(true)
     }
   })

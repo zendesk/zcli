@@ -18,6 +18,7 @@ export default async function downloadThemePackage (downloadUrl: string, themeId
       responseType: 'arraybuffer',
       validateStatus: (status: number) => status === 200
     })
+    fs.mkdirSync(destination, { recursive: true })
     fs.writeFileSync(filePath, Buffer.from(response.data))
     CliUx.ux.action.stop('Ok')
     return filePath
