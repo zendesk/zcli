@@ -25,7 +25,6 @@
     "eslint-plugin-promise": "^6.0.0",
     "form-data": "^4.0.0",
     "lerna": "^5.6.2",
-    "lerna-changelog": "^2.2.0",
     "mocha": "^10.8.2",
     "nyc": "^17.1.0",
     "rimraf": "^3.0.2",
@@ -53,7 +52,6 @@
     "lint": "eslint . --ext .ts --config .eslintrc",
     "test": "nyc --extension .ts mocha --config=.mocharc.json --forbid-only 'packages/**/src/**/*.test.ts'",
     "test:functional": "mocha --config=.mocharc.json -r ts-node/register 'packages/**/tests/**/*.test.ts'",
-    "changelog": "lerna-changelog",
     "type:check": "lerna run type:check"
   },
   "license": "Apache-2.0",
