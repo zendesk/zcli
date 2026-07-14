@@ -10,9 +10,6 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
     JAVASCRIPT_ENTRYPOINT_PATH="$(cygpath -wa "$JAVASCRIPT_ENTRYPOINT_PATH" | tr '\\' '/')"
 fi
 
-# link zcli-core & zcli-apps into ./packages/zcli/node_modules/@zendesk/
-npx lerna link
-
 # determine where we should install the stub to
 YARN_GLOBAL_BIN_DIR="$(yarn global bin)"
 TYPESCRIPT_ENTRYPOINT_PATH="$YARN_GLOBAL_BIN_DIR/zcli"
