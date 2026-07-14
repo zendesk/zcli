@@ -116,7 +116,7 @@ describe('rewriteManifest', () => {
       .returns(manifestContent)
 
     writeFileSyncStub
-      .withArgs('theme/path/manifest.json')
+      .withArgs('theme/path/manifest.json', '{"name": "Theme", "api_version": 2}')
       .throws(new Error('EACCES: permission denied'))
 
     expect(() => {

@@ -27,20 +27,20 @@ describe('rewriteJsAndCss', () => {
   it('throws if style.css cannot be written', () => {
     const cssPath = path.join('theme/path', 'style.css')
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
-    writeFileSyncStub.withArgs(cssPath).throws(new Error('Permission denied'))
+    writeFileSyncStub.withArgs(cssPath, 'cssData').throws(new Error('Permission denied'))
 
     expect(() => {
-      rewriteJsAndCss('theme/path', { css: 'a', js: 'b' })
+      rewriteJsAndCss('theme/path', { css: 'cssData', js: 'jsData' })
     }).to.throw(`Failed to write file: ${cssPath}`)
   })
 
   it('throws if script.js cannot be written', () => {
     const jsPath = path.join('theme/path', 'script.js')
     const writeFileSyncStub = sinon.stub(fs, 'writeFileSync')
-    writeFileSyncStub.withArgs(jsPath).throws(new Error('Permission denied'))
+    writeFileSyncStub.withArgs(jsPath, 'jsData').throws(new Error('Permission denied'))
 
     expect(() => {
-      rewriteJsAndCss('theme/path', { css: 'a', js: 'b' })
+      rewriteJsAndCss('theme/path', { css: 'cssData', js: 'jsData' })
     }).to.throw(`Failed to write file: ${jsPath}`)
   })
 })
