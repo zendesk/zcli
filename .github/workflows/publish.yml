@@ -13,35 +13,20 @@ jobs:
     name: Build and Publish to NPM
     runs-on: ubuntu-latest
     environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write # Required for OIDC trusted publishing
     steps:
       - uses: actions/checkout@v6
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: .node-version
+          node-version: 22 # >= 22.14.0 is required for OIDC trusted publishing
           cache: yarn
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Install oathtool for 2FA
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes oathtool
-
-      - name: Configure NPM Authentication
-        run: |
-          npm config set //registry.npmjs.org/:_authToken \${NPM_TOKEN} \
-            --location=project
-
       - name: Publish to NPM
-        run: |
-          TOTP=$(oathtool --base32 --totp "${NPM_TOTP_DEVICE}")
-
-          yarn --silent lerna publish from-package \
-            --yes \
-            --otp $TOTP
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOTP_DEVICE: ${{ secrets.NPM_TOTP_DEVICE }}
+        run: yarn lerna publish from-package --yes
