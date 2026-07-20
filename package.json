@@ -60,7 +60,10 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     }
   ],
-  "repository": "zendesk/zcli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zendesk/zcli.git"
+  },
   "types": "lib/index.d.ts",
   "resolutions": {
     "@types/glob": "^8.1.0"
