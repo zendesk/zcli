@@ -1,0 +1,28 @@
+name: npm trusted publishing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    strategy:
+      matrix:
+        include:
+          - package-name: '@zendesk/zcli'
+            package-json-file-path: packages/zcli/package.json
+          - package-name: '@zendesk/zcli-apps'
+            package-json-file-path: packages/zcli-apps/package.json
+          - package-name: '@zendesk/zcli-connectors'
+            package-json-file-path: packages/zcli-connectors/package.json
+          - package-name: '@zendesk/zcli-core'
+            package-json-file-path: packages/zcli-core/package.json
+          - package-name: '@zendesk/zcli-themes'
+            package-json-file-path: packages/zcli-themes/package.json
+    uses: zendesk/gw/.github/workflows/npm-trusted-publication.yml@main
+    secrets: inherit
+    with:
+      package-name: ${{ matrix.package-name }}
+      package-json-file-path: ${{ matrix.package-json-file-path }}
+      publish-workflow: publish.yml
+      repository: ${{ github.repository }}
+      github-environment: npm-publish
