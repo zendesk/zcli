@@ -3,11 +3,22 @@ import * as chalk from 'chalk'
 import { CliUx } from '@oclif/core'
 import Config from './config'
 import axios from 'axios'
+import open = require('open')
 import SecureStore from './secureStore'
 import { Profile } from '../types'
 import { getAccount, parseSubdomain } from './authUtils'
 import { getBaseUrl } from './requestUtils'
 import { SecretType } from './secretType'
+import {
+  generatePKCEPair,
+  generateState,
+  buildAuthorizeUrl,
+  startCallbackServer,
+  exchangeCodeForToken,
+  refreshAccessToken,
+  encodeOAuthSecret,
+  decodeOAuthSecret
+} from './oauth'
 
 export interface AuthOptions {
   secureStore: SecureStore;
@@ -35,12 +46,80 @@ export default class Auth {
     } else {
       const profile = await this.getLoggedInProfile()
       if (profile && this.secureStore) {
-        const authToken = await this.secureStore.getSecret(getAccount(profile.subdomain, profile.domain))
-        return authToken
+        const account = getAccount(profile.subdomain, profile.domain)
+        const rawSecret = await this.secureStore.getSecret(account)
+        if (!rawSecret) return undefined
+
+        const oauthSecret = decodeOAuthSecret(rawSecret)
+        if (!oauthSecret) return rawSecret
+
+        if (Date.now() < oauthSecret.expiresAt) {
+          return `Bearer ${oauthSecret.accessToken}`
+        }
+
+        return this.refreshAndStoreOAuthSecret(account, profile, oauthSecret.refreshToken)
       }
 
       return undefined
     }
+  }
+
+  private async refreshAndStoreOAuthSecret (account: string, profile: Profile, refreshToken: string): Promise<string> {
+    try {
+      const refreshed = await refreshAccessToken({ subdomain: profile.subdomain, domain: profile.domain, refreshToken })
+      const newSecret = encodeOAuthSecret(refreshed.access_token, refreshed.refresh_token, refreshed.expires_in)
+      await this.secureStore?.setSecret(account, newSecret)
+      return `Bearer ${refreshed.access_token}`
+    } catch (error) {
+      await this.secureStore?.deleteSecret(account)
+      throw new CLIError(chalk.red('Your session has expired and could not be refreshed. Please run `zcli login` again.'))
+    }
+  }
+
+  async forceRefreshAuthorizationToken (): Promise<string | undefined> {
+    const profile = await this.getLoggedInProfile()
+    if (!profile || !this.secureStore) return undefined
+
+    const account = getAccount(profile.subdomain, profile.domain)
+    const rawSecret = await this.secureStore.getSecret(account)
+    if (!rawSecret) return undefined
+
+    const oauthSecret = decodeOAuthSecret(rawSecret)
+    if (!oauthSecret) return undefined
+
+    return this.refreshAndStoreOAuthSecret(account, profile, oauthSecret.refreshToken)
+  }
+
+  async loginWithOAuth (options?: Profile): Promise<boolean> {
+    if (!this.secureStore) {
+      throw new CLIError(chalk.red('Secure credentials store not found.'))
+    }
+
+    const subdomain = parseSubdomain(options?.subdomain || await CliUx.ux.prompt('Subdomain'))
+    const domain = options?.domain
+    const account = getAccount(subdomain, domain)
+
+    const state = generateState()
+    const { codeVerifier, codeChallenge } = generatePKCEPair()
+    const { port, waitForCallback } = await startCallbackServer(state)
+    const redirectUri = `http://localhost:${port}/`
+    const authorizeUrl = buildAuthorizeUrl({ subdomain, domain, redirectUri, state, codeChallenge })
+
+    console.log(`To continue, open this URL in your browser:\n${authorizeUrl}`)
+    try {
+      await open(authorizeUrl)
+    } catch (error) {
+      // Ignore - the URL was already printed above for the user to open manually.
+    }
+
+    const { code } = await waitForCallback()
+    const tokenResponse = await exchangeCodeForToken({ subdomain, domain, code, codeVerifier, redirectUri })
+    const secret = encodeOAuthSecret(tokenResponse.access_token, tokenResponse.refresh_token, tokenResponse.expires_in)
+
+    await this.secureStore.setSecret(account, secret)
+    await this.setLoggedInProfile(subdomain, domain)
+
+    return true
   }
 
   createBasicAuthToken (user: string, secret: string, secretType: SecretType = SecretType.TOKEN) {
