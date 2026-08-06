@@ -9,6 +9,7 @@ zcli themes commands helps with managing Zendesk Help Center theming workflow.
 * [`zcli themes:publish`](#zcli-themespublish)
 * [`zcli themes:delete`](#zcli-themesdelete)
 * [`zcli themes:list`](#zcli-themeslist)
+* [`zcli themes:export [THEMEDIRECTORY]`](#zcli-themesexport-themedirectory)
 
 ## Configuration
 
@@ -147,3 +148,26 @@ EXAMPLES
   $ zcli themes:list --brandId=123456
   $ zcli themes:list --brandId=123456 --json
 ```
+
+## `zcli themes:export [THEMEDIRECTORY]`
+
+exports a theme as a zip file
+
+```
+USAGE
+  $ zcli themes:export [THEMEDIRECTORY]
+
+ARGUMENTS
+  THEMEDIRECTORY  [default: .] directory where the exported theme zip is written
+
+OPTIONS
+  --themeId       The id of the theme to export
+  --json          Return JSON output (useful in CI)
+
+EXAMPLES
+  $ zcli themes:export --themeId=123456789100
+  $ zcli themes:export ./exports --themeId=123456789100
+  $ zcli themes:export --themeId=123456789100 --json
+```
+
+The exported theme is written to the theme directory (default: current working directory) as `theme_<themeId>.zip`.

@@ -89,6 +89,14 @@ export type PendingJob = {
   data: JobData
 }
 
+export type ExportJob = PendingJob & {
+  data: {
+    download: {
+      url: string
+    }
+  }
+}
+
 export type CompletedJob = {
   id: string,
   status: 'completed',
