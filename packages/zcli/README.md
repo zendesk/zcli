@@ -17,7 +17,7 @@ USAGE
 * [`zcli themes`](../../docs/themes.md) - manage Zendesk themes workflow
 * [`zcli autocomplete`](../../docs/autocomplete.md) - display autocomplete installation instructions
 * [`zcli help`](../../docs/help.md) - display help for zcli
-* [`zcli login`](../../docs/login.md) - creates and/or saves an authentication token for the specified subdomain
+* [`zcli login`](../../docs/login.md) - creates and/or saves authentication credentials for the specified subdomain
 * [`zcli logout`](../../docs/logout.md) - removes an authentication token for an active profile
 * [`zcli profiles`](../../docs/profiles.md) - manage cli user profiles
 

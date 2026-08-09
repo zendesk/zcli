@@ -13,7 +13,7 @@ zcli themes commands helps with managing Zendesk Help Center theming workflow.
 
 ## Configuration
 
-NOTE: theme commands require login so make sure to first run `zcli login -i`
+NOTE: theme commands require login so make sure to first run `zcli login`
 
 ## `zcli themes:preview [THEMEDIRECTORY]`
 

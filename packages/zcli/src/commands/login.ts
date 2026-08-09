@@ -4,21 +4,19 @@ import { SecureStore, Auth, getAccount } from '@zendesk/zcli-core'
 import { HELP_ENV_VARS } from '../utils/helpMessage'
 
 export default class Login extends Command {
-  static description = 'creates and/or saves an authentication token for the specified subdomain'
+  static description = 'creates and/or saves authentication credentials for the specified subdomain'
 
   static flags = {
     help: Flags.help({ char: 'h' }),
     subdomain: Flags.string({ char: 's', default: '', description: 'Zendesk Subdomain' }),
     domain: Flags.string({ char: 'd', description: 'Zendesk domain' }),
-    interactive: Flags.boolean({ char: 'i', default: false, description: 'Use Terminal based login' })
+    interactive: Flags.boolean({ char: 'i', default: false, description: 'Use Terminal based login (deprecated)' })
   }
 
   static examples = [
     '$ zcli login',
     '$ zcli login -s zendesk-subdomain',
-    '$ zcli login -i',
-    '$ zcli login -s zendesk-subdomain -i',
-    '$ zcli login -s zendesk-subdomain -d example.com -i'
+    '$ zcli login -s zendesk-subdomain -d example.com',
   ]
 
   async run () {
