@@ -16,7 +16,7 @@ export default class Login extends Command {
   static examples = [
     '$ zcli login',
     '$ zcli login -s zendesk-subdomain',
-    '$ zcli login -s zendesk-subdomain -d example.com',
+    '$ zcli login -s zendesk-subdomain -d example.com'
   ]
 
   async run () {

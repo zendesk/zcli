@@ -7,10 +7,10 @@ import { getBaseUrl } from './requestUtils'
 
 export const OAUTH_CLIENT_ID = 'zdg-zcli'
 export const OAUTH_SCOPE = 'read write'
-export const OAUTH_PORTS = [19186, 19187, 19188]
+export const OAUTH_REDIRECT_PORTS = [19186, 19187, 19188]
 export const OAUTH_CALLBACK_TIMEOUT_MS = 5 * 60 * 1000
 
-export const ERR_PORTS_IN_USE = 'Unable to start a local server for OAuth login. Ports 19186, 19187, 19188 are all in use. Please free up one of these ports and try again.'
+export const ERR_PORTS_IN_USE = `Unable to start a local server for OAuth login. Ports ${OAUTH_REDIRECT_PORTS.join(', ')} are all in use. Please free up one of these ports and try again.`
 
 export interface PKCEPair { codeVerifier: string; codeChallenge: string }
 
@@ -24,7 +24,7 @@ export interface OAuthTokenResponse {
 
 export interface StoredOAuthSecret { accessToken: string; refreshToken: string; expiresAt: number }
 
-export interface CallbackResult { code: string; state: string }
+export interface CallbackResult { code: string }
 
 export const generateCodeVerifier = (): string => crypto.randomBytes(32).toString('base64url')
 
@@ -83,7 +83,7 @@ const listen = (server: http.Server, port: number): Promise<void> =>
     })
   })
 
-export const startCallbackServer = async (expectedState: string, ports: number[] = OAUTH_PORTS): Promise<{
+export const startCallbackServer = async (expectedState: string, ports: number[] = OAUTH_REDIRECT_PORTS): Promise<{
   port: number;
   waitForCallback: () => Promise<CallbackResult>;
   close: () => void;
@@ -127,9 +127,16 @@ export const startCallbackServer = async (expectedState: string, ports: number[]
 
       boundServer.on('request', (req, res) => {
         const url = new URL(req.url || '/', 'http://localhost')
+        const state = url.searchParams.get('state')
+
+        if (state !== expectedState) {
+          res.writeHead(404, { 'Content-Type': 'text/html' })
+          res.end()
+          return
+        }
+
         const error = url.searchParams.get('error')
         const code = url.searchParams.get('code')
-        const state = url.searchParams.get('state')
 
         if (error) {
           const description = url.searchParams.get('error_description') || undefined
@@ -139,16 +146,16 @@ export const startCallbackServer = async (expectedState: string, ports: number[]
           return
         }
 
-        if (!code || state !== expectedState) {
+        if (!code) {
           res.writeHead(200, { 'Content-Type': 'text/html' })
-          res.end(renderErrorHtml('invalid_state', 'Login failed: invalid or missing state parameter.'))
-          finish(() => reject(new CLIError(chalk.red('Login failed: invalid or missing state parameter.'))))
+          res.end(renderErrorHtml('invalid_request', 'Login failed: missing authorization code.'))
+          finish(() => reject(new CLIError(chalk.red('Login failed: missing authorization code.'))))
           return
         }
 
         res.writeHead(200, { 'Content-Type': 'text/html' })
         res.end(renderSuccessHtml())
-        finish(() => resolve({ code, state }))
+        finish(() => resolve({ code }))
       })
     })
   }

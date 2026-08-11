@@ -91,32 +91,36 @@ describe('oauth', () => {
   })
 
   describe('startCallbackServer', () => {
-    it('resolves with the code and state on a valid callback', async () => {
+    it('resolves with the code on a valid callback', async () => {
       const { port, waitForCallback } = await startCallbackServer('expected-state', [18976, 18977, 18978])
       const promise = waitForCallback()
       await new Promise(resolve => {
         http.get(`http://localhost:${port}/?code=abc123&state=expected-state`, resolve)
       })
       const result = await promise
-      expect(result).to.deep.equal({ code: 'abc123', state: 'expected-state' })
+      expect(result).to.deep.equal({ code: 'abc123' })
     })
 
-    it('rejects on state mismatch', async () => {
+    it('ignores requests with a state mismatch and keeps listening for a valid callback', async () => {
       const { port, waitForCallback } = await startCallbackServer('expected-state', [18979, 18980, 18981])
       const promise = waitForCallback()
-      http.get(`http://localhost:${port}/?code=abc123&state=wrong-state`)
-      try {
-        await promise
-        expect.fail('should have rejected')
-      } catch (error) {
-        expect((error as Error).message).to.match(/invalid or missing state/)
-      }
+
+      const mismatchResponse = await new Promise<http.IncomingMessage>(resolve => {
+        http.get(`http://localhost:${port}/?code=abc123&state=wrong-state`, resolve)
+      })
+      expect(mismatchResponse.statusCode).to.equal(404)
+
+      await new Promise(resolve => {
+        http.get(`http://localhost:${port}/?code=abc123&state=expected-state`, resolve)
+      })
+      const result = await promise
+      expect(result).to.deep.equal({ code: 'abc123' })
     })
 
     it('rejects on an error callback', async () => {
       const { port, waitForCallback } = await startCallbackServer('expected-state', [18982, 18983, 18984])
       const promise = waitForCallback()
-      http.get(`http://localhost:${port}/?error=access_denied&error_description=User%20denied%20access`)
+      http.get(`http://localhost:${port}/?error=access_denied&error_description=User%20denied%20access&state=expected-state`)
       try {
         await promise
         expect.fail('should have rejected')
@@ -133,7 +137,7 @@ describe('oauth', () => {
       const encodedPayload = encodeURIComponent(xssPayload)
 
       const response = await new Promise<string>((resolve) => {
-        http.get(`http://localhost:${port}/?error=xss_test&error_description=${encodedPayload}`, (res) => {
+        http.get(`http://localhost:${port}/?error=xss_test&error_description=${encodedPayload}&state=expected-state`, (res) => {
           let data = ''
           res.on('data', (chunk) => { data += chunk })
           res.on('end', () => resolve(data))
