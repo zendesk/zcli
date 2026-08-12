@@ -6,7 +6,7 @@ import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
 import { getBaseUrl, getDomain, getSubdomain } from './requestUtils'
 
-const MSG_ENV_OR_LOGIN = 'Set the following environment variables: ZENDESK_SUBDOMAIN, ZENDESK_EMAIL, ZENDESK_API_TOKEN. Or try logging in via `zcli login -i`'
+const MSG_ENV_OR_LOGIN = 'Set the following environment variables: ZENDESK_SUBDOMAIN, ZENDESK_EMAIL, ZENDESK_API_TOKEN. Or try logging in via `zcli login`'
 const ERR_AUTH_FAILED = `Authorization failed. ${MSG_ENV_OR_LOGIN}`
 const ERR_ENV_SUBDOMAIN_NOT_FOUND = `No subdomain found. ${MSG_ENV_OR_LOGIN}`
 

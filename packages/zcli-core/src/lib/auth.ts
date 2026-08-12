@@ -51,7 +51,10 @@ export default class Auth {
         if (!rawSecret) return undefined
 
         const oauthSecret = decodeOAuthSecret(rawSecret)
-        if (!oauthSecret) return rawSecret
+        if (!oauthSecret) {
+          console.warn(chalk.yellow('Warning: API token auth is deprecated. Run `zcli login` to upgrade to OAuth.'))
+          return rawSecret
+        }
 
         if (Date.now() < oauthSecret.expiresAt) {
           return `Bearer ${oauthSecret.accessToken}`
