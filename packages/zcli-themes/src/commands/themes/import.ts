@@ -31,7 +31,7 @@ export default class Import extends Command {
     let { flags: { brandId }, argv: [themeDirectory] } = await this.parse(Import)
     const themePath = path.resolve(themeDirectory)
 
-    brandId = brandId || await getBrandId()
+    brandId = brandId || await getBrandId('What brand should the theme be imported to?')
 
     const job = await createThemeImportJob(brandId)
     const { file, removePackage } = await createThemePackage(themePath)

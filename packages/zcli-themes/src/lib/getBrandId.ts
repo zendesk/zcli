@@ -3,7 +3,7 @@ import type { Brand } from '../types'
 import { request } from '@zendesk/zcli-core'
 import * as inquirer from 'inquirer'
 
-export default async function getBrandId (): Promise<string> {
+export default async function getBrandId (message?: string): Promise<string> {
   try {
     const { data: { brands } } = await request.requestAPI('/api/v2/brands.json', {
       validateStatus: (status: number) => status === 200
@@ -16,7 +16,7 @@ export default async function getBrandId (): Promise<string> {
     const { brandId } = await inquirer.prompt({
       type: 'list',
       name: 'brandId',
-      message: 'What brand should the theme be imported to?',
+      message: message ?? 'Choose a brand',
       choices: brands.map((brand: Brand) => ({
         name: brand.name,
         value: brand.id.toString()
