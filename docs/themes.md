@@ -9,6 +9,7 @@ zcli themes commands helps with managing Zendesk Help Center theming workflow.
 * [`zcli themes:publish`](#zcli-themespublish)
 * [`zcli themes:delete`](#zcli-themesdelete)
 * [`zcli themes:list`](#zcli-themeslist)
+* [`zcli themes:migrate [THEMEDIRECTORY]`](#zcli-themesmigrate-themedirectory)
 
 ## Configuration
 
@@ -147,3 +148,20 @@ EXAMPLES
   $ zcli themes:list --brandId=123456
   $ zcli themes:list --brandId=123456 --json
 ```
+
+## `zcli themes:migrate [THEMEDIRECTORY]`
+
+migrate a theme to the latest supported version of the templating api
+
+```
+USAGE
+  $ zcli themes:migrate [THEMEDIRECTORY]
+
+ARGUMENTS
+  THEMEDIRECTORY  [default: .] theme path where manifest.json exists
+
+EXAMPLES
+  $ zcli themes:migrate ./copenhagen_theme
+```
+
+The command rewrites the theme files in place, so run it from within version control to review and revert the changes if needed. After migrating, preview the result locally with `zcli themes:preview`.
