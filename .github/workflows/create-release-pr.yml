@@ -76,7 +76,7 @@ jobs:
 
       - name: Create Pull Request
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ZCLI_SVC_TOKEN }}
         run: |
           VERSION="${{ steps.version_bump.outputs.version }}"
 
