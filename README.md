@@ -72,6 +72,7 @@ ZCLI supports numerous commands. Further documentation on available commands can
 
 # Local development
 
+
 To run your development copy of ZCLI locally, execute `yarn link:bin`.
 
 Under macOS if you are using a version manager like [`asdf`](https://asdf-vm.com), it can additionally set up the global `/usr/local/bin/zcli`.
