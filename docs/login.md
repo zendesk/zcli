@@ -1,13 +1,13 @@
 `zcli login`
 ============
 
-creates and/or saves an authentication token for the specified subdomain
+Log in to your Zendesk account using browser-based OAuth authentication.
 
 * [`zcli login`](#zcli-login)
 
 ## `zcli login`
 
-creates and/or saves an authentication token for the specified subdomain
+Log in to your Zendesk account and save authentication credentials for the specified subdomain
 
 ```
 USAGE
@@ -15,20 +15,35 @@ USAGE
 
 OPTIONS
   -h, --help                 show CLI help
-  -i, --interactive          Use Terminal based login
   -s, --subdomain=subdomain  Zendesk Subdomain
   -d, --domain=domain        Zendesk Domain (optional)
 
 EXAMPLES
-  $ zcli login -i
-  $ zcli login -s zendesk-subdomain -i
-  $ zcli login -s zendesk-subdomain -d example.com -i
-  $ zcli login -s zendesk-subdomain -d dev.example.com -i
-  $ zcli login -d example.com -i
+  $ zcli login
+  $ zcli login -s zendesk-subdomain
+  $ zcli login -s zendesk-subdomain -d example.com
+  $ zcli login -s zendesk-subdomain -d zendesk-staging.com
 ```
 
-NOTE: For development purposes, you can specify a domain different from `zendesk.com` for logging in to a different environment. For example, if the environment is hosted on `example.com`, you can run 
-`zcli login -s zendesk-subdomain -d example.com -i` and you will be logged in to `zendesk-subdomain.example.com`. If the option is not specified, the default `zendesk.com` domain will be used.
+## Custom Domains
 
-NOTE: For CI/CD or unattended login you can set `ZENDESK_APP_ID`, `ZENDESK_SUBDOMAIN`, `ZENDESK_EMAIL` and `ZENDESK_API_TOKEN` environment variables. You don't need to run the login command if you have set these environment variables.
-You can also set the `ZENDESK_DOMAIN` environment variable for different environments.
+For development purposes, you can specify a domain different from `zendesk.com` for logging in to a different environment:
+
+```bash
+# Login to zendesk-subdomain.example.com
+$ zcli login -s zendesk-subdomain -d example.com
+```
+
+If the `-d` option is not specified, the default `zendesk.com` domain will be used.
+
+## CI/CD and Unattended Environments
+
+For CI/CD pipelines or environments without browser access, you can set environment variables instead of running the login command:
+
+- `ZENDESK_APP_ID` - Your Zendesk app ID
+- `ZENDESK_SUBDOMAIN` - Your Zendesk subdomain
+- `ZENDESK_EMAIL` - Your Zendesk account email
+- `ZENDESK_API_TOKEN` - Your Zendesk API token
+- `ZENDESK_DOMAIN` - (Optional) Custom domain if not using zendesk.com
+
+When these variables are set, you don't need to run the login command.

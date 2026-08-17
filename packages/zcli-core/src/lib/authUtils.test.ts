@@ -10,6 +10,14 @@ describe('authUtils', () => {
         expect(parseSubdomain('test3.zendesk.com ')).to.equal('test3')
         expect(parseSubdomain('test4')).to.equal('test4')
       })
+
+    test
+      .it('should extract the subdomain from urls with paths', async () => {
+        expect(parseSubdomain('https://foo.zendesk.com/agent')).to.equal('foo')
+        expect(parseSubdomain('https://bar.zendesk.com/hc/en-us/articles/123')).to.equal('bar')
+        expect(parseSubdomain('https://baz.zendesk.com/admin/settings?tab=security')).to.equal('baz')
+        expect(parseSubdomain('test5.zendesk.com/agent/tickets/456')).to.equal('test5')
+      })
   })
 
   describe('getAccount', () => {

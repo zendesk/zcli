@@ -4,7 +4,7 @@ import axios from 'axios'
 import { createRequestConfig, requestAPI, requestRaw } from './request'
 import * as requestUtils from './requestUtils'
 import Auth from './auth'
-import { Profile } from '../types'
+import SecureStore from './secureStore'
 
 describe('createRequestConfig', () => {
   test
@@ -83,9 +83,10 @@ describe('createRequestConfig', () => {
     })
     .stub(requestUtils, 'getSubdomain', () => 'ping')
     .stub(requestUtils, 'getDomain', () => 'me.com')
-    .stub(Auth, 'getLoggedInProfile', () : Profile => ({ subdomain: 'ping', domain: 'me.com' }))
     .it('should be able to create auth using profile subdomain and domain', async () => {
-      const req = await createRequestConfig('api/v2/me', {})
+      const auth = new Auth({ secureStore: new SecureStore() })
+      sinon.stub(auth, 'getLoggedInProfile').returns({ subdomain: 'ping', domain: 'me.com' })
+      const req = await createRequestConfig('api/v2/me', {}, auth)
       expect(req.baseURL).to.equal('https://ping.me.com')
       expect(req.headers.Authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
     })
@@ -125,6 +126,82 @@ describe('requestAPI', () => {
       const response = await requestAPI('api/v2/me', { method: 'GET' })
       expect(response.status).to.equal(200)
     })
+
+  test
+    .env({
+      ZENDESK_SUBDOMAIN: 'z3ntest',
+      ZENDESK_OAUTH_TOKEN: 'stale_token'
+    })
+    .stub(requestUtils, 'getSubdomain', () => 'fake')
+    .stub(requestUtils, 'getDomain', () => 'fake.com')
+    .do(() => {
+      fetchStub.withArgs(sinon.match({
+        url: 'https://z3ntest.zendesk.com/api/v2/me',
+        method: 'GET'
+      })).resolves({
+        status: 401,
+        ok: false,
+        text: () => Promise.resolve('')
+      })
+    })
+    .it('should return the 401 response unmodified when there is nothing to refresh (env-based auth)', async () => {
+      const response = await requestAPI('api/v2/me', { method: 'GET' })
+      expect(response.status).to.equal(401)
+      expect(fetchStub.callCount).to.equal(1)
+    })
+
+  describe('with a refreshable OAuth profile', () => {
+    let forceRefreshStub: sinon.SinonStub
+    let loadKeytarStub: sinon.SinonStub
+
+    beforeEach(() => {
+      forceRefreshStub = sinon.stub(Auth.prototype, 'forceRefreshAuthorizationToken')
+      loadKeytarStub = sinon.stub(SecureStore.prototype, 'loadKeytar').resolves()
+    })
+
+    afterEach(() => {
+      forceRefreshStub.restore()
+      loadKeytarStub.restore()
+    })
+
+    test
+      .stub(requestUtils, 'getSubdomain', () => 'z3ntest')
+      .stub(requestUtils, 'getDomain', () => undefined)
+      .stub(Auth.prototype, 'getAuthorizationToken', () => 'Bearer stale-token')
+      .do(() => {
+        forceRefreshStub.resolves('Bearer refreshed-token')
+        fetchStub.withArgs(sinon.match((req: Request) =>
+          req.url === 'https://z3ntest.zendesk.com/api/v2/me' &&
+          req.headers.get('Authorization') === 'Bearer stale-token'
+        )).resolves({ status: 401, ok: false, text: () => Promise.resolve('') })
+        fetchStub.withArgs(sinon.match((req: Request) =>
+          req.url === 'https://z3ntest.zendesk.com/api/v2/me' &&
+          req.headers.get('Authorization') === 'Bearer refreshed-token'
+        )).resolves({ status: 200, ok: true, text: () => Promise.resolve('') })
+      })
+      .it('should retry once with a refreshed token and succeed', async () => {
+        const response = await requestAPI('api/v2/me', { method: 'GET' }, false)
+        expect(response.status).to.equal(200)
+        expect(forceRefreshStub.calledOnce).to.equal(true)
+        expect(fetchStub.callCount).to.equal(2)
+      })
+
+    test
+      .stub(requestUtils, 'getSubdomain', () => 'z3ntest')
+      .stub(requestUtils, 'getDomain', () => undefined)
+      .stub(Auth.prototype, 'getAuthorizationToken', () => 'Bearer stale-token')
+      .do(() => {
+        forceRefreshStub.resolves(undefined)
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/me'
+        })).resolves({ status: 401, ok: false, text: () => Promise.resolve('') })
+      })
+      .it('should give up and return the original 401 if refresh yields no token', async () => {
+        const response = await requestAPI('api/v2/me', { method: 'GET' })
+        expect(response.status).to.equal(401)
+        expect(fetchStub.callCount).to.equal(1)
+      })
+  })
 })
 
 describe('requestRaw', () => {
