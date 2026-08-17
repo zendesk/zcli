@@ -5,7 +5,7 @@ import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { getBaseUrl } from './requestUtils'
 
-export const OAUTH_CLIENT_ID = 'zdg-zcli'
+export const OAUTH_CLIENT_ID = 'zdg-zcli-oauth'
 export const OAUTH_SCOPE = 'read write'
 export const OAUTH_REDIRECT_PORTS = [19186, 19187, 19188]
 export const OAUTH_CALLBACK_TIMEOUT_MS = 5 * 60 * 1000
