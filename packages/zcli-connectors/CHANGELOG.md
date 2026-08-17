@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
+
+**Note:** Version bump only for package @zendesk/zcli-connectors
+
+
+
+
+
 ## [1.1.4](https://github.com/zendesk/zcli/compare/v1.1.3...v1.1.4) (2026-07-20)
 
 **Note:** Version bump only for package @zendesk/zcli-connectors
