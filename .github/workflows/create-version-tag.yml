@@ -1,12 +1,7 @@
 name: Create Version Tag
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - lerna.json
-
+  workflow_dispatch:
 jobs:
   create-tag:
     runs-on: ubuntu-latest
