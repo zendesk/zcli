@@ -16,4 +16,4 @@ jobs:
           git fetch --depth 100
       - uses: zendesk/gh-ph@v1
         env:
-          GH_TOKEN: ${{ secrets.ZCLI_SVC_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
