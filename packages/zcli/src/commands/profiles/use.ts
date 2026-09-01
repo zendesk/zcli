@@ -1,7 +1,7 @@
 import { Command } from '@oclif/core'
 import * as chalk from 'chalk'
 import { SecureStore, Auth, getProfileFromAccount } from '@zendesk/zcli-core'
-import { HELP_ENV_VARS } from '../../utils/helpMessage'
+import { HELP_KEYTAR_REQUIRED } from '../../utils/helpMessage'
 
 export default class Remove extends Command {
   static description = 'switches to a profile'
@@ -21,7 +21,7 @@ export default class Remove extends Command {
     const secureStore = new SecureStore()
     const keytar = await secureStore.loadKeytar()
     if (!keytar) {
-      console.log(chalk.yellow(`Failed to load secure credentials store: could not switch to ${account} profile.`), HELP_ENV_VARS)
+      console.log(chalk.yellow(`Failed to load secure credentials store: could not switch to ${account} profile.`), HELP_KEYTAR_REQUIRED)
       return
     }
 

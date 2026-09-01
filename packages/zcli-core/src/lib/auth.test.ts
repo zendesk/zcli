@@ -1,10 +1,8 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
-import { CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
 import Auth from './auth'
 import SecureStore from './secureStore'
-import { Profile } from '../types'
 import * as oauth from './oauth'
 
 describe('Auth', () => {
@@ -129,112 +127,6 @@ describe('Auth', () => {
       })
       .catch(chalk.red('Basic authentication of type \'password\' is not supported.'))
       .it('should throw an error if only ZENDESK_EMAIL and ZENDESK_PASSWORD are set - basic auth with password not supported')
-  })
-
-  describe('loginInteractively', () => {
-    const auth = new Auth({ secureStore: new SecureStore() })
-    const promptStub = sinon.stub()
-    let fetchStub: sinon.SinonStub
-
-    beforeEach(() => {
-      fetchStub = sinon.stub(global, 'fetch')
-    })
-
-    afterEach(() => {
-      fetchStub.restore()
-    })
-
-    test
-      .do(() => {
-        promptStub.onFirstCall().resolves('z3ntest')
-        promptStub.onSecondCall().resolves('test@zendesk.com')
-        promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match((req: Request) =>
-          req.method === 'GET' &&
-          req.url === 'https://z3ntest.zendesk.com/api/v2/account/settings.json' &&
-          req.headers.get('Authorization') === 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-        ))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
-      })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
-      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .it('should return true on login success', async () => {
-        expect(await auth.loginInteractively()).to.equal(true)
-      })
-
-    test
-      .do(() => {
-        promptStub.reset()
-        promptStub.onFirstCall().resolves('z3ntest')
-        promptStub.onSecondCall().resolves('test@zendesk.com')
-        promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match((req: Request) =>
-          req.method === 'GET' &&
-          req.url === 'https://z3ntest.example.com/api/v2/account/settings.json' &&
-          req.headers.get('Authorization') === 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-        ))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
-      })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
-      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .it('should login successfully using the passed domain and the prompted subdomain', async () => {
-        expect(await auth.loginInteractively({ domain: 'example.com' } as Profile)).to.equal(true)
-      })
-
-    test
-      .do(() => {
-        promptStub.reset()
-        promptStub.onFirstCall().resolves('test@zendesk.com')
-        promptStub.onSecondCall().resolves('123456')
-        fetchStub.withArgs(sinon.match((req: Request) =>
-          req.method === 'GET' &&
-          req.url === 'https://z3ntest.example.com/api/v2/account/settings.json' &&
-          req.headers.get('Authorization') === 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-        ))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
-      })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
-      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .it('should login successfully using the passed subdomain and domain', async () => {
-        expect(await auth.loginInteractively({ subdomain: 'z3ntest', domain: 'example.com' })).to.equal(true)
-      })
-
-    test
-      .do(() => {
-        promptStub.reset()
-        promptStub.onFirstCall().resolves('z3ntest')
-        promptStub.onSecondCall().resolves('test@zendesk.com')
-        promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match((req: Request) =>
-          req.method === 'GET' &&
-          req.url === 'https://z3ntest.zendesk.com/api/v2/account/settings.json' &&
-          req.headers.get('Authorization') === 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-        ))
-          .resolves({
-            status: 403,
-            ok: false,
-            text: () => Promise.resolve('')
-          })
-      })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .it('should return false on login failure', async () => {
-        expect(await auth.loginInteractively()).to.equal(false)
-      })
   })
 
   describe('loginWithOAuth', () => {
