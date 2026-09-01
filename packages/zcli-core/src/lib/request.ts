@@ -14,7 +14,7 @@ const buildAuth = async (): Promise<Auth> => {
   if (
     varExists(EnvVars.SUBDOMAIN, EnvVars.OAUTH_TOKEN) ||
     varExists(EnvVars.SUBDOMAIN, EnvVars.EMAIL, EnvVars.API_TOKEN) ||
-    varExists(EnvVars.OAUTH_CLIENT_ID, EnvVars.OAUTH_CLIENT_SECRET)
+    varExists(EnvVars.SUBDOMAIN, EnvVars.OAUTH_CLIENT_ID, EnvVars.OAUTH_CLIENT_SECRET)
   ) {
     return new Auth()
   }
