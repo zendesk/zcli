@@ -1,6 +1,7 @@
 import { Command, Flags } from '@oclif/core'
 import * as chalk from 'chalk'
 import { SecureStore, Auth, getAccount } from '@zendesk/zcli-core'
+import { HELP_ENV_VARS } from '../utils/helpMessage'
 
 export default class Login extends Command {
   static description = 'creates and/or saves authentication credentials for the specified subdomain'
@@ -24,7 +25,7 @@ export default class Login extends Command {
     const secureStore = new SecureStore()
     const keytar = await secureStore.loadKeytar()
     if (!keytar) {
-      console.log(chalk.red('OAuth login requires keytar, which failed to install. Please install it manually.'))
+      console.log(chalk.red('OAuth login requires keytar, which failed to install. Install it manually to use `zcli login`. For CI/CD, use environment-based authentication instead.'), HELP_ENV_VARS)
       this.exit(1)
     }
 

@@ -106,8 +106,6 @@ describe('requestAPI', () => {
   test
     .env({
       ZENDESK_SUBDOMAIN: 'z3ntest',
-      ZENDESK_EMAIL: 'test@zendesk.com',
-      ZENDESK_API_TOKEN: '123456',
       ZENDESK_OAUTH_TOKEN: 'good_token'
     })
     .stub(requestUtils, 'getSubdomain', () => 'fake')

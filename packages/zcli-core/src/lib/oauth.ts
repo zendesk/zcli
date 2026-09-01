@@ -22,6 +22,13 @@ export interface OAuthTokenResponse {
   scope: string;
 }
 
+export interface ClientCredentialsTokenResponse {
+  access_token: string;
+  expires_in: number;
+  token_type: string;
+  scope: string;
+}
+
 export interface StoredOAuthSecret { accessToken: string; refreshToken: string; expiresAt: number }
 
 export interface CallbackResult { code: string }
@@ -225,6 +232,57 @@ export const refreshAccessToken = async (params: {
   }
 
   return response.data as OAuthTokenResponse
+}
+
+export const fetchClientCredentialsToken = async (params: {
+  subdomain: string;
+  domain?: string;
+  clientId: string;
+  clientSecret: string;
+}): Promise<ClientCredentialsTokenResponse> => {
+  const { subdomain, domain, clientId, clientSecret } = params
+  const baseUrl = getBaseUrl(subdomain, domain)
+
+  const response = await axios.post(
+    `${baseUrl}/oauth/tokens`,
+    {
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: OAUTH_SCOPE
+    },
+    {
+      validateStatus: (status: number) => status < 500,
+      adapter: 'fetch'
+    }
+  )
+
+  const token = response.data as Partial<ClientCredentialsTokenResponse> & {
+    error?: string;
+    error_description?: string;
+  }
+  if (
+    (response.status !== 200 && response.status !== 201) ||
+    typeof token.access_token !== 'string'
+  ) {
+    const details = [token.error, token.error_description].filter(Boolean).join(': ')
+    throw new CLIError(chalk.red(
+      details
+        ? `Failed to obtain an access token using OAuth client credentials. ${details}`
+        : 'Failed to obtain an access token using OAuth client credentials.'
+    ))
+  }
+
+  const expiresIn = typeof token.expires_in === 'number' && token.expires_in > 0
+    ? token.expires_in
+    : 1800
+
+  return {
+    access_token: token.access_token,
+    expires_in: expiresIn,
+    token_type: token.token_type || 'bearer',
+    scope: token.scope || OAUTH_SCOPE
+  }
 }
 
 export const encodeOAuthSecret = (accessToken: string, refreshToken: string, expiresIn: number): string => {
