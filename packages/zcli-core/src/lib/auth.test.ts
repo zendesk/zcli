@@ -36,9 +36,7 @@ describe('Auth', () => {
         const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
         const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
           access_token: 'client-credentials-token',
-          expires_in: 3600,
-          token_type: 'bearer',
-          scope: 'read write'
+          expires_in: 3600
         })
         try {
           expect(await auth.getAuthorizationToken()).to.equal('Bearer client-credentials-token')
@@ -95,9 +93,7 @@ describe('Auth', () => {
         const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
         const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
           access_token: 'replacement-token',
-          expires_in: 3600,
-          token_type: 'bearer',
-          scope: 'read write'
+          expires_in: 3600
         })
         try {
           expect(await auth.getAuthorizationToken()).to.equal('Bearer replacement-token')
@@ -135,9 +131,7 @@ describe('Auth', () => {
         const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
         const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
           access_token: 'client-credentials-token',
-          expires_in: 3600,
-          token_type: 'bearer',
-          scope: 'read write'
+          expires_in: 3600
         })
         try {
           expect(await auth.getAuthorizationToken()).to.equal('Bearer static-oauth-token')
@@ -208,9 +202,7 @@ describe('Auth', () => {
         const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
         const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
           access_token: 'client-credentials-token',
-          expires_in: 3600,
-          token_type: 'bearer',
-          scope: 'read write'
+          expires_in: 3600
         })
         try {
           expect(await auth.getAuthorizationToken()).to.equal('Bearer client-credentials-token')
@@ -404,9 +396,7 @@ describe('Auth', () => {
         const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
         const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
           access_token: 'forced-new-token',
-          expires_in: 3600,
-          token_type: 'bearer',
-          scope: 'read write'
+          expires_in: 3600
         })
         try {
           expect(await auth.forceRefreshAuthorizationToken()).to.equal('Bearer forced-new-token')

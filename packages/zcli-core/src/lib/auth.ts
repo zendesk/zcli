@@ -48,7 +48,7 @@ export default class Auth {
 
     if (ZENDESK_OAUTH_TOKEN) {
       return `Bearer ${ZENDESK_OAUTH_TOKEN}`
-    } else if (this.hasClientCredentials()) {
+    } else if (this.hasClientCredentialsEnvVars()) {
       return this.getClientCredentialsAuthorizationToken()
     } else if (this.hasPartialClientCredentials()) {
       if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
@@ -113,7 +113,7 @@ export default class Auth {
     return this.refreshAndStoreOAuthSecret(account, profile, oauthSecret.refreshToken)
   }
 
-  private hasClientCredentials (): boolean {
+  private hasClientCredentialsEnvVars (): boolean {
     return varExists(EnvVars.OAUTH_CLIENT_ID, EnvVars.OAUTH_CLIENT_SECRET)
   }
 
@@ -122,7 +122,7 @@ export default class Auth {
   }
 
   private usesClientCredentials (): boolean {
-    return this.hasClientCredentials() &&
+    return this.hasClientCredentialsEnvVars() &&
       !!process.env[EnvVars.SUBDOMAIN] &&
       !process.env[EnvVars.OAUTH_TOKEN]
   }
@@ -133,11 +133,8 @@ export default class Auth {
   }
 
   private async getClientCredentialsAuthorizationToken (forceRefresh = false): Promise<string> {
-    const clientId = process.env[EnvVars.OAUTH_CLIENT_ID]
-    const clientSecret = process.env[EnvVars.OAUTH_CLIENT_SECRET]
-    if (!clientId || !clientSecret) {
-      throw new CLIError(chalk.red('OAuth client credentials require both ZENDESK_OAUTH_CLIENT_ID and ZENDESK_OAUTH_CLIENT_SECRET.'))
-    }
+    const clientId = process.env[EnvVars.OAUTH_CLIENT_ID] as string
+    const clientSecret = process.env[EnvVars.OAUTH_CLIENT_SECRET] as string
 
     const subdomain = process.env[EnvVars.SUBDOMAIN]
     if (!subdomain) {

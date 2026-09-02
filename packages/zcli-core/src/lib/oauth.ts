@@ -25,8 +25,6 @@ export interface OAuthTokenResponse {
 export interface ClientCredentialsTokenResponse {
   access_token: string;
   expires_in: number;
-  token_type: string;
-  scope: string;
 }
 
 export interface StoredOAuthSecret { accessToken: string; refreshToken: string; expiresAt: number }
@@ -248,8 +246,7 @@ export const fetchClientCredentialsToken = async (params: {
     {
       grant_type: 'client_credentials',
       client_id: clientId,
-      client_secret: clientSecret,
-      scope: OAUTH_SCOPE
+      client_secret: clientSecret
     },
     {
       validateStatus: (status: number) => status < 500,
@@ -267,9 +264,7 @@ export const fetchClientCredentialsToken = async (params: {
   ) {
     const details = [token.error, token.error_description].filter(Boolean).join(': ')
     throw new CLIError(chalk.red(
-      details
-        ? `Failed to obtain an access token using OAuth client credentials. ${details}`
-        : 'Failed to obtain an access token using OAuth client credentials.'
+      `Failed to obtain an access token using OAuth client credentials.${details ? ` ${details}` : ''}`
     ))
   }
 
@@ -279,9 +274,7 @@ export const fetchClientCredentialsToken = async (params: {
 
   return {
     access_token: token.access_token,
-    expires_in: expiresIn,
-    token_type: token.token_type || 'bearer',
-    scope: token.scope || OAUTH_SCOPE
+    expires_in: expiresIn
   }
 }
 
