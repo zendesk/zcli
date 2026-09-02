@@ -48,13 +48,15 @@ export default class Auth {
 
     if (ZENDESK_OAUTH_TOKEN) {
       return `Bearer ${ZENDESK_OAUTH_TOKEN}`
-    } else if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
-      if (this.hasClientCredentials()) {
-        console.warn(chalk.yellow('Warning: Multiple authentication methods are configured. Using API token authentication; API token auth is deprecated.'))
-      }
-      return this.createBasicAuthToken(`${ZENDESK_EMAIL}`, ZENDESK_API_TOKEN)
     } else if (this.hasClientCredentials()) {
       return this.getClientCredentialsAuthorizationToken()
+    } else if (this.hasPartialClientCredentials()) {
+      if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
+        return this.createDeprecatedApiToken(ZENDESK_EMAIL, ZENDESK_API_TOKEN)
+      }
+      throw new CLIError(chalk.red('OAuth client credentials are incomplete. Set both ZENDESK_OAUTH_CLIENT_ID and ZENDESK_OAUTH_CLIENT_SECRET.'))
+    } else if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
+      return this.createDeprecatedApiToken(ZENDESK_EMAIL, ZENDESK_API_TOKEN)
     } else if (ZENDESK_EMAIL && ZENDESK_PASSWORD) {
       return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD, SecretType.PASSWORD)
     } else {
@@ -115,10 +117,19 @@ export default class Auth {
     return varExists(EnvVars.OAUTH_CLIENT_ID, EnvVars.OAUTH_CLIENT_SECRET)
   }
 
+  private hasPartialClientCredentials (): boolean {
+    return !!process.env[EnvVars.OAUTH_CLIENT_ID] !== !!process.env[EnvVars.OAUTH_CLIENT_SECRET]
+  }
+
   private usesClientCredentials (): boolean {
     return this.hasClientCredentials() &&
-      !process.env[EnvVars.OAUTH_TOKEN] &&
-      !varExists(EnvVars.EMAIL, EnvVars.API_TOKEN)
+      !!process.env[EnvVars.SUBDOMAIN] &&
+      !process.env[EnvVars.OAUTH_TOKEN]
+  }
+
+  private createDeprecatedApiToken (email: string, apiToken: string) {
+    console.warn(chalk.yellow('Warning: API token authentication is deprecated, but will continue to be used until it is fully removed.'))
+    return this.createBasicAuthToken(email, apiToken)
   }
 
   private async getClientCredentialsAuthorizationToken (forceRefresh = false): Promise<string> {

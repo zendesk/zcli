@@ -113,6 +113,7 @@ describe('Auth', () => {
 
     test
       .env({
+        ZENDESK_SUBDOMAIN: '',
         ZENDESK_OAUTH_CLIENT_ID: 'client-id',
         ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
       })
@@ -124,28 +125,44 @@ describe('Auth', () => {
 
     test
       .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
         ZENDESK_OAUTH_TOKEN: 'static-oauth-token',
         ZENDESK_OAUTH_CLIENT_ID: 'client-id',
         ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
       })
-      .it('should use a direct OAuth token when it is configured with client credentials', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Bearer static-oauth-token')
+      .do(async () => {
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves(undefined)
+        const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
+          access_token: 'client-credentials-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          scope: 'read write'
+        })
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer static-oauth-token')
+          expect(tokenStub.called).to.equal(false)
+        } finally {
+          getConfigStub.restore()
+          setConfigStub.restore()
+          tokenStub.restore()
+        }
       })
+      .it('should use a direct OAuth token when it is configured with client credentials')
 
     test
       .env({
-        ZENDESK_EMAIL: 'test@zendesk.com',
-        ZENDESK_API_TOKEN: 'test_api_token'
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id'
       })
-      .it('should return basic token if ZENDESK_EMAIL and ZENDESK_API_TOKEN is set', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjp0ZXN0X2FwaV90b2tlbg==')
+      .do(async () => {
+        await auth.getAuthorizationToken()
       })
+      .catch(chalk.red('OAuth client credentials are incomplete. Set both ZENDESK_OAUTH_CLIENT_ID and ZENDESK_OAUTH_CLIENT_SECRET.'))
+      .it('should reject incomplete client credentials when no API token is present')
 
     test
       .env({
-        ZENDESK_SUBDOMAIN: 'z3ntest',
         ZENDESK_OAUTH_CLIENT_ID: 'client-id',
-        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret',
         ZENDESK_EMAIL: 'test@zendesk.com',
         ZENDESK_API_TOKEN: 'test_api_token'
       })
@@ -158,7 +175,54 @@ describe('Auth', () => {
           warningStub.restore()
         }
       })
-      .it('should use API token authentication and warn when both API and client credentials are configured')
+      .it('should fall back to the API token when client credentials are incomplete')
+
+    test
+      .env({
+        ZENDESK_EMAIL: 'test@zendesk.com',
+        ZENDESK_API_TOKEN: 'test_api_token'
+      })
+      .do(async () => {
+        const warningStub = sinon.stub(console, 'warn')
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjp0ZXN0X2FwaV90b2tlbg==')
+          expect(warningStub.calledOnce).to.equal(true)
+          expect(warningStub.firstCall.args[0]).to.equal(chalk.yellow('Warning: API token authentication is deprecated, but will continue to be used until it is fully removed.'))
+        } finally {
+          warningStub.restore()
+        }
+      })
+      .it('should return basic token and warn if ZENDESK_EMAIL and ZENDESK_API_TOKEN is set')
+
+    test
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret',
+        ZENDESK_EMAIL: 'test@zendesk.com',
+        ZENDESK_API_TOKEN: 'test_api_token'
+      })
+      .do(async () => {
+        const warningStub = sinon.stub(console, 'warn')
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves(undefined)
+        const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
+          access_token: 'client-credentials-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          scope: 'read write'
+        })
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer client-credentials-token')
+          expect(warningStub.called).to.equal(false)
+        } finally {
+          warningStub.restore()
+          getConfigStub.restore()
+          setConfigStub.restore()
+          tokenStub.restore()
+        }
+      })
+      .it('should use client credentials without a warning when both API token and client credentials are configured')
 
     test
       .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
@@ -229,7 +293,7 @@ describe('Auth', () => {
         ZENDESK_API_TOKEN: 'test_api_token',
         ZENDESK_PASSWORD: '123456'
       })
-      .it('should give precedence to ZENDESK_OAUTH_TOKEN', async () => {
+      .it('should give precedence to ZENDESK_OAUTH_TOKEN over API token', async () => {
         expect(await auth.getAuthorizationToken()).to.equal('Bearer test_oauth_token')
       })
 
