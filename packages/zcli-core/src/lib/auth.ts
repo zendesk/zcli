@@ -2,12 +2,10 @@ import { CLIError } from '@oclif/core/lib/errors'
 import * as chalk from 'chalk'
 import { CliUx } from '@oclif/core'
 import Config from './config'
-import axios from 'axios'
 import open = require('open')
 import SecureStore from './secureStore'
 import { Profile } from '../types'
 import { getAccount, parseSubdomain } from './authUtils'
-import { getBaseUrl } from './requestUtils'
 import { SecretType } from './secretType'
 import {
   generatePKCEPair,
@@ -139,32 +137,6 @@ export default class Auth {
 
   setLoggedInProfile (subdomain: string, domain?: string) {
     return this.config.setConfig('activeProfile', { subdomain, domain })
-  }
-
-  async loginInteractively (options?: Profile) {
-    const subdomain = parseSubdomain(options?.subdomain || await CliUx.ux.prompt('Subdomain'))
-    const domain = options?.domain
-    const account = getAccount(subdomain, domain)
-    const baseUrl = getBaseUrl(subdomain, domain)
-    const email = await CliUx.ux.prompt('Email')
-    const token = await CliUx.ux.prompt('API Token', { type: 'hide' })
-    const authToken = this.createBasicAuthToken(email, token)
-    const testAuth = await axios.get(
-      `${baseUrl}/api/v2/account/settings.json`,
-      {
-        headers: { Authorization: authToken },
-        validateStatus: function (status) { return status < 500 },
-        adapter: 'fetch'
-      })
-
-    if (testAuth.status === 200 && this.secureStore) {
-      await this.secureStore.setSecret(account, authToken)
-      await this.setLoggedInProfile(subdomain, domain)
-
-      return true
-    }
-
-    return false
   }
 
   async logout () {

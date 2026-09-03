@@ -2,7 +2,7 @@ import { Command, CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
 import { Auth, SecureStore, getAccount, decodeOAuthSecret } from '@zendesk/zcli-core'
 import { Credential, Profile } from '@zendesk/zcli-core/src/types'
-import { HELP_ENV_VARS } from '../../utils/helpMessage'
+import { HELP_KEYTAR_REQUIRED } from '../../utils/helpMessage'
 
 export default class List extends Command {
   static description = 'lists all the profiles'
@@ -33,7 +33,7 @@ export default class List extends Command {
     const secureStore = new SecureStore()
     const keytar = await secureStore.loadKeytar()
     if (!keytar) {
-      console.log(chalk.yellow('Failed to load secure credentials store: could not load profiles.'), HELP_ENV_VARS)
+      console.log(chalk.yellow('Failed to load secure credentials store: could not load profiles.'), HELP_KEYTAR_REQUIRED)
       return
     }
 
