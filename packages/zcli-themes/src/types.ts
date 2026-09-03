@@ -23,6 +23,13 @@ export type Manifest = {
   settings: Setting[]
 }
 
+export type Component = {
+  name: string,
+  version: string,
+  settings?: Setting[],
+  data_requirements?: Record<string, { source: string }>
+}
+
 export type ValidationError = {
   description: string,
   line?: number,
