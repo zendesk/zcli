@@ -309,7 +309,8 @@ describe('oauth', () => {
       expect(body).to.deep.equal({
         grant_type: 'client_credentials',
         client_id: 'client-id',
-        client_secret: 'client-secret'
+        client_secret: 'client-secret',
+        scope: 'read write'
       })
     })
 

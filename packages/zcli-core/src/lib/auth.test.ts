@@ -148,11 +148,10 @@ describe('Auth', () => {
       .env({
         ZENDESK_OAUTH_CLIENT_ID: 'client-id'
       })
-      .do(async () => {
-        await auth.getAuthorizationToken()
+      .stub(auth, 'getLoggedInProfile', () => undefined)
+      .it('should ignore incomplete client credentials when no API token is present', async () => {
+        expect(await auth.getAuthorizationToken()).to.equal(undefined)
       })
-      .catch(chalk.red('OAuth client credentials are incomplete. Set both ZENDESK_OAUTH_CLIENT_ID and ZENDESK_OAUTH_CLIENT_SECRET.'))
-      .it('should reject incomplete client credentials when no API token is present')
 
     test
       .env({

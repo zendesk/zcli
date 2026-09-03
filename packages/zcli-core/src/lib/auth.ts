@@ -50,11 +50,6 @@ export default class Auth {
       return `Bearer ${ZENDESK_OAUTH_TOKEN}`
     } else if (this.hasClientCredentialsEnvVars()) {
       return this.getClientCredentialsAuthorizationToken()
-    } else if (this.hasPartialClientCredentials()) {
-      if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
-        return this.createDeprecatedApiToken(ZENDESK_EMAIL, ZENDESK_API_TOKEN)
-      }
-      throw new CLIError(chalk.red('OAuth client credentials are incomplete. Set both ZENDESK_OAUTH_CLIENT_ID and ZENDESK_OAUTH_CLIENT_SECRET.'))
     } else if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
       return this.createDeprecatedApiToken(ZENDESK_EMAIL, ZENDESK_API_TOKEN)
     } else if (ZENDESK_EMAIL && ZENDESK_PASSWORD) {
@@ -115,10 +110,6 @@ export default class Auth {
 
   private hasClientCredentialsEnvVars (): boolean {
     return varExists(EnvVars.OAUTH_CLIENT_ID, EnvVars.OAUTH_CLIENT_SECRET)
-  }
-
-  private hasPartialClientCredentials (): boolean {
-    return !!process.env[EnvVars.OAUTH_CLIENT_ID] !== !!process.env[EnvVars.OAUTH_CLIENT_SECRET]
   }
 
   private usesClientCredentials (): boolean {

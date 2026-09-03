@@ -246,7 +246,8 @@ export const fetchClientCredentialsToken = async (params: {
     {
       grant_type: 'client_credentials',
       client_id: clientId,
-      client_secret: clientSecret
+      client_secret: clientSecret,
+      scope: OAUTH_SCOPE
     },
     {
       validateStatus: (status: number) => status < 500,
