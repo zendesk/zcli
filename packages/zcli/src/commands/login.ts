@@ -25,7 +25,7 @@ export default class Login extends Command {
     const keytar = await secureStore.loadKeytar()
     if (!keytar) {
       console.log(chalk.red('OAuth login requires keytar, which failed to install. Please install it manually.'))
-      return
+      this.exit(1)
     }
 
     const auth = new Auth({ secureStore })
