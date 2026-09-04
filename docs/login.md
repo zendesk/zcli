@@ -1,7 +1,7 @@
 `zcli login`
 ============
 
-Log in to your Zendesk account using browser-based OAuth authentication.
+Log in to your Zendesk account using browser-based OAuth authentications.
 
 * [`zcli login`](#zcli-login)
 
