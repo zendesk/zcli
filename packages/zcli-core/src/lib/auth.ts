@@ -7,6 +7,7 @@ import SecureStore from './secureStore'
 import { Profile } from '../types'
 import { getAccount, parseSubdomain } from './authUtils'
 import { SecretType } from './secretType'
+import { EnvVars, varExists } from './env'
 import {
   generatePKCEPair,
   generateState,
@@ -14,6 +15,7 @@ import {
   startCallbackServer,
   exchangeCodeForToken,
   refreshAccessToken,
+  fetchClientCredentialsToken,
   encodeOAuthSecret,
   decodeOAuthSecret
 } from './oauth'
@@ -21,6 +23,15 @@ import {
 export interface AuthOptions {
   secureStore: SecureStore;
 }
+
+interface CachedClientCredentialsToken {
+  accessToken: string;
+  expiresAt: number;
+  clientId: string;
+}
+
+const CLIENT_CREDENTIALS_TOKENS_KEY = 'clientCredentialsTokens'
+
 export default class Auth {
   secureStore?: SecureStore
   config: Config
@@ -37,8 +48,10 @@ export default class Auth {
 
     if (ZENDESK_OAUTH_TOKEN) {
       return `Bearer ${ZENDESK_OAUTH_TOKEN}`
+    } else if (this.hasClientCredentialsEnvVars()) {
+      return this.getClientCredentialsAuthorizationToken()
     } else if (ZENDESK_EMAIL && ZENDESK_API_TOKEN) {
-      return this.createBasicAuthToken(`${ZENDESK_EMAIL}`, ZENDESK_API_TOKEN)
+      return this.createDeprecatedApiToken(ZENDESK_EMAIL, ZENDESK_API_TOKEN)
     } else if (ZENDESK_EMAIL && ZENDESK_PASSWORD) {
       return this.createBasicAuthToken(ZENDESK_EMAIL, ZENDESK_PASSWORD, SecretType.PASSWORD)
     } else {
@@ -78,6 +91,10 @@ export default class Auth {
   }
 
   async forceRefreshAuthorizationToken (): Promise<string | undefined> {
+    if (this.usesClientCredentials()) {
+      return this.getClientCredentialsAuthorizationToken(true)
+    }
+
     const profile = await this.getLoggedInProfile()
     if (!profile || !this.secureStore) return undefined
 
@@ -89,6 +106,55 @@ export default class Auth {
     if (!oauthSecret) return undefined
 
     return this.refreshAndStoreOAuthSecret(account, profile, oauthSecret.refreshToken)
+  }
+
+  private hasClientCredentialsEnvVars (): boolean {
+    return varExists(EnvVars.OAUTH_CLIENT_ID, EnvVars.OAUTH_CLIENT_SECRET)
+  }
+
+  private usesClientCredentials (): boolean {
+    return this.hasClientCredentialsEnvVars() &&
+      !!process.env[EnvVars.SUBDOMAIN] &&
+      !process.env[EnvVars.OAUTH_TOKEN]
+  }
+
+  private createDeprecatedApiToken (email: string, apiToken: string) {
+    console.warn(chalk.yellow('Warning: API token authentication is deprecated, but will continue to be used until it is fully removed.'))
+    return this.createBasicAuthToken(email, apiToken)
+  }
+
+  private async getClientCredentialsAuthorizationToken (forceRefresh = false): Promise<string> {
+    const clientId = process.env[EnvVars.OAUTH_CLIENT_ID] as string
+    const clientSecret = process.env[EnvVars.OAUTH_CLIENT_SECRET] as string
+
+    const subdomain = process.env[EnvVars.SUBDOMAIN]
+    if (!subdomain) {
+      throw new CLIError(chalk.red('OAuth client credentials require ZENDESK_SUBDOMAIN.'))
+    }
+    const profile = { subdomain, domain: process.env[EnvVars.DOMAIN] }
+
+    const account = getAccount(profile.subdomain, profile.domain)
+    const tokens = await this.config.getConfig(CLIENT_CREDENTIALS_TOKENS_KEY) as Record<string, CachedClientCredentialsToken> | undefined
+    const cachedToken = tokens?.[account]
+    if (!forceRefresh && cachedToken?.clientId === clientId && Date.now() < cachedToken.expiresAt) {
+      return `Bearer ${cachedToken.accessToken}`
+    }
+
+    const token = await fetchClientCredentialsToken({
+      subdomain: profile.subdomain,
+      domain: profile.domain,
+      clientId,
+      clientSecret
+    })
+    await this.config.setConfig(CLIENT_CREDENTIALS_TOKENS_KEY, {
+      ...tokens,
+      [account]: {
+        accessToken: token.access_token,
+        expiresAt: Date.now() + token.expires_in * 1000,
+        clientId
+      }
+    })
+    return `Bearer ${token.access_token}`
   }
 
   async loginWithOAuth (options?: Profile): Promise<boolean> {

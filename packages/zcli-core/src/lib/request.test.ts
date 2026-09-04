@@ -22,6 +22,24 @@ describe('createRequestConfig', () => {
   test
     .env({
       ZENDESK_SUBDOMAIN: 'z3ntest',
+      ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+      ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
+    })
+    .stub(requestUtils, 'getSubdomain', () => 'fake')
+    .stub(requestUtils, 'getDomain', () => 'fake.com')
+    .it('should create a request with a client-credentials token', async () => {
+      const auth = new Auth()
+      sinon.stub(auth.config, 'getConfig').resolves({
+        z3ntest: { accessToken: 'cc-token', expiresAt: Date.now() + 3600 * 1000, clientId: 'client-id' }
+      })
+      const req = await createRequestConfig('api/v2/me', {}, auth)
+      expect(req.headers.Authorization).to.equal('Bearer cc-token')
+      expect(req.baseURL).to.equal('https://z3ntest.zendesk.com')
+    })
+
+  test
+    .env({
+      ZENDESK_SUBDOMAIN: 'z3ntest',
       ZENDESK_OAUTH_TOKEN: 'good_token'
     })
     .stub(requestUtils, 'getSubdomain', () => 'fake')
@@ -106,8 +124,6 @@ describe('requestAPI', () => {
   test
     .env({
       ZENDESK_SUBDOMAIN: 'z3ntest',
-      ZENDESK_EMAIL: 'test@zendesk.com',
-      ZENDESK_API_TOKEN: '123456',
       ZENDESK_OAUTH_TOKEN: 'good_token'
     })
     .stub(requestUtils, 'getSubdomain', () => 'fake')

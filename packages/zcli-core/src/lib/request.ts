@@ -6,14 +6,15 @@ import * as chalk from 'chalk'
 import { EnvVars, varExists } from './env'
 import { getBaseUrl, getDomain, getSubdomain } from './requestUtils'
 
-const MSG_RUN_LOGIN = 'Log in via `zcli login`.'
-const ERR_AUTH_FAILED = `Authorization failed. ${MSG_RUN_LOGIN}`
-const ERR_ENV_SUBDOMAIN_NOT_FOUND = `No subdomain found. ${MSG_RUN_LOGIN}`
+const MSG_ENV_OR_LOGIN = 'Set the following environment variables: ZENDESK_SUBDOMAIN, ZENDESK_OAUTH_CLIENT_ID, and ZENDESK_OAUTH_CLIENT_SECRET. Ensure the OAuth client allows read and write scopes. Or try logging in via `zcli login`'
+const ERR_AUTH_FAILED = `Authorization failed. ${MSG_ENV_OR_LOGIN}`
+const ERR_ENV_SUBDOMAIN_NOT_FOUND = `No subdomain found. ${MSG_ENV_OR_LOGIN}`
 
 const buildAuth = async (): Promise<Auth> => {
   if (
     varExists(EnvVars.SUBDOMAIN, EnvVars.OAUTH_TOKEN) ||
-    varExists(EnvVars.SUBDOMAIN, EnvVars.EMAIL, EnvVars.API_TOKEN)
+    varExists(EnvVars.SUBDOMAIN, EnvVars.EMAIL, EnvVars.API_TOKEN) ||
+    varExists(EnvVars.SUBDOMAIN, EnvVars.OAUTH_CLIENT_ID, EnvVars.OAUTH_CLIENT_SECRET)
   ) {
     return new Auth()
   }

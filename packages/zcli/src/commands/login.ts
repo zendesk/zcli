@@ -24,7 +24,7 @@ export default class Login extends Command {
     const secureStore = new SecureStore()
     const keytar = await secureStore.loadKeytar()
     if (!keytar) {
-      console.log(chalk.red('OAuth login requires keytar, which failed to install. Please install it manually.'))
+      console.log(chalk.red('OAuth login requires keytar, which failed to install. Install it manually to use `zcli login`.'))
       this.exit(1)
     }
 

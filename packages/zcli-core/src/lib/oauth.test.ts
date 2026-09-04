@@ -11,6 +11,7 @@ import {
   startCallbackServer,
   exchangeCodeForToken,
   refreshAccessToken,
+  fetchClientCredentialsToken,
   encodeOAuthSecret,
   decodeOAuthSecret,
   ERR_PORTS_IN_USE
@@ -267,6 +268,74 @@ describe('oauth', () => {
       expect(body.refresh_token).to.equal('old-rt')
       expect(body.code_verifier).to.equal(undefined)
       expect(body.scope).to.equal(undefined)
+    })
+  })
+
+  describe('fetchClientCredentialsToken', () => {
+    let fetchStub: sinon.SinonStub
+
+    beforeEach(() => {
+      fetchStub = sinon.stub(global, 'fetch')
+    })
+
+    afterEach(() => {
+      fetchStub.restore()
+    })
+
+    it('posts a client_credentials grant with the configured client credentials', async () => {
+      fetchStub.withArgs(sinon.match((req: Request) =>
+        req.method === 'POST' &&
+        req.url === 'https://z3ntest.zendesk.com/oauth/tokens'
+      )).resolves({
+        status: 200,
+        ok: true,
+        text: () => Promise.resolve(JSON.stringify({
+          access_token: 'at',
+          expires_in: 3600,
+          token_type: 'bearer',
+          scope: 'read write'
+        }))
+      })
+
+      const result = await fetchClientCredentialsToken({
+        subdomain: 'z3ntest',
+        clientId: 'client-id',
+        clientSecret: 'client-secret'
+      })
+
+      expect(result.access_token).to.equal('at')
+      const call = fetchStub.getCalls().find(c => c.args[0].url === 'https://z3ntest.zendesk.com/oauth/tokens')
+      const body = JSON.parse(await call?.args[0].text())
+      expect(body).to.deep.equal({
+        grant_type: 'client_credentials',
+        client_id: 'client-id',
+        client_secret: 'client-secret',
+        scope: 'read write'
+      })
+    })
+
+    it('accepts a 201 response without expires_in', async () => {
+      fetchStub.withArgs(sinon.match((req: Request) =>
+        req.method === 'POST' &&
+        req.url === 'https://z3ntest.zendesk.com/oauth/tokens'
+      )).resolves({
+        status: 201,
+        ok: true,
+        text: () => Promise.resolve(JSON.stringify({
+          access_token: 'at',
+          token_type: 'bearer',
+          scope: 'read write'
+        }))
+      })
+
+      const result = await fetchClientCredentialsToken({
+        subdomain: 'z3ntest',
+        clientId: 'client-id',
+        clientSecret: 'client-secret'
+      })
+
+      expect(result.access_token).to.equal('at')
+      expect(result.expires_in).to.equal(1800)
     })
   })
 

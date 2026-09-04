@@ -38,12 +38,12 @@ If the `-d` option is not specified, the default `zendesk.com` domain will be us
 
 ## CI/CD and Unattended Environments
 
-For CI/CD pipelines or environments without browser access, you can set environment variables instead of running the login command:
+For CI/CD pipelines or environments without browser access, you can configure the environment variables required for the client-credentials OAuth flow instead of running the login command. Ensure the OAuth client allows read and write scopes.
 
+- `ZENDESK_OAUTH_CLIENT_ID` - Your OAuth client ID
+- `ZENDESK_OAUTH_CLIENT_SECRET` - Your OAuth client secret
 - `ZENDESK_APP_ID` - Your Zendesk app ID
 - `ZENDESK_SUBDOMAIN` - Your Zendesk subdomain
-- `ZENDESK_EMAIL` - Your Zendesk account email
-- `ZENDESK_API_TOKEN` - Your Zendesk API token
 - `ZENDESK_DOMAIN` - (Optional) Custom domain if not using zendesk.com
 
 When these variables are set, you don't need to run the login command.
