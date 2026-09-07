@@ -1,0 +1,15 @@
+{
+  "name": "request_list",
+  "version": "1.0.0",
+  "settings": [
+    {
+      "label": "request_list_group_label",
+      "variables": [
+        { "identifier": "heading_text", "type": "text", "value": "Request list" }
+      ]
+    }
+  ],
+  "data_requirements": {
+    "locale": { "source": "help_center.base_locale" }
+  }
+}
