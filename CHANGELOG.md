@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Bug Fixes
+
+* **ci:** use PAT for tag push so publish workflow triggers ([816a3f5](https://github.com/zendesk/zcli/commit/816a3f50d2e17da24bc888f3bcb4feca91d4c3d0))
+
+
+### Features
+
+* **auth:** Support OAuth client credentials in zcli for CI/CD ([#407](https://github.com/zendesk/zcli/issues/407)) ([9b5e000](https://github.com/zendesk/zcli/commit/9b5e000bae65f56567737545acd6570533f258b2))
+* **themes:** preview theme components with themes:preview ([226f494](https://github.com/zendesk/zcli/commit/226f494ac3ed15445cc106f7b3357df4b91438c0))
+
+
+
+
+
 # [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
 
 

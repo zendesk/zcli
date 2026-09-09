@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Features
+
+* **themes:** preview theme components with themes:preview ([226f494](https://github.com/zendesk/zcli/commit/226f494ac3ed15445cc106f7b3357df4b91438c0))
+
+
+
+
+
 # [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
 
 **Note:** Version bump only for package @zendesk/zcli-themes
