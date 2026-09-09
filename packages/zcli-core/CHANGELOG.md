@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Features
+
+* **auth:** Support OAuth client credentials in zcli for CI/CD ([#407](https://github.com/zendesk/zcli/issues/407)) ([9b5e000](https://github.com/zendesk/zcli/commit/9b5e000bae65f56567737545acd6570533f258b2))
+
+
+
+
+
 # [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
 
 
