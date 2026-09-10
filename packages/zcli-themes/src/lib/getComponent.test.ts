@@ -20,11 +20,11 @@ describe('getComponent', () => {
     }
 
     existsSyncStub
-      .withArgs('component/path/component.json')
+      .withArgs('component/path/dist/component.json')
       .returns(true)
 
     readFileSyncStub
-      .withArgs('component/path/component.json')
+      .withArgs('component/path/dist/component.json')
       .returns(JSON.stringify(component))
 
     expect(getComponent('component/path')).to.deep.equal(component)
@@ -34,12 +34,12 @@ describe('getComponent', () => {
     const existsSyncStub = sinon.stub(fs, 'existsSync')
 
     existsSyncStub
-      .withArgs('component/path/component.json')
+      .withArgs('component/path/dist/component.json')
       .returns(false)
 
     expect(() => {
       getComponent('component/path')
-    }).to.throw('Couldn\'t find a component.json file at path: "component/path/component.json"')
+    }).to.throw('Couldn\'t find a component.json file at path: "component/path/dist/component.json"')
   })
 
   it('throws an error when the component.json file is malformed', () => {
@@ -47,16 +47,16 @@ describe('getComponent', () => {
     const readFileSyncStub = sinon.stub(fs, 'readFileSync')
 
     existsSyncStub
-      .withArgs('component/path/component.json')
+      .withArgs('component/path/dist/component.json')
       .returns(true)
 
     readFileSyncStub
-      .withArgs('component/path/component.json')
+      .withArgs('component/path/dist/component.json')
       .returns('{"name": "request_list",,, }')
 
     expect(() => {
       getComponent('component/path')
-    }).to.throw('component.json file was malformed at path: "component/path/component.json"')
+    }).to.throw('component.json file was malformed at path: "component/path/dist/component.json"')
   })
 
   it('throws an error when name or version are missing', () => {
@@ -64,11 +64,11 @@ describe('getComponent', () => {
     const readFileSyncStub = sinon.stub(fs, 'readFileSync')
 
     existsSyncStub
-      .withArgs('component/path/component.json')
+      .withArgs('component/path/dist/component.json')
       .returns(true)
 
     readFileSyncStub
-      .withArgs('component/path/component.json')
+      .withArgs('component/path/dist/component.json')
       .returns(JSON.stringify({ name: 'request_list' }))
 
     expect(() => {
