@@ -11,9 +11,37 @@ import env from './env'
 
 describe('themes:preview', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
+  const baseComponentPath = path.join(__dirname, 'mocks/base_component')
+  const bundlePath = path.join(baseComponentPath, 'dist/index.js')
+  const bundle = 'export function mount (container, props) {\n  container.textContent = props.settings.heading_text\n}\n'
+  const chunkPath = path.join(baseComponentPath, 'dist/chunks/extra-chunk.js')
+  const chunk = 'export function extra () {\n  return true\n}\n'
+  const localePath = path.join(baseComponentPath, 'dist/locales/en-us.json')
+  const locale = '{"greeting":"hi"}'
+  const metadataPath = path.join(baseComponentPath, 'dist/component.json')
+  // The version exists only in built metadata, never in source, so these tests
+  // fail if anything reads the source component.json instead.
+  const metadata = JSON.stringify({
+    ...JSON.parse(fs.readFileSync(path.join(baseComponentPath, 'component.json'), 'utf8')),
+    version: '1.0.0'
+  })
   let fetchStub: sinon.SinonStub
 
+  // dist/ is gitignored build output and one test deletes it, so every test
+  // starts from the whole tree a build would emit.
   beforeEach(() => {
+    const files: Array<[string, string]> = [
+      [bundlePath, bundle],
+      [chunkPath, chunk],
+      [localePath, locale],
+      [metadataPath, metadata]
+    ]
+
+    for (const [file, contents] of files) {
+      fs.mkdirSync(path.dirname(file), { recursive: true })
+      fs.writeFileSync(file, contents)
+    }
+
     fetchStub = sinon.stub(global, 'fetch')
   })
 
@@ -84,16 +112,6 @@ describe('themes:preview', function () {
   })
 
   describe('component preview', function () {
-    const baseComponentPath = path.join(__dirname, 'mocks/base_component')
-    const bundlePath = path.join(baseComponentPath, 'dist/index.js')
-    const bundle = 'export function mount (container, props) {\n  container.textContent = props.settings.heading_text\n}\n'
-
-    // dist/ is gitignored build output, so the fixture writes its own bundle
-    before(() => {
-      fs.mkdirSync(path.dirname(bundlePath), { recursive: true })
-      fs.writeFileSync(bundlePath, bundle)
-    })
-
     describe('with live-reload', () => {
       let server: { close: () => void }
 
@@ -153,6 +171,16 @@ describe('themes:preview', function () {
             expect((e as AxiosError).response?.status).to.eq(404)
           }
         })
+
+      preview
+        .it('should serve sibling dist/ assets verbatim', async () => {
+          const chunkResponse = await axios.get('http://0.0.0.0:9998/theme_components/request_list/1.0.0/chunks/extra-chunk.js')
+          expect(chunkResponse.data).to.eq(chunk)
+          expect(chunkResponse.data).not.to.contain('WebSocket')
+
+          const localeResponse = await axios.get('http://0.0.0.0:9998/theme_components/request_list/1.0.0/locales/en-us.json')
+          expect(localeResponse.data).to.deep.eq(JSON.parse(locale))
+        })
     })
 
     describe('with --no-livereload', () => {
@@ -206,14 +234,6 @@ describe('themes:preview', function () {
   })
 
   describe('when component registration fails after listening', () => {
-    const baseComponentPath = path.join(__dirname, 'mocks/base_component')
-    const bundlePath = path.join(baseComponentPath, 'dist/index.js')
-
-    before(() => {
-      fs.mkdirSync(path.dirname(bundlePath), { recursive: true })
-      fs.writeFileSync(bundlePath, 'export function mount () {}\n')
-    })
-
     test
       .stdout()
       .env(env)
@@ -242,14 +262,6 @@ describe('themes:preview', function () {
   })
 
   describe('when the component bundle has not been built', () => {
-    const baseComponentPath = path.join(__dirname, 'mocks/base_component')
-    const bundlePath = path.join(baseComponentPath, 'dist/index.js')
-
-    afterEach(() => {
-      fs.mkdirSync(path.dirname(bundlePath), { recursive: true })
-      fs.writeFileSync(bundlePath, 'export function mount () {}\n')
-    })
-
     test
       .stdout()
       .env(env)
@@ -269,7 +281,6 @@ describe('themes:preview', function () {
   })
 
   describe('when the port is already in use', () => {
-    const baseComponentPath = path.join(__dirname, 'mocks/base_component')
     let blocker: http.Server
 
     before(async () => {

@@ -151,31 +151,40 @@ export default class Preview extends Command {
   private async previewComponent (componentPath: string, flags: PreviewFlags) {
     const { logs: tailLogs } = flags
 
-    let component = getComponent(componentPath)
-
     if (!fs.existsSync(`${componentPath}/dist/index.js`)) {
       this.error(`Couldn't find a bundle at path: "${componentPath}/dist/index.js" — build the component first`)
     }
 
+    let component = getComponent(componentPath)
+
     const { app, server, wss } = this.createServer(flags)
 
-    app.get('/theme_components/:name/:version/index.js', (req, res) => {
-      const bundle = path.resolve(`${componentPath}/dist/index.js`)
+    const componentRoutes = express.Router()
 
-      // The version segment is ignored on purpose: the bundle on disk is the
-      // one being developed, whatever version a cached page may still request.
-      if (req.params.name !== component.name || !fs.existsSync(bundle)) {
-        res.sendStatus(404)
-        return
-      }
-
-      const source = fs.readFileSync(bundle, 'utf8')
+    componentRoutes.get('/index.js', (req, res) => {
+      const source = fs.readFileSync(path.resolve(`${componentPath}/dist/index.js`), 'utf8')
       const label = `${component.name}@${component.version}`
 
       res.header('Content-Type', 'text/javascript')
       res.header('Cache-Control', 'no-cache')
       res.send(flags.livereload ? appendLivereloadSnippet(source, getLocalServerBaseUrl(flags, true), label) : source)
     })
+
+    // Everything else in the release tree (lazy chunks, fetched assets) is served
+    // verbatim: only the entry is a bundle we can safely rewrite for livereload.
+    componentRoutes.use(express.static(`${componentPath}/dist`, {
+      setHeaders: (res) => res.header('Cache-Control', 'no-cache')
+    }))
+
+    // The version segment is ignored on purpose: the tree on disk is the one being
+    // developed, whatever version a cached page may still request.
+    app.use('/theme_components/:name/:version', (req, res, next) => {
+      if (req.params.name !== component.name) {
+        res.sendStatus(404)
+        return
+      }
+      next()
+    }, componentRoutes)
 
     // Listen before registering so a failed start leaves no registration
     // pointing at a server that is not ours.
@@ -195,14 +204,12 @@ export default class Preview extends Command {
     this.log(`You can exit preview mode in the UI or by visiting ${baseUrl}/hc/admin/local_preview/stop`)
     tailLogs && this.log(chalk.bold('Tailing logs'))
 
-    const monitoredPaths = [
-      `${componentPath}/component.json`,
-      `${componentPath}/dist`
-    ]
+    const metadataPath = path.join(componentPath, 'dist/component.json')
 
     const handleComponentChange = async (changedPath: string) => {
       this.log(chalk.bold('Change'), changedPath)
-      if (changedPath === path.join(componentPath, 'component.json')) {
+      // Re-register from the built metadata, which is what HC is told to serve.
+      if (changedPath === metadataPath) {
         try {
           const next = getComponent(componentPath)
           await previewComponent(componentPath, flags)
@@ -215,7 +222,7 @@ export default class Preview extends Command {
       this.broadcastReload(wss)
     }
 
-    const watcher = chokidar.watch(monitoredPaths, { ignoreInitial: true })
+    const watcher = chokidar.watch(`${componentPath}/dist`, { ignoreInitial: true })
       .on('add', handleComponentChange)
       .on('change', handleComponentChange)
       .on('unlink', handleComponentChange)
