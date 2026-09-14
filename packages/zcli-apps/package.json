@@ -33,7 +33,7 @@
     "rimraf": "^3.0.2",
     "semver": "^7.3.2",
     "tslib": "^2.4.0",
-    "uuid": "^8.3.2"
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@oclif/test": "=2.1.0",
@@ -43,7 +43,6 @@
     "@types/mocha": "^9.1.1",
     "@types/morgan": "^1.9.0",
     "@types/rimraf": "^3.0.2",
-    "@types/uuid": "^8.3.4",
     "chai": "^4",
     "eslint": "^8.18.0",
     "eslint-config-oclif": "^4.0.0",
