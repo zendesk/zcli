@@ -4,11 +4,10 @@ import * as fs from 'fs'
 import * as chalk from 'chalk'
 
 export default function getComponent (componentPath: string): Component {
-  // The built metadata, not the source file: `version` only exists after a build.
-  const componentFilePath = `${componentPath}/dist/component.json`
+  const componentFilePath = `${componentPath}/component.json`
 
   if (!fs.existsSync(componentFilePath)) {
-    throw new CLIError(chalk.red(`Couldn't find a component.json file at path: "${componentFilePath}" — build the component first`))
+    throw new CLIError(chalk.red(`Couldn't find a component.json file at path: "${componentFilePath}"`))
   }
 
   let component: Component

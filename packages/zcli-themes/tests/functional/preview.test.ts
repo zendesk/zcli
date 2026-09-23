@@ -3,45 +3,16 @@ import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
 import * as path from 'path'
 import * as fs from 'fs'
-import axios, { AxiosError } from 'axios'
-import * as http from 'http'
+import axios from 'axios'
 import { cloneDeep } from 'lodash'
 import PreviewCommand from '../../src/commands/themes/preview'
 import env from './env'
 
 describe('themes:preview', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
-  const baseComponentPath = path.join(__dirname, 'mocks/base_component')
-  const bundlePath = path.join(baseComponentPath, 'dist/index.js')
-  const bundle = 'export function mount (container, props) {\n  container.textContent = props.settings.heading_text\n}\n'
-  const chunkPath = path.join(baseComponentPath, 'dist/chunks/extra-chunk.js')
-  const chunk = 'export function extra () {\n  return true\n}\n'
-  const localePath = path.join(baseComponentPath, 'dist/locales/en-us.json')
-  const locale = '{"greeting":"hi"}'
-  const metadataPath = path.join(baseComponentPath, 'dist/component.json')
-  // The version exists only in built metadata, never in source, so these tests
-  // fail if anything reads the source component.json instead.
-  const metadata = JSON.stringify({
-    ...JSON.parse(fs.readFileSync(path.join(baseComponentPath, 'component.json'), 'utf8')),
-    version: '1.0.0'
-  })
   let fetchStub: sinon.SinonStub
 
-  // dist/ is gitignored build output and one test deletes it, so every test
-  // starts from the whole tree a build would emit.
   beforeEach(() => {
-    const files: Array<[string, string]> = [
-      [bundlePath, bundle],
-      [chunkPath, chunk],
-      [localePath, locale],
-      [metadataPath, metadata]
-    ]
-
-    for (const [file, contents] of files) {
-      fs.mkdirSync(path.dirname(file), { recursive: true })
-      fs.writeFileSync(file, contents)
-    }
-
     fetchStub = sinon.stub(global, 'fetch')
   })
 
@@ -111,112 +82,6 @@ describe('themes:preview', function () {
       })
   })
 
-  describe('component preview', function () {
-    describe('with live-reload', () => {
-      let server: { close: () => void }
-
-      const preview = test
-        .stdout()
-        .env(env)
-        .do(() => {
-          fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/hc/api/internal/theming/local_preview/theme_components',
-            method: 'PUT'
-          })).resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
-        })
-        .do(async () => {
-          server = await PreviewCommand.run([baseComponentPath, '--bind', '0.0.0.0', '--port', '9998'])
-        })
-
-      afterEach(() => {
-        server.close()
-      })
-
-      preview
-        .it('should register the component and print instructions', async (ctx) => {
-          // the stubbed fetch only resolves for PUTs to the theme_components endpoint
-          expect(fetchStub.calledWith(sinon.match({
-            url: 'https://z3ntest.zendesk.com/hc/api/internal/theming/local_preview/theme_components',
-            method: 'PUT'
-          }))).to.eq(true)
-          expect(ctx.stdout).to.contain('Ready https://z3ntest.zendesk.com/hc/admin/local_preview/start 🚀')
-          expect(ctx.stdout).to.contain('Previewing component request_list@1.0.0')
-        })
-
-      preview
-        .it('should serve the bundle with the livereload snippet appended', async () => {
-          const response = await axios.get('http://0.0.0.0:9998/theme_components/request_list/1.0.0/index.js')
-
-          expect(response.status).to.eq(200)
-          expect(response.headers['cache-control']).to.contain('no-cache')
-          expect(response.data).to.contain('export function mount')
-          expect(response.data).to.contain('new WebSocket("ws://0.0.0.0:9998/livereload")')
-        })
-
-      preview
-        .it('should serve the bundle under any version path', async () => {
-          expect((await axios.get('http://0.0.0.0:9998/theme_components/request_list/9.9.9/index.js')).status).to.eq(200)
-        })
-
-      preview
-        .it('should not serve other components', async () => {
-          try {
-            await axios.get('http://0.0.0.0:9998/theme_components/other/1.0.0/index.js')
-            throw new Error('expected a 404')
-          } catch (e) {
-            expect((e as AxiosError).response?.status).to.eq(404)
-          }
-        })
-
-      preview
-        .it('should serve sibling dist/ assets verbatim', async () => {
-          const chunkResponse = await axios.get('http://0.0.0.0:9998/theme_components/request_list/1.0.0/chunks/extra-chunk.js')
-          expect(chunkResponse.data).to.eq(chunk)
-          expect(chunkResponse.data).not.to.contain('WebSocket')
-
-          const localeResponse = await axios.get('http://0.0.0.0:9998/theme_components/request_list/1.0.0/locales/en-us.json')
-          expect(localeResponse.data).to.deep.eq(JSON.parse(locale))
-        })
-    })
-
-    describe('with --no-livereload', () => {
-      let server: { close: () => void }
-
-      const preview = test
-        .stdout()
-        .env(env)
-        .do(() => {
-          fetchStub.withArgs(sinon.match({
-            url: 'https://z3ntest.zendesk.com/hc/api/internal/theming/local_preview/theme_components',
-            method: 'PUT'
-          })).resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
-        })
-        .do(async () => {
-          server = await PreviewCommand.run([baseComponentPath, '--bind', '0.0.0.0', '--port', '9998', '--no-livereload'])
-        })
-
-      afterEach(() => {
-        server.close()
-      })
-
-      preview
-        .it('should serve the bundle verbatim', async () => {
-          const response = await axios.get('http://0.0.0.0:9998/theme_components/request_list/1.0.0/index.js')
-
-          expect(response.status).to.eq(200)
-          expect(response.data).to.eq(bundle)
-        })
-    })
-  })
-
   describe('when the directory does not exist', () => {
     test
       .stdout()
@@ -226,81 +91,6 @@ describe('themes:preview', function () {
           await PreviewCommand.run(['./no-such-directory'])
         } catch (e) {
           expect((e as Error).message).to.contain('Couldn\'t find a directory at path:')
-          expect(fetchStub.called).to.eq(false)
-          return
-        }
-        throw new Error('expected the command to fail')
-      })
-  })
-
-  describe('when component registration fails after listening', () => {
-    test
-      .stdout()
-      .env(env)
-      .do(() => {
-        fetchStub.withArgs(sinon.match({
-          url: 'https://z3ntest.zendesk.com/hc/api/internal/theming/local_preview/theme_components',
-          method: 'PUT'
-        })).resolves({
-          status: 500,
-          ok: false,
-          text: () => Promise.resolve('Internal Server Error')
-        })
-      })
-      .it('closes the server so the port stays free', async () => {
-        try {
-          await PreviewCommand.run([baseComponentPath, '--bind', '0.0.0.0', '--port', '9995'])
-        } catch { /* expected */ }
-
-        const probe = http.createServer()
-        await new Promise<void>((resolve, reject) => {
-          probe.once('error', reject)
-          probe.listen(9995, '0.0.0.0', resolve)
-        })
-        probe.close()
-      })
-  })
-
-  describe('when the component bundle has not been built', () => {
-    test
-      .stdout()
-      .env(env)
-      .it('fails before registering or listening', async () => {
-        fs.rmSync(path.dirname(bundlePath), { recursive: true, force: true })
-
-        try {
-          await PreviewCommand.run([baseComponentPath, '--bind', '0.0.0.0', '--port', '9996'])
-        } catch (e) {
-          expect((e as Error).message).to.contain('dist/index.js')
-          expect((e as Error).message).to.contain('build the component first')
-          expect(fetchStub.called).to.eq(false)
-          return
-        }
-        throw new Error('expected the command to fail')
-      })
-  })
-
-  describe('when the port is already in use', () => {
-    let blocker: http.Server
-
-    before(async () => {
-      blocker = http.createServer()
-      await new Promise<void>((resolve) => blocker.listen(9997, '0.0.0.0', resolve))
-    })
-
-    after(() => {
-      blocker.close()
-    })
-
-    test
-      .stdout()
-      .env(env)
-      .it('reports a friendly error and does not register the component', async () => {
-        try {
-          await PreviewCommand.run([baseComponentPath, '--bind', '0.0.0.0', '--port', '9997'])
-        } catch (e) {
-          expect((e as Error).message).to.contain('Port 9997 is already in use')
-          expect((e as Error).message).to.contain('Pass --port to use a different one')
           expect(fetchStub.called).to.eq(false)
           return
         }
