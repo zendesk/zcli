@@ -1,8 +1,8 @@
 import { expect } from '@oclif/test'
 import { Flags } from '../types'
-import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
+import { getBaseUrl } from './server'
 
-describe('getLocalServerBaseUrl', () => {
+describe('getBaseUrl', () => {
   it('should return correct http url', () => {
     const flags: Flags = {
       bind: 'localhost',
@@ -10,7 +10,7 @@ describe('getLocalServerBaseUrl', () => {
       logs: false,
       livereload: true
     }
-    const result = getLocalServerBaseUrl(flags)
+    const result = getBaseUrl(flags)
     const expected = 'http://localhost:4567'
     expect(result).to.equal(expected)
   })
@@ -24,7 +24,7 @@ describe('getLocalServerBaseUrl', () => {
       'https-cert': 'localhost.crt',
       'https-key': 'localhost.key'
     }
-    const result = getLocalServerBaseUrl(flags)
+    const result = getBaseUrl(flags)
     const expected = 'https://themes.local:4567'
     expect(result).to.equal(expected)
   })
@@ -36,7 +36,7 @@ describe('getLocalServerBaseUrl', () => {
       logs: false,
       livereload: true
     }
-    const result = getLocalServerBaseUrl(flags, true)
+    const result = getBaseUrl(flags, true)
     const expected = 'ws://localhost:4567'
     expect(result).to.equal(expected)
   })
@@ -50,7 +50,7 @@ describe('getLocalServerBaseUrl', () => {
       'https-cert': 'localhost.crt',
       'https-key': 'localhost.key'
     }
-    const result = getLocalServerBaseUrl(flags, true)
+    const result = getBaseUrl(flags, true)
     const expected = 'wss://themes.local:4567'
     expect(result).to.equal(expected)
   })

@@ -1,6 +1,5 @@
 {
   "name": "request_list",
-  "version": "1.0.0",
   "settings": [
     {
       "label": "request_list_group_label",
