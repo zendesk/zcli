@@ -5,6 +5,7 @@ import * as fs from 'fs'
 import * as os from 'os'
 import axios, { AxiosError } from 'axios'
 import * as http from 'http'
+import { EventEmitter } from 'events'
 import PreviewCommand from '../../../src/commands/themes/components/preview'
 import env from '../env'
 
@@ -48,13 +49,31 @@ describe('themes:components:preview', function () {
     fetchStub = sinon.stub(global, 'fetch')
   })
 
+  // Ports are allocated dynamically so tests never collide with other processes on the machine.
+  const listenPort = (server: http.Server, port = 0): Promise<number> =>
+    new Promise((resolve, reject) => {
+      server.once('error', reject)
+      server.listen(port, '0.0.0.0', () => {
+        const { port: assigned } = server.address() as { port: number }
+        resolve(assigned)
+      })
+    })
+
+  const freePort = async (): Promise<number> => {
+    const probe = http.createServer()
+    const port = await listenPort(probe)
+    probe.close()
+    return port
+  }
+
   afterEach(() => {
     fetchStub.restore()
     fs.rmSync(componentPath, { recursive: true, force: true })
   })
 
   describe('successful preview', () => {
-    let server: { close: () => void }
+    let server: { close: () => void } | undefined
+    let port: number
 
     const preview = test
       .stdout()
@@ -70,11 +89,12 @@ describe('themes:components:preview', function () {
         })
       })
       .do(async () => {
-        server = await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', '9990'])
+        port = await freePort()
+        server = await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', String(port)])
       })
 
     afterEach(() => {
-      server.close()
+      server?.close()
     })
 
     preview
@@ -89,7 +109,7 @@ describe('themes:components:preview', function () {
 
     preview
       .it('serves the entry verbatim, with no livereload snippet or socket', async () => {
-        const response = await axios.get('http://0.0.0.0:9990/theme_components/request_list/1.0.0/index.js')
+        const response = await axios.get(`http://0.0.0.0:${port}/theme_components/request_list/1.0.0/index.js`)
 
         expect(response.status).to.eq(200)
         expect(response.headers['cache-control']).to.contain('no-cache')
@@ -99,25 +119,48 @@ describe('themes:components:preview', function () {
 
     preview
       .it('serves sibling assets verbatim', async () => {
-        const chunkResponse = await axios.get('http://0.0.0.0:9990/theme_components/request_list/1.0.0/chunks/extra-chunk.js')
+        const chunkResponse = await axios.get(`http://0.0.0.0:${port}/theme_components/request_list/1.0.0/chunks/extra-chunk.js`)
         expect(chunkResponse.data).to.eq(chunk)
 
-        const localeResponse = await axios.get('http://0.0.0.0:9990/theme_components/request_list/1.0.0/locales/en-us.json')
+        const localeResponse = await axios.get(`http://0.0.0.0:${port}/theme_components/request_list/1.0.0/locales/en-us.json`)
         expect(localeResponse.data).to.deep.eq(JSON.parse(locale))
       })
 
     preview
       .it('serves the entry under any version path', async () => {
-        expect((await axios.get('http://0.0.0.0:9990/theme_components/request_list/9.9.9/index.js')).status).to.eq(200)
+        expect((await axios.get(`http://0.0.0.0:${port}/theme_components/request_list/9.9.9/index.js`)).status).to.eq(200)
       })
 
     preview
       .it('does not serve other components', async () => {
         try {
-          await axios.get('http://0.0.0.0:9990/theme_components/other/1.0.0/index.js')
+          await axios.get(`http://0.0.0.0:${port}/theme_components/other/1.0.0/index.js`)
           throw new Error('expected a 404')
         } catch (e) {
           expect((e as AxiosError).response?.status).to.eq(404)
+        }
+      })
+
+    preview
+      .it('deregisters its session on SIGINT', async () => {
+        const deregistration = sinon.match({
+          url: sinon.match(/theme_components\/request_list\?session_id=\S+/),
+          method: 'DELETE'
+        })
+        fetchStub.withArgs(deregistration).resolves({ status: 200, ok: true, text: () => Promise.resolve('') })
+
+        const exit = sinon.stub(process, 'exit').returns(undefined as unknown as never)
+
+        try {
+          (process as unknown as EventEmitter).emit('SIGINT')
+
+          const deadline = Date.now() + 1000
+          while (!exit.calledWith(130) || !fetchStub.calledWith(deregistration)) {
+            if (Date.now() > deadline) throw new Error('timed out waiting for the SIGINT cleanup')
+            await new Promise(resolve => setTimeout(resolve, 10))
+          }
+        } finally {
+          exit.restore()
         }
       })
   })
@@ -146,7 +189,7 @@ describe('themes:components:preview', function () {
         fs.rmSync(entryPath, { force: true })
 
         try {
-          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', '9991'])
+          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0'])
         } catch (e) {
           expect((e as Error).message).to.contain('index.js')
           expect(fetchStub.called).to.eq(false)
@@ -164,7 +207,7 @@ describe('themes:components:preview', function () {
         fs.writeFileSync(metadataPath, JSON.stringify({ name: 'request_list' }))
 
         try {
-          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', '9992'])
+          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0'])
         } catch (e) {
           expect((e as Error).message).to.contain('must declare a "name" and a "version"')
           expect(fetchStub.called).to.eq(false)
@@ -189,43 +232,36 @@ describe('themes:components:preview', function () {
         })
       })
       .it('closes the server so the port stays free', async () => {
+        const port = await freePort()
+
         try {
-          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', '9993'])
+          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', String(port)])
         } catch { /* expected */ }
 
         const probe = http.createServer()
-        await new Promise<void>((resolve, reject) => {
-          probe.once('error', reject)
-          probe.listen(9993, '0.0.0.0', resolve)
-        })
+        await listenPort(probe, port)
         probe.close()
       })
   })
 
   describe('when the port is already in use', () => {
-    let blocker: http.Server
-
-    before(async () => {
-      blocker = http.createServer()
-      await new Promise<void>((resolve) => blocker.listen(9994, '0.0.0.0', resolve))
-    })
-
-    after(() => {
-      blocker.close()
-    })
-
     test
       .stdout()
       .env(env)
       .it('reports a friendly error and does not register the component', async () => {
+        const blocker = http.createServer()
+        const port = await listenPort(blocker)
+
         try {
-          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', '9994'])
+          await PreviewCommand.run([componentPath, '--bind', '0.0.0.0', '--port', String(port)])
         } catch (e) {
-          expect((e as Error).message).to.contain('Port 9994 is already in use')
+          expect((e as Error).message).to.contain(`Port ${port} is already in use`)
           expect((e as Error).message).to.contain('Pass --port to use a different one')
           expect(fetchStub.called).to.eq(false)
+          blocker.close()
           return
         }
+        blocker.close()
         throw new Error('expected the command to fail')
       })
   })

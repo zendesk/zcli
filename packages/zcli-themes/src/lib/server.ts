@@ -17,9 +17,13 @@ const logMiddleware = morgan((tokens, req, res) =>
 export function createServer (flags: ServerFlags): { app: express.Express, server: http.Server | https.Server } {
   const { logs: tailLogs, 'https-cert': httpsCert, 'https-key': httpsKey } = flags
 
+  if (Boolean(httpsCert) !== Boolean(httpsKey)) {
+    throw new CLIError('--https-cert and --https-key must be provided together')
+  }
+
   const app = express()
   const server = httpsCert && httpsKey
-    ? https.createServer({ key: fs.readFileSync(httpsCert), cert: fs.readFileSync(httpsKey) }, app)
+    ? https.createServer({ key: fs.readFileSync(httpsKey), cert: fs.readFileSync(httpsCert) }, app)
     : http.createServer(app)
 
   app.use(cors())
