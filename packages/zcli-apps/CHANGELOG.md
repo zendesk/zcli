@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/zendesk/zcli/compare/v2.0.0...v2.1.0) (2026-09-29)
+
+
+### Bug Fixes
+
+* bump adm-zip to 0.6.1 ([861d77e](https://github.com/zendesk/zcli/commit/861d77e37a81a1406a1d3abf9dee9fe5c070197e))
+* bump uuid to 11.1.1 ([11ed355](https://github.com/zendesk/zcli/commit/11ed3555f88bd00d38156bdcd73703aff5390a16))
+
+
+
+
+
 # [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
 
 **Note:** Version bump only for package @zendesk/zcli-apps
