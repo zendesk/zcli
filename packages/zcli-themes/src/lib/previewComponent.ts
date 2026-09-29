@@ -1,25 +1,23 @@
-import type { Flags } from '../types'
-import getComponent from './getComponent'
+import type { Component, Flags } from '../types'
 import * as chalk from 'chalk'
 import { request } from '@zendesk/zcli-core'
 import { error } from '@oclif/core/lib/errors'
 import { CliUx } from '@oclif/core'
-import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
+import { getBaseUrl } from './server'
 import type { AxiosError } from 'axios'
 
-export default async function previewComponent (componentPath: string, flags: Flags): Promise<string | void> {
-  const component = getComponent(componentPath)
-
-  const src = `${getLocalServerBaseUrl(flags)}/theme_components/${component.name}/${component.version}/index.js`
+export default async function previewComponent (component: Component, sessionId: string, flags: Omit<Flags, 'livereload'>): Promise<string | void> {
+  const src = `${getBaseUrl(flags)}/theme_components/${component.name}/${component.version}/index.js`
 
   try {
     CliUx.ux.action.start('Registering component')
     const { config: { baseURL } } = await request.requestAPI('/hc/api/internal/theming/local_preview/theme_components', {
       method: 'put',
       headers: {
-        'X-Zendesk-Request-Originator': 'zcli themes:preview'
+        'X-Zendesk-Request-Originator': 'zcli themes:components:preview'
       },
       data: {
+        session_id: sessionId,
         theme_components: {
           [component.name]: {
             version: component.version,

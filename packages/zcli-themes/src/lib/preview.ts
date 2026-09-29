@@ -7,7 +7,7 @@ import * as chalk from 'chalk'
 import { request } from '@zendesk/zcli-core'
 import { error } from '@oclif/core/lib/errors'
 import { CliUx } from '@oclif/core'
-import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
+import { getBaseUrl } from './server'
 import type { AxiosError } from 'axios'
 import handleTemplateError from './handleTemplateError'
 
@@ -43,9 +43,9 @@ export default async function preview (themePath: string, flags: Flags): Promise
           css: '',
           js: '',
           document_head: `
-            <link rel="stylesheet" href="${getLocalServerBaseUrl(flags)}/guide/style.css">
+            <link rel="stylesheet" href="${getBaseUrl(flags)}/guide/style.css">
             ${templates.document_head}
-            <script src="${getLocalServerBaseUrl(flags)}/guide/script.js"></script>
+            <script src="${getBaseUrl(flags)}/guide/script.js"></script>
             ${livereload ? livereloadScript(flags) : ''}
           `,
           assets: assetsPayload,
@@ -79,7 +79,7 @@ export default async function preview (themePath: string, flags: Flags): Promise
 
 export function livereloadScript (flags: Flags) {
   return `<script>(() => {
-    const socket = new WebSocket('${getLocalServerBaseUrl(flags, true)}/livereload');
+    const socket = new WebSocket('${getBaseUrl(flags, true)}/livereload');
     socket.onopen = () => console.log('Listening to theme changes...');
     socket.onmessage = e => e.data === 'reload' && location.reload();
   })()</script>
