@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/zendesk/zcli/compare/v2.0.0...v2.1.0) (2026-09-29)
+
+
+### Bug Fixes
+
+* bump adm-zip to 0.6.1 ([861d77e](https://github.com/zendesk/zcli/commit/861d77e37a81a1406a1d3abf9dee9fe5c070197e))
+* bump uuid to 11.1.1 ([11ed355](https://github.com/zendesk/zcli/commit/11ed3555f88bd00d38156bdcd73703aff5390a16))
+* **themes:** correct TLS key/cert reads and test the preview lifecycle exit paths ([d96e46a](https://github.com/zendesk/zcli/commit/d96e46adf67e6adc9928567a579a18173c663686))
+
+
+### Features
+
+* **themes:** serve the whole component dist tree in preview ([fe3445b](https://github.com/zendesk/zcli/commit/fe3445b708cdacbe82b937546455a462386b650a))
+* **themes:** split component preview into themes:components:preview ([644974b](https://github.com/zendesk/zcli/commit/644974b3ef299e362d4150927f1baa5e96dc697d))
+
+
+
+
+
 # [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
 
 
