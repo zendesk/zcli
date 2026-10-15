@@ -92,6 +92,40 @@ describe('ViteConfigBuilder', () => {
       ])
     })
 
+    it('should skip hidden/system files when copying assets', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', '.DS_Store', 'Thumbs.db', '._logo.svg', '.git'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      await assetPlugin.writeBundle()
+
+      expect(fsStubs.copyFileSync.calledOnce).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
+      ])
+    })
+
     it('should not copy assets or translations if directories do not exist', async () => {
       const inputPath = '/input'
       const outputPath = '/output'

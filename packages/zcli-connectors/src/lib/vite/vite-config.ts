@@ -4,6 +4,7 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
 import { isAbsolute, join } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
+import { isSystemFile } from '../systemFiles'
 
 export interface ViteConfigOptions {
   inputPath: string;
@@ -57,6 +58,12 @@ export class ViteConfigBuilder {
 
     const items = readdirSync(src)
     for (const item of items) {
+      // Never bundle hidden/system files such as .DS_Store or Thumbs.db (VEG-4556)
+      if (isSystemFile(item)) {
+        console.log(`Skipping system file: ${join(src, item)}`)
+        continue
+      }
+
       const srcPath = join(src, item)
       const destPath = join(dest, item)
 
