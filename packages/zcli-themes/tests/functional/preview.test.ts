@@ -82,6 +82,22 @@ describe('themes:preview', function () {
       })
   })
 
+  describe('when the directory does not exist', () => {
+    test
+      .stdout()
+      .env(env)
+      .it('reports a clear error', async () => {
+        try {
+          await PreviewCommand.run(['./no-such-directory'])
+        } catch (e) {
+          expect((e as Error).message).to.contain('Couldn\'t find a directory at path:')
+          expect(fetchStub.called).to.eq(false)
+          return
+        }
+        throw new Error('expected the command to fail')
+      })
+  })
+
   describe('validation errors', () => {
     test
       .stdout()

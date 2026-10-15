@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/zendesk/zcli/compare/v2.0.0...v2.1.0) (2026-09-29)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+# [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
+
+
+* chore!: release 2.0.0 ([997f255](https://github.com/zendesk/zcli/commit/997f2554ef26b618cf3e1aedba04149c1c4ea3e6))
+
+
+### BREAKING CHANGES
+
+* removed API token interactive login (-i flag).
+
+
+
+
+
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Features
+
+* **auth:** Support OAuth client credentials in zcli for CI/CD ([#407](https://github.com/zendesk/zcli/issues/407)) ([9b5e000](https://github.com/zendesk/zcli/commit/9b5e000bae65f56567737545acd6570533f258b2))
+
+
+
+
+
 # [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
 
 
