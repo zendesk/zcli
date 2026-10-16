@@ -87,6 +87,44 @@ describe('validateAssets', () => {
       }
     })
 
+    it('should ignore hidden/system files alongside logo.svg', async () => {
+      existsSyncStub.returns(true)
+      readdirSyncStub.returns(['logo.svg', '.DS_Store', 'Thumbs.db', '._logo.svg'] as any)
+      statSyncStub.returns({
+        isDirectory: () => false,
+        size: 2048
+      } as any)
+
+      const context: ValidationContext = {
+        inputPath: '/path/to/dist',
+        options: { verbose: false },
+        log: logSpy
+      }
+
+      await validateAssets(context)
+
+      expect(logSpy.called).to.equal(false)
+    })
+
+    it('should throw error when assets directory contains only hidden/system files', async () => {
+      existsSyncStub.returns(true)
+      readdirSyncStub.returns(['.DS_Store', 'Thumbs.db'] as any)
+
+      const context: ValidationContext = {
+        inputPath: '/path/to/dist',
+        options: { verbose: false },
+        log: logSpy
+      }
+
+      try {
+        await validateAssets(context)
+        expect.fail('Should have thrown an error')
+      } catch (error) {
+        expect((error as Error).message).to.include('Assets validation failed')
+        expect((error as Error).message).to.include('must contain a logo file')
+      }
+    })
+
     it('should throw error when multiple files exist in assets directory', async () => {
       existsSyncStub.returns(true)
       readdirSyncStub.returns(['logo.svg', 'extra.svg'] as any)

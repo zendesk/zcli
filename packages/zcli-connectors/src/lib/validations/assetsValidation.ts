@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from 'fs'
 import { join, extname, basename } from 'path'
 import * as chalk from 'chalk'
 import type { ValidationContext } from './index'
+import { isSystemFile } from '../systemFiles'
 
 const ALLOWED_ASSET_EXTENSIONS = [
   '.svg'
@@ -92,6 +93,11 @@ function getAllFiles (dirPath: string): string[] {
     const items = readdirSync(currentPath)
 
     for (const item of items) {
+      // Ignore hidden/system files such as .DS_Store or Thumbs.db (VEG-4556)
+      if (isSystemFile(item)) {
+        continue
+      }
+
       const itemPath = join(currentPath, item)
       const stats = statSync(itemPath)
 
