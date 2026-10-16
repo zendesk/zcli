@@ -2,7 +2,7 @@ import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
-import { isAbsolute, join } from 'path'
+import { isAbsolute, join, relative } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import { isSystemFile } from '../systemFiles'
 
@@ -49,18 +49,28 @@ export class ViteConfigBuilder {
   }
 
   /**
-   * Recursively copies a directory from source to destination
+   * Recursively copies a directory from source to destination.
+   * Hidden/system files are skipped; onSkip is invoked with the path
+   * relative to basePath (defaults to src) for each skipped entry.
    */
-  private static copyDirRecursive (src: string, dest: string): void {
+  private static copyDirRecursive (
+    src: string,
+    dest: string,
+    onSkip?: (relativePath: string) => void,
+    basePath?: string
+  ): void {
     if (!existsSync(dest)) {
       mkdirSync(dest, { recursive: true })
     }
 
+    const root = basePath ?? src
     const items = readdirSync(src)
     for (const item of items) {
       // Never bundle hidden/system files such as .DS_Store or Thumbs.db (VEG-4556)
       if (isSystemFile(item)) {
-        console.log(`Skipping system file: ${join(src, item)}`)
+        if (onSkip) {
+          onSkip(relative(root, join(src, item)))
+        }
         continue
       }
 
@@ -68,7 +78,7 @@ export class ViteConfigBuilder {
       const destPath = join(dest, item)
 
       if (statSync(srcPath).isDirectory()) {
-        this.copyDirRecursive(srcPath, destPath)
+        this.copyDirRecursive(srcPath, destPath, onSkip, root)
       } else {
         copyFileSync(srcPath, destPath)
       }
@@ -94,19 +104,26 @@ export class ViteConfigBuilder {
   private static createAssetCopyPlugin (inputPath: string, outputPath: string) {
     return {
       name: 'copy-assets-translations',
-      writeBundle () {
+      writeBundle: function (this: { info?: (message: string) => void } | undefined) {
+        // Route skip messages through the bundler's plugin logging so output
+        // stays controllable by the CLI/CI consumer (VEG-4556)
+        const info = this?.info
+        const onSkip = typeof info === 'function'
+          ? (relativePath: string) => info.call(this, `Skipping system file: ${relativePath}`)
+          : undefined
+
         // Copy assets
         const assetsDir = join(inputPath, 'src/assets')
         if (existsSync(assetsDir)) {
           const targetAssetsDir = join(outputPath, 'assets')
-          ViteConfigBuilder.copyDirRecursive(assetsDir, targetAssetsDir)
+          ViteConfigBuilder.copyDirRecursive(assetsDir, targetAssetsDir, onSkip, inputPath)
         }
 
         // Copy translations
         const translationsDir = join(inputPath, 'src/translations')
         if (existsSync(translationsDir)) {
           const targetTranslationsDir = join(outputPath, 'translations')
-          ViteConfigBuilder.copyDirRecursive(translationsDir, targetTranslationsDir)
+          ViteConfigBuilder.copyDirRecursive(translationsDir, targetTranslationsDir, onSkip, inputPath)
         }
       }
     }

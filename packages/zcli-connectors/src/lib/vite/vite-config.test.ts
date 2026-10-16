@@ -118,12 +118,46 @@ describe('ViteConfigBuilder', () => {
         (p: any) => p.name === 'copy-assets-translations'
       )
 
-      await assetPlugin.writeBundle()
+      const infoSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ info: infoSpy })
 
       expect(fsStubs.copyFileSync.calledOnce).to.be.true
       expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
         join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
       ])
+    })
+
+    it('should log skipped system files through the plugin context with relative paths', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', '.DS_Store'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      const infoSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ info: infoSpy })
+
+      expect(infoSpy.calledOnce).to.be.true
+      expect(infoSpy.firstCall.args[0]).to.equal(`Skipping system file: ${join('src', 'assets', '.DS_Store')}`)
     })
 
     it('should not copy assets or translations if directories do not exist', async () => {
