@@ -2,7 +2,7 @@ import type { Flags } from '../types'
 import { CLIError } from '@oclif/core/lib/errors'
 import * as fs from 'fs'
 import * as path from 'path'
-import { getLocalServerBaseUrl } from './getLocalServerBaseUrl'
+import { getBaseUrl } from './server'
 
 export default function getAssets (themePath: string, flags?: Flags): [path.ParsedPath, string][] {
   const assetsPath = `${themePath}/assets`
@@ -18,7 +18,7 @@ export default function getAssets (themePath: string, flags?: Flags): [path.Pars
       )
     }
     if (!name.startsWith('.')) {
-      const url = flags ? `${getLocalServerBaseUrl(flags)}/guide/assets/${filename}` : filename
+      const url = flags ? `${getBaseUrl(flags)}/guide/assets/${filename}` : filename
       assets.push([parsedPath, url])
     }
   })

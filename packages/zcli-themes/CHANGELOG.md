@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/zendesk/zcli/compare/v2.0.0...v2.1.0) (2026-09-29)
+
+
+### Bug Fixes
+
+* **themes:** correct TLS key/cert reads and test the preview lifecycle exit paths ([d96e46a](https://github.com/zendesk/zcli/commit/d96e46adf67e6adc9928567a579a18173c663686))
+
+
+### Features
+
+* **themes:** serve the whole component dist tree in preview ([fe3445b](https://github.com/zendesk/zcli/commit/fe3445b708cdacbe82b937546455a462386b650a))
+* **themes:** split component preview into themes:components:preview ([644974b](https://github.com/zendesk/zcli/commit/644974b3ef299e362d4150927f1baa5e96dc697d))
+
+
+
+
+
+# [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
+
+**Note:** Version bump only for package @zendesk/zcli-themes
+
+
+
+
+
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Features
+
+* **themes:** preview theme components with themes:preview ([226f494](https://github.com/zendesk/zcli/commit/226f494ac3ed15445cc106f7b3357df4b91438c0))
+
+
+
+
+
 # [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
 
 **Note:** Version bump only for package @zendesk/zcli-themes

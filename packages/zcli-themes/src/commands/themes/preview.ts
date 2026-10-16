@@ -2,22 +2,16 @@ import { Command, Flags } from '@oclif/core'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as express from 'express'
-import * as http from 'http'
-import * as https from 'https'
 import * as WebSocket from 'ws'
-import * as morgan from 'morgan'
 import * as chalk from 'chalk'
-import * as cors from 'cors'
 import * as chokidar from 'chokidar'
 import preview from '../../lib/preview'
 import getManifest from '../../lib/getManifest'
 import getVariables from '../../lib/getVariables'
 import getAssets from '../../lib/getAssets'
 import zass from '../../lib/zass'
-
-const logMiddleware = morgan((tokens, req, res) =>
-  `${chalk.green(tokens.method(req, res))} ${tokens.url(req, res)} ${chalk.bold(tokens.status(req, res))}`
-)
+import { createServer, listen } from '../../lib/server'
+import { request } from '@zendesk/zcli-core'
 
 export default class Preview extends Command {
   static description = 'preview a theme in development mode'
@@ -32,7 +26,7 @@ export default class Preview extends Command {
   }
 
   static args = [
-    { name: 'themeDirectory', required: true, default: '.' }
+    { name: 'directory', required: true, default: '.' }
   ]
 
   static examples = [
@@ -42,26 +36,19 @@ export default class Preview extends Command {
   static strict = false
 
   async run () {
-    const { flags, argv: [themeDirectory] } = await this.parse(Preview)
-    const themePath = path.resolve(themeDirectory)
-    const { logs: tailLogs, bind: host, port, 'https-cert': httpsCert, 'https-key': httpsKey } = flags
+    const { flags, argv: [directory] } = await this.parse(Preview)
+    const themePath = path.resolve(directory)
 
-    let httpsServerOptions: https.ServerOptions | null = null
-
-    if (httpsCert && httpsKey) {
-      httpsServerOptions = {
-        key: fs.readFileSync(httpsKey),
-        cert: fs.readFileSync(httpsCert)
-      }
+    if (!fs.existsSync(themePath)) {
+      this.error(`Couldn't find a directory at path: "${themePath}"`)
     }
 
-    const baseUrl = await preview(themePath, flags)
-    const app = express()
-    const server = httpsServerOptions === null ? http.createServer(app) : https.createServer(httpsServerOptions, app)
+    const { logs: tailLogs } = flags
+    const { app, server } = createServer(flags)
     const wss = new WebSocket.Server({ server, path: '/livereload' })
-
-    app.use(cors())
-    tailLogs && app.use(logMiddleware)
+    // ws re-emits http server errors (e.g. EADDRINUSE) as its own 'error'; without a listener that
+    // would crash the process. listen() surfaces the failure via the server itself.
+    wss.on('error', () => { /* surfaced via the server's own error above */ })
 
     app.use('/guide/assets', express.static(`${themePath}/assets`))
     app.use('/guide/settings', express.static(`${themePath}/settings`))
@@ -84,11 +71,21 @@ export default class Preview extends Command {
       res.send(compiled)
     })
 
-    server.listen(port, host, async () => {
-      this.log(chalk.bold.green('Ready', chalk.blueBright(`${baseUrl}/hc/admin/local_preview/start`, '🚀')))
-      this.log(`You can exit preview mode in the UI or by visiting ${baseUrl}/hc/admin/local_preview/stop`)
-      tailLogs && this.log(chalk.bold('Tailing logs'))
-    })
+    // Listen before uploading so an occupied port never mutates remote preview state.
+    await listen(server, flags)
+
+    let baseUrl
+    try {
+      baseUrl = await preview(themePath, flags)
+    } catch (e) {
+      wss.close()
+      server.close()
+      throw e
+    }
+
+    this.log(chalk.bold.green('Ready', chalk.blueBright(`${baseUrl}/hc/admin/local_preview/start`, '🚀')))
+    this.log(`You can exit preview mode in the UI or by visiting ${baseUrl}/hc/admin/local_preview/stop`)
+    tailLogs && this.log(chalk.bold('Tailing logs'))
 
     const monitoredPaths = [
       `${themePath}/assets`,
@@ -103,11 +100,7 @@ export default class Preview extends Command {
       this.log(chalk.bold('Change'), path)
       try {
         await preview(themePath, flags)
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send('reload')
-          }
-        })
+        this.broadcastReload(wss)
       } catch (e) {
         this.error(e as Error, { exit: false })
       }
@@ -118,13 +111,50 @@ export default class Preview extends Command {
       .on('change', handleThemeChange)
       .on('unlink', handleThemeChange)
 
+    const close = () => {
+      // Stop watching file changes before terminating the server
+      watcher.close()
+      server.close()
+      wss.close()
+    }
+
+    const onExitSignal = async () => {
+      await this.deregister('/hc/api/internal/theming/local_preview')
+      close()
+      process.exit(130)
+    }
+
+    process.once('SIGINT', onExitSignal)
+    process.once('SIGTERM', onExitSignal)
+
     return {
       close: () => {
-        // Stop watching file changes before terminating the server
-        watcher.close()
-        server.close()
-        wss.close()
+        process.off('SIGINT', onExitSignal)
+        process.off('SIGTERM', onExitSignal)
+        close()
       }
     }
+  }
+
+  // Best effort: any status (or a dead network) is fine — the session is ending
+  // anyway and the server-side TTL is the backstop.
+  private async deregister (path: string): Promise<void> {
+    try {
+      await request.requestAPI(path, {
+        method: 'delete',
+        timeout: 3000,
+        headers: {
+          'X-Zendesk-Request-Originator': 'zcli themes:preview'
+        }
+      })
+    } catch { /* best effort */ }
+  }
+
+  private broadcastReload (wss: WebSocket.Server) {
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send('reload')
+      }
+    })
   }
 }
