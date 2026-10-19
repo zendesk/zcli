@@ -4,6 +4,6 @@ import { testAction } from '.';
 describe('test action', () => {
   it('should return test action name', () => {
     expect(testAction.name).toBe('test_action');
-    expect(testAction.classifications).toBeUndefined();
+    expect(testAction).not.toHaveProperty('classifications');
   });
 });
