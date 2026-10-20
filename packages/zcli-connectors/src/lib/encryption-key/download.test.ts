@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-unused-expressions */
-
 import { expect } from 'chai'
 import { generateKeyPairSync } from 'crypto'
 import { promises as fs } from 'fs'
@@ -97,7 +94,7 @@ describe('downloadEncryptionKey', () => {
       expect(requestAPIStub.calledOnce).to.equal(true)
       expect(requestAPIStub.calledWithExactly(ENCRYPTION_KEY_ENDPOINT, { method: 'GET' })).to.equal(true)
       expect(ENCRYPTION_KEY_ENDPOINT).to.equal('/flowstate/connectors/public/encryption-key')
-      expect((requestAPIStub.firstCall.args[1] as any).data).to.equal(undefined)
+      expect((requestAPIStub.firstCall.args[1] as { data?: unknown }).data).to.equal(undefined)
     })
   })
 

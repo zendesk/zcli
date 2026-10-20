@@ -1,5 +1,5 @@
 import { createPublicKey, randomBytes } from 'crypto'
-import { promises as fs } from 'fs'
+import { promises as fs, Stats } from 'fs'
 import { basename, dirname, join, resolve } from 'path'
 import { request } from '@zendesk/zcli-core'
 
@@ -76,7 +76,7 @@ export async function downloadEncryptionKey (outputPath: string): Promise<void> 
   const destination = resolve(outputPath)
   const parentDir = dirname(destination)
 
-  let parentStat
+  let parentStat: Stats
   try {
     parentStat = await fs.stat(parentDir)
   } catch {
@@ -87,7 +87,7 @@ export async function downloadEncryptionKey (outputPath: string): Promise<void> 
   }
 
   // requestAPI resolves for non-5xx statuses and throws for 5xx/network errors.
-  let response
+  let response: { status: number, data: unknown }
   try {
     response = await request.requestAPI(ENCRYPTION_KEY_ENDPOINT, {
       method: 'GET'

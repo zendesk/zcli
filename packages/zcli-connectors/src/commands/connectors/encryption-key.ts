@@ -39,13 +39,13 @@ export default class EncryptionKey extends Command {
     }
 
     try {
-      await downloadEncryptionKey(flags.output)
+      await downloadEncryptionKey(destination)
 
       if (flags.verbose) {
         this.logVerbose(`Public key written to ${destination}`)
       }
 
-      this.log(chalk.green(`Public connector encryption key written to ${flags.output}`))
+      this.log(chalk.green(`Public connector encryption key written to ${destination}`))
     } catch (error) {
       // Never log the raw error object: it may carry authenticated request
       // configuration. Helpers already reduce failures to safe messages.

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-unused-expressions */
-
 import { expect } from 'chai'
 import { generateKeyPairSync } from 'crypto'
 import { promises as fs } from 'fs'
@@ -22,8 +19,10 @@ describe('encryption-key command', () => {
   let outputPath: string
 
   beforeEach(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     encryptionKeyCommand = new EncryptionKeyCommand([], {} as any)
     logStub = sinon.stub(encryptionKeyCommand, 'log')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     logVerboseStub = sinon.stub(encryptionKeyCommand as any, 'logVerbose')
     requestAPIStub = sinon.stub(request, 'requestAPI')
     workDir = await fs.mkdtemp(join(tmpdir(), 'zcli-encryption-key-cmd-'))
@@ -36,22 +35,23 @@ describe('encryption-key command', () => {
   })
 
   function stubParse (flags: Record<string, unknown>) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sinon.stub(encryptionKeyCommand, 'parse' as any).resolves({ flags })
   }
 
   describe('command flags', () => {
     it('should have help flag', () => {
-      expect(EncryptionKeyCommand.flags.help).to.exist
+      expect(EncryptionKeyCommand.flags.help).to.not.equal(undefined)
     })
 
     it('should have a required output flag with char o', () => {
-      expect(EncryptionKeyCommand.flags.output).to.exist
+      expect(EncryptionKeyCommand.flags.output).to.not.equal(undefined)
       expect(EncryptionKeyCommand.flags.output.char).to.equal('o')
       expect(EncryptionKeyCommand.flags.output.required).to.equal(true)
     })
 
     it('should have verbose flag with char v', () => {
-      expect(EncryptionKeyCommand.flags.verbose).to.exist
+      expect(EncryptionKeyCommand.flags.verbose).to.not.equal(undefined)
       expect(EncryptionKeyCommand.flags.verbose.char).to.equal('v')
       expect(EncryptionKeyCommand.flags.verbose.type).to.equal('boolean')
       expect(EncryptionKeyCommand.flags.verbose.default).to.equal(false)
@@ -117,8 +117,10 @@ describe('encryption-key command', () => {
 
     beforeEach(() => {
       stubParse({ output: outputPath, verbose: false, help: false })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorStub = sinon.stub(encryptionKeyCommand, 'error').callsFake((message: any, options: any) => {
         const err = new Error(String(message))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ;(err as any).options = options
         throw err
       })
@@ -142,7 +144,7 @@ describe('encryption-key command', () => {
 
       await runExpectingFailure()
 
-      expect(caughtError).to.exist
+      expect(caughtError).to.not.equal(undefined)
       expect(errorStub.calledWith(sinon.match(/HTTP 401/), sinon.match({ exit: 1 }))).to.equal(true)
       expect(await fileExists(outputPath)).to.equal(false)
     })
