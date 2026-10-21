@@ -9,6 +9,7 @@ The `zcli connectors` commands help manage Zendesk connector workflows. **[Early
 * [`zcli connectors:bundle [PATH]`](#zcli-connectorsbundle-path)
 * [`zcli connectors:create CONNECTOR`](#zcli-connectorscreate-connector)
 * [`zcli connectors:delete [CONNECTOR]`](#zcli-connectorsdelete-connector)
+* [`zcli connectors:encryption-key`](#zcli-connectorsencryption-key)
 * [`zcli connectors:list`](#zcli-connectorslist)
 * [`zcli connectors:publish [PATH]`](#zcli-connectorspublish-path)
 * [`zcli connectors:publish-status [PATH]`](#zcli-connectorspublish-status-path)
@@ -94,6 +95,28 @@ EXAMPLES
   $ zcli connectors:delete
   $ zcli connectors:delete my-connector --force
 ```
+
+## `zcli connectors:encryption-key`
+
+download the public connector encryption key for the current account
+
+The downloaded RSA public key is used to encrypt connector secrets (for example, an OAuth client secret) before they are included in a connector's settings. The key is public material; it is downloaded fresh from Zendesk every time the command runs and is written atomically, so a failed download never replaces a previously downloaded key.
+
+```
+USAGE
+  $ zcli connectors:encryption-key -o <path>
+
+OPTIONS
+  -o, --output=<path>  (required) destination file for the downloaded PEM public key
+  -h, --help           show CLI help
+  -v, --verbose        verbose output
+
+EXAMPLES
+  $ zcli connectors:encryption-key --output public-key.pem
+  $ zcli connectors:encryption-key -o ./keys/public-key.pem
+```
+
+**Note:** The parent directory of the output path must already exist. The command requires an authenticated account administrator profile; it returns an actionable error if the profile is unauthenticated (`401`), lacks permission (`403`), or the key is temporarily unavailable (`503`).
 
 ## `zcli connectors:list`
 
