@@ -98,7 +98,7 @@ EXAMPLES
 
 ## `zcli connectors:encryption-key`
 
-download the public connector encryption key for the current account
+download the public connector encryption key
 
 The downloaded RSA public key is used to encrypt connector secrets (for example, an OAuth client secret) before they are included in a connector's settings. The key is public material; it is downloaded fresh from Zendesk every time the command runs and is written atomically, so a failed download never replaces a previously downloaded key.
 
