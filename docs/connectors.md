@@ -9,6 +9,7 @@ The `zcli connectors` commands help manage Zendesk connector workflows. **[Early
 * [`zcli connectors:bundle [PATH]`](#zcli-connectorsbundle-path)
 * [`zcli connectors:create CONNECTOR`](#zcli-connectorscreate-connector)
 * [`zcli connectors:delete [CONNECTOR]`](#zcli-connectorsdelete-connector)
+* [`zcli connectors:encryption-key`](#zcli-connectorsencryption-key)
 * [`zcli connectors:list`](#zcli-connectorslist)
 * [`zcli connectors:publish [PATH]`](#zcli-connectorspublish-path)
 * [`zcli connectors:publish-status [PATH]`](#zcli-connectorspublish-status-path)
@@ -94,6 +95,42 @@ EXAMPLES
   $ zcli connectors:delete
   $ zcli connectors:delete my-connector --force
 ```
+
+## `zcli connectors:encryption-key`
+
+Download the active public connector encryption key from Zendesk.
+
+The downloaded RSA public key is used to encrypt publisher-owned connector secrets, such as an OAuth client secret, before they are added to the connector's root `settings.json` file.
+
+The key is public material. ZCLI downloads it fresh from Zendesk every time the command runs and writes it atomically, so a failed download or invalid response does not replace a previously downloaded key.
+
+> **Early Access:** Public connector development is currently available only to approved developers.
+
+```text
+USAGE
+  $ zcli connectors:encryption-key -o <path>
+
+OPTIONS
+  -o, --output=<path>  (required) destination file for the downloaded PEM public key
+  -h, --help           show CLI help
+  -v, --verbose        verbose output
+
+EXAMPLES
+  $ zcli connectors:encryption-key --output public-key.pem
+  $ zcli connectors:encryption-key -o ./keys/public-key.pem
+```
+
+**Note:** The parent directory of the output path must already exist.
+
+The command uses the currently selected Zendesk environment and requires authenticated account-administrator credentials. It returns an actionable error when:
+
+- authentication is missing or expired (`401`);
+- the authenticated user lacks permission (`403`);
+- the encryption key is temporarily unavailable (`503`);
+- the response does not contain a valid RSA public key;
+- the destination cannot be written.
+
+The downloaded public key is not secret and can be stored with the connector's local development tooling. Do not add plaintext connector secrets to source control, shell arguments, or logs.
 
 ## `zcli connectors:list`
 
