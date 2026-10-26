@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.2.0](https://github.com/zendesk/zcli/compare/v2.1.0...v2.2.0) (2026-10-26)
+
+
+### Bug Fixes
+
+* **connectors:** pin starter to compatible published SDK ([e433a7f](https://github.com/zendesk/zcli/commit/e433a7f2b19d02cbab5e119ce29eb331e41d450a))
+* **connectors:** pin starter to public SDK eap.4 ([523d5a5](https://github.com/zendesk/zcli/commit/523d5a55ecc0f70e9aaeadadafa815e3b9f70041))
+
+
+### Features
+
+* **connectors:** add connectors:encryption-key command ([c98630c](https://github.com/zendesk/zcli/commit/c98630c06b571d511398dd1107325d2c9b8fb7cd))
+
+
+
+
+
 # [2.1.0](https://github.com/zendesk/zcli/compare/v2.0.0...v2.1.0) (2026-09-29)
 
 
