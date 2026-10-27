@@ -68,24 +68,10 @@ function statusFromError (error: unknown): number | undefined {
 }
 
 /**
- * Downloads Flowstate's active public connector encryption key and writes it
- * atomically to outputPath. The destination is only replaced after the request
- * and validation succeed, so a failed refresh never destroys a valid key.
+ * Fetches and validates Flowstate's active public connector encryption key.
+ * Returns the normalized PEM (terminal newline only; body unaltered).
  */
-export async function downloadEncryptionKey (outputPath: string): Promise<void> {
-  const destination = resolve(outputPath)
-  const parentDir = dirname(destination)
-
-  let parentStat: Stats
-  try {
-    parentStat = await fs.stat(parentDir)
-  } catch {
-    throw new Error(`Failed to write the encryption key to ${destination}: parent directory ${parentDir} does not exist.`)
-  }
-  if (!parentStat.isDirectory()) {
-    throw new Error(`Failed to write the encryption key to ${destination}: ${parentDir} is not a directory.`)
-  }
-
+export async function fetchEncryptionKey (): Promise<string> {
   // requestAPI resolves for non-5xx statuses and throws for 5xx/network errors.
   let response: { status: number, data: unknown }
   try {
@@ -105,7 +91,29 @@ export async function downloadEncryptionKey (outputPath: string): Promise<void> 
     throw new Error(messageForStatus(response.status))
   }
 
-  const pem = validateEncryptionKeyResponse(response.data)
+  return validateEncryptionKeyResponse(response.data)
+}
+
+/**
+ * Downloads Flowstate's active public connector encryption key and writes it
+ * atomically to outputPath. The destination is only replaced after the request
+ * and validation succeed, so a failed refresh never destroys a valid key.
+ */
+export async function downloadEncryptionKey (outputPath: string): Promise<void> {
+  const destination = resolve(outputPath)
+  const parentDir = dirname(destination)
+
+  let parentStat: Stats
+  try {
+    parentStat = await fs.stat(parentDir)
+  } catch {
+    throw new Error(`Failed to write the encryption key to ${destination}: parent directory ${parentDir} does not exist.`)
+  }
+  if (!parentStat.isDirectory()) {
+    throw new Error(`Failed to write the encryption key to ${destination}: ${parentDir} is not a directory.`)
+  }
+
+  const pem = await fetchEncryptionKey()
 
   const tempPath = join(parentDir, `.${basename(destination)}.${process.pid}.${randomBytes(6).toString('hex')}.tmp`)
   try {
