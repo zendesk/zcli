@@ -156,6 +156,10 @@ export class ViteConfigBuilder {
             throw new Error('Connector name and version are required in manifest.json')
           }
 
+          if (/[/\\]/.test(manifest.name)) {
+            throw new Error(`Invalid connector name "${manifest.name}": must not contain path separators`)
+          }
+
           const archiveName = `${manifest.name}-${manifest.version}`
           await createPackageArchive(outputPath, archiveName, archiveOutputPath)
         }
