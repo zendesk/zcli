@@ -235,7 +235,7 @@ describe('ViteConfigBuilder', () => {
 
   describe('createArchivePlugin', () => {
     it('should create a versioned archive beside the output directory', async () => {
-      const readFileSyncStub = sinon.stub(fs, 'readFileSync').returns(JSON.stringify({
+      const readFileStub = sinon.stub(fs.promises, 'readFile').resolves(JSON.stringify({
         name: 'my-connector',
         version: '1.2.3'
       }))
@@ -253,7 +253,7 @@ describe('ViteConfigBuilder', () => {
 
       await archivePlugin.writeBundle.handler()
 
-      expect(readFileSyncStub.calledWith(join('/connector/dist', 'manifest.json'), 'utf-8')).to.be.true
+      expect(readFileStub.calledWith(join('/connector/dist', 'manifest.json'), 'utf-8')).to.be.true
       expect(createPackageArchiveStub.calledWith('/connector/dist', 'my-connector-1.2.3', '/connector')).to.be.true
     })
   })

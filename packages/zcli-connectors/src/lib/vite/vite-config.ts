@@ -1,7 +1,8 @@
 import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
-import { existsSync, copyFileSync, mkdirSync, readFileSync, readdirSync, statSync } from 'fs'
+import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
+import { readFile } from 'fs/promises'
 import { isAbsolute, join } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import { createPackageArchive } from '../publish/publish'
@@ -149,7 +150,7 @@ export class ViteConfigBuilder {
         sequential: true,
         async handler () {
           const manifestPath = join(outputPath, 'manifest.json')
-          const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+          const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'))
 
           if (!manifest.name || !manifest.version) {
             throw new Error('Connector name and version are required in manifest.json')
