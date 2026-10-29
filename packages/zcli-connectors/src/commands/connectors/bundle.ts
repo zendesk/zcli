@@ -82,7 +82,7 @@ export default class Bundle extends Command {
           chalk.green('Watching for changes... (Press Ctrl+C to stop)')
         )
       } else {
-        spinner.succeed(chalk.green('Bundle created successfully!'))
+        spinner.succeed(chalk.green('Bundle and upload-ready ZIP created successfully!'))
       }
     } catch (error) {
       spinner.fail(chalk.red('Failed to bundle the connector'))
@@ -147,7 +147,8 @@ export default class Bundle extends Command {
       {
         inputPath,
         outputPath,
-        watch
+        watch,
+        archiveOutputPath: inputPath
       }
     )
 

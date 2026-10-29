@@ -143,7 +143,8 @@ describe('bundle', () => {
 
     expect(viteStubs.createConfig).to.have.been.calledWith(
       sinon.match({
-        watch: false
+        watch: false,
+        archiveOutputPath: sinon.match(/test-dir$/)
       })
     )
   })

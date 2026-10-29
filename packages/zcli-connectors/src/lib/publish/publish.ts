@@ -5,10 +5,11 @@ import { request } from '@zendesk/zcli-core'
 
 export async function createPackageArchive (
   path: string,
-  connectorName: string
+  connectorName: string,
+  archiveOutputPath: string = path
 ): Promise<string> {
   const packageFileName = `${connectorName}.zip`
-  const packagePath = join(path, packageFileName)
+  const packagePath = join(archiveOutputPath, packageFileName)
 
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(packagePath)

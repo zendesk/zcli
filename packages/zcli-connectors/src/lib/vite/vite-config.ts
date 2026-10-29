@@ -2,8 +2,10 @@ import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
+import { readFile } from 'fs/promises'
 import { isAbsolute, join } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
+import { createPackageArchive } from '../publish/publish'
 
 export interface ViteConfigOptions {
   inputPath: string;
@@ -11,6 +13,7 @@ export interface ViteConfigOptions {
   watch?: boolean;
   mode?: string;
   targetDir?: string;
+  archiveOutputPath?: string;
 }
 
 // Minimal Vite config interface
@@ -136,6 +139,34 @@ export class ViteConfigBuilder {
     }
   }
 
+  private static createArchivePlugin (
+    outputPath: string,
+    archiveOutputPath: string
+  ) {
+    return {
+      name: 'create-connector-archive',
+      writeBundle: {
+        order: 'post' as const,
+        sequential: true,
+        async handler () {
+          const manifestPath = join(outputPath, 'manifest.json')
+          const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'))
+
+          if (!manifest.name || !manifest.version) {
+            throw new Error('Connector name and version are required in manifest.json')
+          }
+
+          if (/[/\\]/.test(manifest.name)) {
+            throw new Error(`Invalid connector name "${manifest.name}": must not contain path separators`)
+          }
+
+          const archiveName = `${manifest.name}-${manifest.version}`
+          await createPackageArchive(outputPath, archiveName, archiveOutputPath)
+        }
+      }
+    }
+  }
+
   private static createBaseConfig (
     inputPath: string,
     outputPath: string,
@@ -167,7 +198,7 @@ export class ViteConfigBuilder {
   }
 
   private static createLocalConfig (options: ViteConfigOptions): ViteUserConfig {
-    const { inputPath, outputPath, mode, targetDir } = options
+    const { inputPath, outputPath, mode, targetDir, archiveOutputPath } = options
 
     const plugins = [
       nodeResolve({
@@ -181,19 +212,27 @@ export class ViteConfigBuilder {
       this.createManifestPlugin(outputPath, mode, targetDir)
     ]
 
+    if (archiveOutputPath) {
+      plugins.push(this.createArchivePlugin(outputPath, archiveOutputPath))
+    }
+
     const external = this.createExternalFunction()
 
     return this.createBaseConfig(inputPath, outputPath, plugins, external, options.watch)
   }
 
   private static createNpmConfig (options: ViteConfigOptions): ViteUserConfig {
-    const { inputPath, outputPath, mode, targetDir } = options
+    const { inputPath, outputPath, mode, targetDir, archiveOutputPath } = options
     // For npm mode, we only need babel - no nodeResolve or commonjs
     const plugins = [
       this.createBabelPlugin(),
       this.createAssetCopyPlugin(inputPath, outputPath),
       this.createManifestPlugin(outputPath, mode, targetDir)
     ]
+
+    if (archiveOutputPath) {
+      plugins.push(this.createArchivePlugin(outputPath, archiveOutputPath))
+    }
 
     const external = this.createExternalFunction()
 

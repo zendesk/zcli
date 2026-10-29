@@ -6,6 +6,7 @@ import * as fs from 'fs'
 import { join } from 'path'
 import { ViteConfigBuilder, createConnectorViteConfig } from './vite-config'
 import { ManifestGenerator } from '../manifest-generator/generator'
+import * as publishModule from '../publish/publish'
 
 describe('ViteConfigBuilder', () => {
   let fsStubs: any
@@ -229,6 +230,57 @@ describe('ViteConfigBuilder', () => {
       expect(manifestStub.calledOnce).to.be.true
       expect(fsStubs.mkdirSync.called).to.be.false
       expect(fsStubs.copyFileSync.called).to.be.false
+    })
+  })
+
+  describe('createArchivePlugin', () => {
+    it('should create a versioned archive beside the output directory', async () => {
+      const readFileStub = sinon.stub(fs.promises, 'readFile').resolves(JSON.stringify({
+        name: 'my-connector',
+        version: '1.2.3'
+      }))
+      const createPackageArchiveStub = sinon.stub(publishModule, 'createPackageArchive').resolves('/connector/my-connector-1.2.3.zip')
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/dist',
+        archiveOutputPath: '/connector'
+      })
+
+      const archivePlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'create-connector-archive'
+      )
+
+      await archivePlugin.writeBundle.handler()
+
+      expect(readFileStub.calledWith(join('/connector/dist', 'manifest.json'), 'utf-8')).to.be.true
+      expect(createPackageArchiveStub.calledWith('/connector/dist', 'my-connector-1.2.3', '/connector')).to.be.true
+    })
+
+    it('should reject manifest names containing path separators', async () => {
+      sinon.stub(fs.promises, 'readFile').resolves(JSON.stringify({
+        name: '/tmp/my-connector',
+        version: '1.2.3'
+      }))
+      const createPackageArchiveStub = sinon.stub(publishModule, 'createPackageArchive').resolves('/unused')
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/dist',
+        archiveOutputPath: '/connector'
+      })
+
+      const archivePlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'create-connector-archive'
+      )
+
+      try {
+        await archivePlugin.writeBundle.handler()
+        expect.fail('should have thrown')
+      } catch (error: any) {
+        expect(error.message).to.include('must not contain path separators')
+      }
+      expect(createPackageArchiveStub.called).to.be.false
     })
   })
 

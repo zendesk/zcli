@@ -36,6 +36,15 @@ describe('publish', () => {
       const callArgs = createWriteStreamStub.getCall(0).args[0]
       expect(callArgs).to.equal(join('/custom/long/input/path', 'connector.zip'))
     })
+
+    it('should write the archive to a separate output directory', () => {
+      createWriteStreamStub = sinon.stub(fs, 'createWriteStream').returns({} as any)
+
+      publishModule.createPackageArchive('/connector/dist', 'my-connector-1.0.0', '/connector')
+
+      const callArgs = createWriteStreamStub.getCall(0).args[0]
+      expect(callArgs).to.equal(join('/connector', 'my-connector-1.0.0.zip'))
+    })
   })
 
   describe('createConnector', () => {
