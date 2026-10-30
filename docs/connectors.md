@@ -10,6 +10,7 @@ The `zcli connectors` commands help manage Zendesk connector workflows. **[Early
 * [`zcli connectors:create CONNECTOR`](#zcli-connectorscreate-connector)
 * [`zcli connectors:delete [CONNECTOR]`](#zcli-connectorsdelete-connector)
 * [`zcli connectors:encryption-key`](#zcli-connectorsencryption-key)
+* [`zcli connectors:encrypt-secret`](#zcli-connectorsencrypt-secret)
 * [`zcli connectors:list`](#zcli-connectorslist)
 * [`zcli connectors:publish [PATH]`](#zcli-connectorspublish-path)
 * [`zcli connectors:publish-status [PATH]`](#zcli-connectorspublish-status-path)
@@ -131,6 +132,43 @@ The command uses the currently selected Zendesk environment and requires authent
 - the destination cannot be written.
 
 The downloaded public key is not secret and can be stored with the connector's local development tooling. Do not add plaintext connector secrets to source control, shell arguments, or logs.
+
+## `zcli connectors:encrypt-secret`
+
+Encrypt a publisher-owned connector secret, such as an OAuth client secret, for the connector's root `settings.json` file.
+
+The secret is read from standard input — never pass it as a command argument, where it would be exposed in shell history and process listings. The command prints a single `enc:v1:` encrypted value to standard output, ready to paste into `settings.json` as the `encrypted_value` of `authentication.client_secret`. The Early Access banner and verbose details are written to standard error, so standard output can be piped directly into a file or clipboard.
+
+The output is a compact JWE (RSA-OAEP-256 key encryption, A256GCM content encryption) whose protected `kid` header is the base64url SHA-256 fingerprint of the public key, matching the format the public connector provisioning pipeline expects.
+
+> **Early Access:** Public connector development is currently available only to approved developers.
+
+```text
+USAGE
+  $ zcli connectors:encrypt-secret
+
+OPTIONS
+  -k, --key=<path>  path to a PEM public key downloaded with connectors:encryption-key
+                    (default: fetch the active key from Zendesk)
+  -h, --help        show CLI help
+  -v, --verbose     verbose output
+
+EXAMPLES
+  $ my-secret-manager-command | zcli connectors:encrypt-secret
+  $ my-secret-manager-command | zcli connectors:encrypt-secret --key public-key.pem
+```
+
+By default the command fetches the active public key from Zendesk before encrypting, so the value always matches the key Zendesk currently expects. Use `--key` to encrypt against a previously downloaded key file instead.
+
+The command uses the currently selected Zendesk environment and requires authenticated account-administrator credentials when fetching the key. It returns an actionable error when:
+
+- authentication is missing or expired (`401`);
+- the authenticated user lacks permission (`403`);
+- the encryption key is temporarily unavailable (`503`);
+- the key is not a valid RSA public key PEM (private keys are rejected);
+- the secret is empty or exceeds the maximum supported size.
+
+Although the output is encrypted, treat it as sensitive provisioning material: do not publish it in logs, tickets, or source control.
 
 ## `zcli connectors:list`
 
