@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/zendesk/zcli/compare/v2.2.0...v2.3.0) (2026-10-30)
+
+
+### Bug Fixes
+
+* **connectors:** read manifest asynchronously when creating bundle archive ([295aef4](https://github.com/zendesk/zcli/commit/295aef4efcdfd6841b429209682f64c6d19dd54e))
+* **connectors:** reject manifest names with path separators ([5a58783](https://github.com/zendesk/zcli/commit/5a58783b4217bd666f15e389fdcf2b2a286bb5fc))
+
+
+### Features
+
+* **connectors:** create upload-ready bundle archive ([bbb9c70](https://github.com/zendesk/zcli/commit/bbb9c7072cdcba175b4c202544b4ca32f38f1b47))
+
+
+
+
+
 # [2.2.0](https://github.com/zendesk/zcli/compare/v2.1.0...v2.2.0) (2026-10-26)
 
 
