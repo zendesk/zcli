@@ -106,7 +106,7 @@ export class ViteConfigBuilder {
         }
 
         // Copy settings.json from src root
-        const settingsFile = join(inputPath, 'src/settings.json')
+        const settingsFile = join(inputPath, 'src', 'settings.json')
         if (existsSync(settingsFile)) {
           copyFileSync(settingsFile, join(outputPath, 'settings.json'))
         }
