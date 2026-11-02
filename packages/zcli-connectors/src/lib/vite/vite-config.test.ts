@@ -97,9 +97,9 @@ describe('ViteConfigBuilder', () => {
       const inputPath = '/input'
       const outputPath = '/output'
 
+      fsStubs.existsSync.returns(false) // default
       fsStubs.existsSync
         .withArgs(join(inputPath, 'src', 'settings.json')).returns(true)
-        .withArgs(sinon.match.string).returns(false) // default
 
       const config = ViteConfigBuilder.createConfig({
         inputPath,
