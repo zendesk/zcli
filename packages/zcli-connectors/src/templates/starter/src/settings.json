@@ -1,0 +1,13 @@
+{
+  "authentication": {
+    "type": "oauth2",
+    "grant_type": "authorization_code",
+    "client_id": "",
+    "client_secret": {
+      "encrypted_value": ""
+    },
+    "auth_url": "",
+    "token_url": "",
+    "default_scopes": ""
+  }
+}

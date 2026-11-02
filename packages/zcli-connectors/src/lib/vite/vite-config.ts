@@ -104,6 +104,12 @@ export class ViteConfigBuilder {
           const targetTranslationsDir = join(outputPath, 'translations')
           ViteConfigBuilder.copyDirRecursive(translationsDir, targetTranslationsDir)
         }
+
+        // Copy settings.json from src root
+        const settingsFile = join(inputPath, 'src', 'settings.json')
+        if (existsSync(settingsFile)) {
+          copyFileSync(settingsFile, join(outputPath, 'settings.json'))
+        }
       }
     }
   }
