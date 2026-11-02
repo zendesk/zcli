@@ -93,6 +93,51 @@ describe('ViteConfigBuilder', () => {
       ])
     })
 
+    it('should copy settings.json from src to the output root', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*settings\.json/)).returns(true)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      await assetPlugin.writeBundle()
+
+      expect(fsStubs.copyFileSync.calledOnce).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/input', 'src', 'settings.json'), join('/output', 'settings.json')
+      ])
+    })
+
+    it('should not copy settings.json if the file does not exist', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync.returns(false)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      await assetPlugin.writeBundle()
+
+      expect(fsStubs.copyFileSync.called).to.be.false
+    })
+
     it('should not copy assets or translations if directories do not exist', async () => {
       const inputPath = '/input'
       const outputPath = '/output'
