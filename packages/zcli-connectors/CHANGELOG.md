@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.4.0](https://github.com/zendesk/zcli/compare/v2.3.0...v2.4.0) (2026-11-03)
+
+
+### Bug Fixes
+
+* **connectors:** avoid embedding path separator in join segment ([a257b19](https://github.com/zendesk/zcli/commit/a257b19300b847a735bdf887c4314cf7aa681166))
+
+
+### Features
+
+* **connectors:** add default settings.json to starter template ([8e8f532](https://github.com/zendesk/zcli/commit/8e8f5322697ccbce2a3fa22a25def7085056387e))
+* **connectors:** copy settings.json from src to bundle output root ([1c5a64f](https://github.com/zendesk/zcli/commit/1c5a64fa81c6b02587638d9ceeb5870ee9f0caf7))
+
+
+
+
+
 # [2.3.0](https://github.com/zendesk/zcli/compare/v2.2.0...v2.3.0) (2026-10-30)
 
 
