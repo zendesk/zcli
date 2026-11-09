@@ -3,9 +3,10 @@ import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
 import { readFile } from 'fs/promises'
-import { isAbsolute, join } from 'path'
+import { isAbsolute, join, relative } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import { createPackageArchive } from '../publish/publish'
+import { isAllowedAssetFile, isAllowedTranslationFile, isOSMetadataEntry } from '../bundleContract'
 
 export interface ViteConfigOptions {
   inputPath: string;
@@ -51,7 +52,7 @@ export class ViteConfigBuilder {
   }
 
   /**
-   * Recursively copies a directory from source to destination
+   * Recursively copies a directory from source to destination.
    */
   private static copyDirRecursive (src: string, dest: string): void {
     if (!existsSync(dest)) {
@@ -68,6 +69,44 @@ export class ViteConfigBuilder {
       } else {
         copyFileSync(srcPath, destPath)
       }
+    }
+  }
+
+  /**
+   * Copies only the files allowed by the connector bundle contract from
+   * a contract directory (assets or translations) to the bundle output.
+   *
+   * OS metadata entries are reported as 'system' and everything not in
+   * the contract (including subdirectories) as 'unexpected' through
+   * onSkip, so skips are visible rather than silent (VEG-4556).
+   * Paths passed to onSkip are relative to basePath.
+   */
+  private static copyContractDirectory (
+    src: string,
+    dest: string,
+    isAllowed: (name: string) => boolean,
+    onSkip: ((relativePath: string, kind: 'system' | 'unexpected') => void) | undefined,
+    basePath: string
+  ): void {
+    const items = readdirSync(src)
+    for (const item of items) {
+      const srcPath = join(src, item)
+      const relPath = relative(basePath, srcPath)
+
+      if (isOSMetadataEntry(item)) {
+        if (onSkip) onSkip(relPath, 'system')
+        continue
+      }
+
+      if (statSync(srcPath).isDirectory() || !isAllowed(item)) {
+        if (onSkip) onSkip(relPath, 'unexpected')
+        continue
+      }
+
+      if (!existsSync(dest)) {
+        mkdirSync(dest, { recursive: true })
+      }
+      copyFileSync(srcPath, join(dest, item))
     }
   }
 
@@ -90,19 +129,31 @@ export class ViteConfigBuilder {
   private static createAssetCopyPlugin (inputPath: string, outputPath: string) {
     return {
       name: 'copy-assets-translations',
-      writeBundle () {
-        // Copy assets
+      writeBundle: function (this: { info?: (message: string) => void, warn?: (message: string) => void } | undefined) {
+        // Route skip messages through the bundler's plugin logging so output
+        // stays controllable by the CLI/CI consumer (VEG-4556)
+        const info = this?.info
+        const warn = this?.warn
+        const onSkip = (relativePath: string, kind: 'system' | 'unexpected') => {
+          if (kind === 'system') {
+            if (typeof info === 'function') info.call(this, `Skipping system file: ${relativePath}`)
+          } else if (typeof warn === 'function') {
+            warn.call(this, `Skipping unexpected file not in the connector bundle contract: ${relativePath}`)
+          }
+        }
+
+        // Copy assets — only the bundle contract files (assets/logo.svg)
         const assetsDir = join(inputPath, 'src/assets')
         if (existsSync(assetsDir)) {
           const targetAssetsDir = join(outputPath, 'assets')
-          ViteConfigBuilder.copyDirRecursive(assetsDir, targetAssetsDir)
+          ViteConfigBuilder.copyContractDirectory(assetsDir, targetAssetsDir, isAllowedAssetFile, onSkip, inputPath)
         }
 
-        // Copy translations
+        // Copy translations — only the bundle contract files (translations/<locale>.json)
         const translationsDir = join(inputPath, 'src/translations')
         if (existsSync(translationsDir)) {
           const targetTranslationsDir = join(outputPath, 'translations')
-          ViteConfigBuilder.copyDirRecursive(translationsDir, targetTranslationsDir)
+          ViteConfigBuilder.copyContractDirectory(translationsDir, targetTranslationsDir, isAllowedTranslationFile, onSkip, inputPath)
         }
 
         // Copy settings.json from src root

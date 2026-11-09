@@ -32,7 +32,7 @@ describe('ViteConfigBuilder', () => {
   })
 
   describe('createAssetCopyPlugin', () => {
-    it('should copy assets and translations when writeBundle is called', async () => {
+    it('should copy bundle contract files from assets and translations when writeBundle is called', async () => {
       const inputPath = '/input'
       const outputPath = '/output'
 
@@ -43,15 +43,13 @@ describe('ViteConfigBuilder', () => {
         .withArgs(sinon.match(/input.*translations/)).returns(true)
 
       fsStubs.readdirSync
-        .withArgs(sinon.match(/input.*assets/)).returns(['file1.png', 'subdir'])
-        .withArgs(sinon.match(/input.*translations/)).returns(['en.json'])
-        .withArgs(sinon.match(/input.*assets.*subdir/)).returns(['file2.png'])
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg'])
+        .withArgs(sinon.match(/input.*translations/)).returns(['en.json', 'vi.json'])
 
       fsStubs.statSync
-        .withArgs(sinon.match(/file1\.png/)).returns({ isDirectory: () => false })
-        .withArgs(sinon.match(/subdir/)).returns({ isDirectory: () => true })
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
         .withArgs(sinon.match(/en\.json/)).returns({ isDirectory: () => false })
-        .withArgs(sinon.match(/file2\.png/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/vi\.json/)).returns({ isDirectory: () => false })
 
       fsStubs.mkdirSync.returns(undefined)
       fsStubs.copyFileSync.returns(undefined)
@@ -74,23 +72,145 @@ describe('ViteConfigBuilder', () => {
         join('/output', 'assets'), { recursive: true }
       ])
       expect(fsStubs.mkdirSync.secondCall.args).to.deep.equal([
-        join('/output', 'assets', 'subdir'), { recursive: true }
-      ])
-      expect(fsStubs.mkdirSync.thirdCall.args).to.deep.equal([
         join('/output', 'translations'), { recursive: true }
       ])
 
-      // Verify files were copied
-      expect(fsStubs.copyFileSync.called).to.be.true
+      // Verify only contract files were copied
+      expect(fsStubs.copyFileSync.calledThrice).to.be.true
       expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
-        join('/input', 'src', 'assets', 'file1.png'), join('/output', 'assets', 'file1.png')
+        join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
       ])
       expect(fsStubs.copyFileSync.secondCall.args).to.deep.equal([
-        join('/input', 'src', 'assets', 'subdir', 'file2.png'), join('/output', 'assets', 'subdir', 'file2.png')
-      ])
-      expect(fsStubs.copyFileSync.thirdCall.args).to.deep.equal([
         join('/input', 'src', 'translations', 'en.json'), join('/output', 'translations', 'en.json')
       ])
+      expect(fsStubs.copyFileSync.thirdCall.args).to.deep.equal([
+        join('/input', 'src', 'translations', 'vi.json'), join('/output', 'translations', 'vi.json')
+      ])
+    })
+
+    it('should skip OS metadata files when copying assets', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', '.DS_Store', '._logo.svg', '__MACOSX'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      const infoSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ info: infoSpy })
+
+      expect(fsStubs.copyFileSync.calledOnce).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
+      ])
+    })
+
+    it('should log skipped system files through the plugin context with relative paths', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', '.DS_Store'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      const infoSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ info: infoSpy })
+
+      expect(infoSpy.calledOnce).to.be.true
+      expect(infoSpy.firstCall.args[0]).to.equal(`Skipping system file: ${join('src', 'assets', '.DS_Store')}`)
+    })
+
+    it('should warn and skip unexpected files not in the bundle contract', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+        .withArgs(sinon.match(/input.*translations/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', 'icon.png', 'Thumbs.db', 'subdir'])
+        .withArgs(sinon.match(/input.*translations/)).returns(['en.json', 'notes.txt'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/icon\.png/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/Thumbs\.db/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/subdir/)).returns({ isDirectory: () => true })
+        .withArgs(sinon.match(/en\.json/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/notes\.txt/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      const warnSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ warn: warnSpy })
+
+      // Only contract files are copied
+      expect(fsStubs.copyFileSync.calledTwice).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
+      ])
+      expect(fsStubs.copyFileSync.secondCall.args).to.deep.equal([
+        join('/input', 'src', 'translations', 'en.json'), join('/output', 'translations', 'en.json')
+      ])
+
+      // Every unexpected entry (other files and subdirectories) is warned about
+      expect(warnSpy.callCount).to.equal(4)
+      expect(warnSpy.getCall(0).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'assets', 'icon.png')}`)
+      expect(warnSpy.getCall(1).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'assets', 'Thumbs.db')}`)
+      expect(warnSpy.getCall(2).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'assets', 'subdir')}`)
+      expect(warnSpy.getCall(3).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'translations', 'notes.txt')}`)
     })
 
     it('should copy settings.json from src to the output root', async () => {
