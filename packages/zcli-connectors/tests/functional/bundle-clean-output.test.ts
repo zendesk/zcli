@@ -93,4 +93,20 @@ describe('bundle clean output integration (VEG-4556)', function () {
     expect(entries).to.not.include('assets/.DS_Store')
     expect(entries).to.not.include('unexpected-root.txt')
   })
+
+  it('should reject an outputPath equal to the connector directory without deleting any files', () => {
+    const sentinelPath = join(connectorDir, 'unrelated-file.txt')
+    writeFileSync(sentinelPath, 'sentinel')
+
+    // The output directory is deliberately emptied on every build, so
+    // pointing it at the connector directory must be rejected before Vite
+    // runs; otherwise the connector sources and unrelated files are erased
+    expect(() => ViteConfigBuilder.createConfig({
+      inputPath: connectorDir,
+      outputPath: connectorDir
+    })).to.throw(/must not be the connector directory/)
+
+    expect(existsSync(join(connectorDir, 'src', 'index.ts'))).to.be.true
+    expect(existsSync(sentinelPath)).to.be.true
+  })
 })
