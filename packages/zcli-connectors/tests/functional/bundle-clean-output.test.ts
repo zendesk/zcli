@@ -151,7 +151,7 @@ describe('bundle clean output integration (VEG-4556)', function () {
       expect(() => ViteConfigBuilder.createConfig({
         inputPath: connector,
         outputPath: join(connector, 'dist')
-      })).to.throw(/must be strictly inside the connector directory/)
+      })).to.throw(/symbolic links redirect/)
 
       expect(existsSync(join(victim, 'KEEP-ME.txt'))).to.equal(true)
     })
@@ -166,7 +166,7 @@ describe('bundle clean output integration (VEG-4556)', function () {
       expect(() => ViteConfigBuilder.createConfig({
         inputPath: connector,
         outputPath: join(connector, 'dist')
-      })).to.throw(/must be strictly inside the connector directory/)
+      })).to.throw(/symbolic links redirect/)
 
       expect(existsSync(join(connector, 'KEEP-ME.txt'))).to.equal(true)
     })
@@ -183,7 +183,7 @@ describe('bundle clean output integration (VEG-4556)', function () {
       expect(() => ViteConfigBuilder.createConfig({
         inputPath: connector,
         outputPath: join(connector, 'build', 'out')
-      })).to.throw(/must be strictly inside the connector directory/)
+      })).to.throw(/symbolic links redirect/)
 
       expect(existsSync(join(external, 'KEEP-ME.txt'))).to.equal(true)
     })
@@ -214,10 +214,44 @@ describe('bundle clean output integration (VEG-4556)', function () {
       expect(() => ViteConfigBuilder.createConfig({
         inputPath: connector,
         outputPath: join(connector, 'dist')
-      })).to.throw(/must not overlap the connector src directory/)
+      })).to.throw(/symbolic links redirect/)
 
       expect(existsSync(join(connector, 'src', 'index.ts'))).to.equal(true)
       expect(existsSync(join(connector, 'src', 'nested', 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should reject a dist symlink to another directory inside the connector', function () {
+      const connector = makeConnector()
+      const internalData = join(connector, 'internal-data')
+      mkdirSync(internalData)
+      writeFileSync(join(internalData, 'KEEP-ME.txt'), 'keep')
+      // The canonical output stays inside the connector and does not touch
+      // src, but the build output must not be redirected at all: emptying
+      // internal-data would delete unrelated connector files
+      if (!trySymlink(internalData, join(connector, 'dist'))) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: join(connector, 'dist')
+      })).to.throw(/symbolic links redirect/)
+
+      expect(existsSync(join(internalData, 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should reject an existing output directory outside the connector', function () {
+      const connector = makeConnector()
+      const external = join(fixtureDir, 'external-output')
+      mkdirSync(external)
+      writeFileSync(join(external, 'KEEP-ME.txt'), 'keep')
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: external
+      })).to.throw(/must be strictly inside the connector directory/)
+
+      expect(existsSync(join(external, 'KEEP-ME.txt'))).to.equal(true)
     })
 
     it('should accept the canonical connector dist directory', function () {
