@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import * as sinon from 'sinon'
 import * as fs from 'fs'
 import * as os from 'os'
-import { join } from 'path'
+import { join, resolve } from 'path'
 import { ViteConfigBuilder, createConnectorViteConfig } from './vite-config'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import * as publishModule from '../publish/publish'
@@ -30,6 +30,65 @@ describe('ViteConfigBuilder', () => {
 
   afterEach(() => {
     sinon.restore()
+  })
+
+  describe('outputPath validation', () => {
+    it('should reject an outputPath equal to the connector directory before Vite runs', () => {
+      // Reproduction of the review scenario: emptying the output directory
+      // would erase src/index.ts and unrelated files in the connector root
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector'
+      })).to.throw(/must not be the connector directory/)
+    })
+
+    it('should reject an outputPath that is a parent of the connector directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/workspace/connector',
+        outputPath: '/workspace'
+      })).to.throw(/must not be the connector directory/)
+    })
+
+    it('should reject an outputPath that is the src directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/src'
+      })).to.throw(/must not overlap the connector src directory/)
+    })
+
+    it('should reject an outputPath nested inside the src directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/src/dist'
+      })).to.throw(/must not overlap the connector src directory/)
+    })
+
+    it('should reject an outputPath that contains the src directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector/pkg',
+        outputPath: '/connector/pkg'
+      })).to.throw(/must not be the connector directory/)
+    })
+
+    it('should accept the canonical dist output directory', () => {
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/dist'
+      })
+
+      expect(config.root).to.equal('/connector')
+      expect(config.build.outDir).to.equal('/connector/dist')
+    })
+
+    it('should normalize trailing separators and dot segments before validating', () => {
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/connector/',
+        outputPath: '/connector/./dist/'
+      })
+
+      expect(config.root).to.equal('/connector/')
+      expect(resolve(config.build.outDir)).to.equal('/connector/dist')
+    })
   })
 
   describe('createAssetCopyPlugin', () => {

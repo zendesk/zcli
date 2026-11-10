@@ -3,7 +3,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
 import { readFile } from 'fs/promises'
-import { isAbsolute, join, relative } from 'path'
+import { isAbsolute, join, relative, resolve, sep } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import { createPackageArchive } from '../publish/publish'
 import { isAllowedAssetFile, isAllowedTranslationFile, isOSMetadataEntry } from '../bundleContract'
@@ -325,9 +325,38 @@ export class ViteConfigBuilder {
     return this.createBaseConfig(inputPath, outputPath, plugins, external, options.watch)
   }
 
+  /**
+   * Validates that deliberately emptying outputPath on every build cannot
+   * erase connector sources or unrelated files. The output directory must
+   * never equal or contain the connector directory, and must never overlap
+   * the src directory (VEG-4556).
+   */
+  private static validateOutputPath (inputPath: string, outputPath: string): void {
+    const resolvedInput = resolve(inputPath)
+    const resolvedOutput = resolve(outputPath)
+    const resolvedSrc = join(resolvedInput, 'src')
+    const contains = (parent: string, child: string): boolean =>
+      child === parent || child.startsWith(parent + sep)
+
+    if (contains(resolvedOutput, resolvedInput)) {
+      throw new Error(
+        `Invalid outputPath "${outputPath}": it must not be the connector directory or one of its parent directories. ` +
+        'The output directory is emptied on every bundle, so this would delete connector sources and unrelated files.'
+      )
+    }
+
+    if (contains(resolvedOutput, resolvedSrc) || contains(resolvedSrc, resolvedOutput)) {
+      throw new Error(
+        `Invalid outputPath "${outputPath}": it must not overlap the connector src directory (${resolvedSrc}). ` +
+        'The output directory is emptied on every bundle, so this could delete connector source files.'
+      )
+    }
+  }
+
   static createConfig (
     options: ViteConfigOptions
   ): ViteUserConfig {
+    this.validateOutputPath(options.inputPath, options.outputPath)
     return this.createNpmConfig(options)
   }
 }
