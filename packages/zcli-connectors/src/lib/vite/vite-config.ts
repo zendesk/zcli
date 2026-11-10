@@ -1,9 +1,9 @@
 import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
-import { existsSync, copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
+import { existsSync, copyFileSync, lstatSync, mkdirSync, readdirSync, realpathSync, statSync } from 'fs'
 import { readFile } from 'fs/promises'
-import { isAbsolute, join, relative, resolve, sep } from 'path'
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'path'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import { createPackageArchive } from '../publish/publish'
 import { isAllowedAssetFile, isAllowedTranslationFile, isOSMetadataEntry } from '../bundleContract'
@@ -349,6 +349,52 @@ export class ViteConfigBuilder {
       throw new Error(
         `Invalid outputPath "${outputPath}": it must not overlap the connector src directory (${resolvedSrc}). ` +
         'The output directory is emptied on every bundle, so this could delete connector source files.'
+      )
+    }
+
+    // Lexical normalization cannot see symlinks: a dist directory (or an
+    // ancestor of a custom output path) that is a symbolic link would
+    // redirect the deliberate empty-on-build deletion outside the connector
+    // directory. Canonicalize against the filesystem and require the
+    // canonical output to remain strictly inside the canonical connector
+    // directory (VEG-4556).
+    if (!existsSync(resolvedInput)) {
+      return
+    }
+    const canonicalInput = realpathSync(resolvedInput)
+
+    // The output may not exist yet; canonicalize the nearest existing
+    // ancestor and re-append the remaining segments. A dangling symlink
+    // component is rejected outright: its target could be created outside
+    // the connector before the build empties and writes through it.
+    let existingPath = resolvedOutput
+    const pendingSegments: string[] = []
+    while (!existsSync(existingPath)) {
+      let stats
+      try {
+        stats = lstatSync(existingPath)
+      } catch {
+        stats = undefined
+      }
+      if (stats?.isSymbolicLink()) {
+        throw new Error(
+          `Invalid outputPath "${outputPath}": "${existingPath}" is a dangling symbolic link. ` +
+          'The output directory is emptied on every bundle, so symlinked path components are not allowed.'
+        )
+      }
+      pendingSegments.unshift(basename(existingPath))
+      const parent = dirname(existingPath)
+      if (parent === existingPath) {
+        return
+      }
+      existingPath = parent
+    }
+
+    const canonicalOutput = join(realpathSync(existingPath), ...pendingSegments)
+    if (canonicalOutput === canonicalInput || !canonicalOutput.startsWith(canonicalInput + sep)) {
+      throw new Error(
+        `Invalid outputPath "${outputPath}": its canonical location "${canonicalOutput}" must be strictly inside the connector directory "${canonicalInput}". ` +
+        'Symbolic links in the output path must not redirect the bundle output directory, because it is emptied on every bundle.'
       )
     }
   }

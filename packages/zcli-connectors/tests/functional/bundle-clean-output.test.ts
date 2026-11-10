@@ -9,7 +9,7 @@
  */
 
 import { expect } from 'chai'
-import { existsSync, mkdirSync, realpathSync, rmSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import * as AdmZip from 'adm-zip'
@@ -106,7 +106,110 @@ describe('bundle clean output integration (VEG-4556)', function () {
       outputPath: connectorDir
     })).to.throw(/must not be the connector directory/)
 
-    expect(existsSync(join(connectorDir, 'src', 'index.ts'))).to.be.true
-    expect(existsSync(sentinelPath)).to.be.true
+    expect(existsSync(join(connectorDir, 'src', 'index.ts'))).to.equal(true)
+    expect(existsSync(sentinelPath)).to.equal(true)
+  })
+
+  describe('output path symlink validation', function () {
+    let fixtureDir: string
+
+    const makeConnector = (): string => {
+      const dir = join(fixtureDir, `connector-${Math.random().toString(16).slice(2)}`)
+      mkdirSync(dir, { recursive: true })
+      return dir
+    }
+
+    const trySymlink = (target: string, path: string): boolean => {
+      try {
+        symlinkSync(target, path, 'dir')
+        return true
+      } catch {
+        return false // symlinks unavailable (e.g. Windows without privilege)
+      }
+    }
+
+    beforeEach(function () {
+      fixtureDir = join(realpathSync(tmpdir()), `zcli-output-symlink-test-${Date.now()}`)
+      mkdirSync(fixtureDir, { recursive: true })
+    })
+
+    afterEach(function () {
+      if (fixtureDir && existsSync(fixtureDir)) {
+        rmSync(fixtureDir, { recursive: true, force: true })
+      }
+    })
+
+    it('should reject a dist symlink to an external directory without modifying the target', function () {
+      const connector = makeConnector()
+      const victim = join(fixtureDir, 'victim')
+      mkdirSync(victim)
+      writeFileSync(join(victim, 'KEEP-ME.txt'), 'keep')
+      if (!trySymlink(victim, join(connector, 'dist'))) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: join(connector, 'dist')
+      })).to.throw(/must be strictly inside the connector directory/)
+
+      expect(existsSync(join(victim, 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should reject a dist symlink to the connector root', function () {
+      const connector = makeConnector()
+      writeFileSync(join(connector, 'KEEP-ME.txt'), 'keep')
+      if (!trySymlink(connector, join(connector, 'dist'))) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: join(connector, 'dist')
+      })).to.throw(/must be strictly inside the connector directory/)
+
+      expect(existsSync(join(connector, 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should reject a custom output path with a symlinked ancestor outside the connector', function () {
+      const connector = makeConnector()
+      const external = join(fixtureDir, 'external')
+      mkdirSync(external)
+      writeFileSync(join(external, 'KEEP-ME.txt'), 'keep')
+      if (!trySymlink(external, join(connector, 'build'))) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: join(connector, 'build', 'out')
+      })).to.throw(/must be strictly inside the connector directory/)
+
+      expect(existsSync(join(external, 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should reject a dangling symlink in the output path', function () {
+      const connector = makeConnector()
+      if (!trySymlink(join(fixtureDir, 'missing-target'), join(connector, 'dist'))) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: join(connector, 'dist')
+      })).to.throw(/dangling symbolic link/)
+    })
+
+    it('should accept the canonical connector dist directory', function () {
+      const connector = makeConnector()
+      mkdirSync(join(connector, 'dist'))
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: join(connector, 'dist')
+      })
+
+      expect(config.build.outDir).to.equal(join(connector, 'dist'))
+    })
   })
 })
