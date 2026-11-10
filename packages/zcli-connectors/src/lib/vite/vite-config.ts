@@ -19,8 +19,13 @@ export interface ViteConfigOptions {
 
 // Minimal Vite config interface
 interface ViteUserConfig {
+  root: string;
+  configFile: false;
+  publicDir: false;
+  envDir: false;
   build: {
     watch: boolean | object
+    emptyOutDir: boolean;
     target: string;
     lib: {
       entry: string;
@@ -98,7 +103,18 @@ export class ViteConfigBuilder {
         continue
       }
 
-      if (statSync(srcPath).isDirectory() || !isAllowed(item)) {
+      // Check the contract allowlist by name before touching the filesystem:
+      // a dangling symlink to a disallowed entry must be skipped with a
+      // warning, not abort the build with ENOENT (VEG-4556)
+      if (!isAllowed(item)) {
+        if (onSkip) onSkip(relPath, 'unexpected')
+        continue
+      }
+
+      // An allowed name that is a directory (or a broken symlink, which
+      // throws from statSync) is a real problem: directories are skipped and
+      // broken contract files fail the build loudly
+      if (statSync(srcPath).isDirectory()) {
         if (onSkip) onSkip(relPath, 'unexpected')
         continue
       }
@@ -232,8 +248,21 @@ export class ViteConfigBuilder {
     watch?: boolean
   ): ViteUserConfig {
     return {
+      // Scope the project root to the connector directory so the dist output
+      // is internal to it and deliberately emptied on every build: stale
+      // files from previous builds must not survive into the bundle or the
+      // upload-ready ZIP (VEG-4556)
+      root: inputPath,
+      // Keep bundling fully driven by this CLI config and the bundle
+      // contract: do not merge a connector-local vite config, do not copy a
+      // <root>/public directory into dist, and do not inline connector-local
+      // .env values into the bundle
+      configFile: false,
+      publicDir: false,
+      envDir: false,
       build: {
         watch: watch ? {} : false,
+        emptyOutDir: true,
         target: 'es2015',
         lib: {
           entry: join(inputPath, 'src', 'index.ts'),
