@@ -33,8 +33,13 @@ describe('bundle', () => {
 
     viteStubs = {
       createConfig: sinon.stub(ViteConfigBuilder, 'createConfig').returns({
+        root: '',
+        configFile: false,
+        publicDir: false,
+        envDir: false,
         build: {
           watch: false,
+          emptyOutDir: true,
           target: '',
           lib: {
             entry: '',
