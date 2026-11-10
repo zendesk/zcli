@@ -3,6 +3,7 @@
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import * as fs from 'fs'
+import * as os from 'os'
 import { join } from 'path'
 import { ViteConfigBuilder, createConnectorViteConfig } from './vite-config'
 import { ManifestGenerator } from '../manifest-generator/generator'
@@ -256,6 +257,46 @@ describe('ViteConfigBuilder', () => {
       await assetPlugin.writeBundle()
 
       expect(fsStubs.copyFileSync.called).to.be.false
+    })
+
+    it('should not inspect the filesystem for entries outside the bundle contract', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false)
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      // Only disallowed entries: no statSync (dangling symlinks must not
+      // abort the build before the allowlist rejects them by name)
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['icon.png', 'Thumbs.db'])
+
+      const config = ViteConfigBuilder.createConfig({ inputPath, outputPath })
+      const copyPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations')
+
+      const warnSpy = sinon.spy()
+      copyPlugin.writeBundle.call({ info: sinon.spy(), warn: warnSpy })
+
+      expect(fsStubs.statSync.called).to.be.false
+      expect(warnSpy.calledTwice).to.be.true
+      expect(fsStubs.copyFileSync.called).to.be.false
+    })
+
+    it('should configure a clean, connector-scoped output directory', () => {
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/input',
+        outputPath: '/input/dist'
+      })
+
+      // outDir is internal to the connector root and deliberately emptied,
+      // so stale files from previous builds cannot survive into the bundle
+      expect(config.root).to.equal('/input')
+      expect(config.build.emptyOutDir).to.equal(true)
+      expect(config.configFile).to.equal(false)
+      expect(config.publicDir).to.equal(false)
+      expect(config.envDir).to.equal(false)
     })
 
     it('should not copy assets or translations if directories do not exist', async () => {
@@ -560,5 +601,57 @@ describe('ViteConfigBuilder', () => {
         join('/output', 'file.js'), join('/target', 'file.js')
       ])
     })
+  })
+})
+
+// Real-filesystem tests for symlink handling in the contract copy. These run
+// outside the stubbed describe above so fs calls hit a real temp directory.
+describe('createAssetCopyPlugin symlink handling (real filesystem)', () => {
+  const posixIt = process.platform === 'win32' ? it.skip : it
+
+  let connectorDir: string
+  let outputPath: string
+
+  beforeEach(() => {
+    connectorDir = fs.mkdtempSync(join(os.tmpdir(), 'zcli-symlink-test-'))
+    outputPath = join(connectorDir, 'dist')
+    fs.mkdirSync(join(connectorDir, 'src', 'assets'), { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync(connectorDir, { recursive: true, force: true })
+  })
+
+  const runCopyPlugin = (loggers: { info: sinon.SinonSpy, warn: sinon.SinonSpy }) => {
+    const config = ViteConfigBuilder.createConfig({ inputPath: connectorDir, outputPath })
+    const copyPlugin = config.build.rollupOptions.plugins.find(
+      (p: any) => p.name === 'copy-assets-translations')
+    copyPlugin.writeBundle.call(loggers)
+  }
+
+  posixIt('should warn and skip a dangling symlink outside the bundle contract', () => {
+    fs.writeFileSync(join(connectorDir, 'src', 'assets', 'logo.svg'), '<svg/>')
+    fs.symlinkSync(
+      join(connectorDir, 'src', 'assets', 'missing-target'),
+      join(connectorDir, 'src', 'assets', 'icon.svg'))
+
+    const loggers = { info: sinon.spy(), warn: sinon.spy() }
+
+    expect(() => runCopyPlugin(loggers)).to.not.throw()
+    expect(loggers.warn.calledOnce).to.be.true
+    expect(loggers.warn.firstCall.args[0]).to.include(join('src', 'assets', 'icon.svg'))
+    expect(fs.existsSync(join(outputPath, 'assets', 'logo.svg'))).to.be.true
+    expect(fs.existsSync(join(outputPath, 'assets', 'icon.svg'))).to.be.false
+  })
+
+  posixIt('should fail clearly for a dangling symlink to a contract file', () => {
+    // logo.svg is in the contract, so a broken one is a real authoring error
+    fs.symlinkSync(
+      join(connectorDir, 'src', 'assets', 'missing-target'),
+      join(connectorDir, 'src', 'assets', 'logo.svg'))
+
+    const loggers = { info: sinon.spy(), warn: sinon.spy() }
+
+    expect(() => runCopyPlugin(loggers)).to.throw(/ENOENT|no such file/)
   })
 })
