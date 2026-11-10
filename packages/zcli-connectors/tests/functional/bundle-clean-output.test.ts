@@ -200,6 +200,26 @@ describe('bundle clean output integration (VEG-4556)', function () {
       })).to.throw(/dangling symbolic link/)
     })
 
+    it('should reject a dist symlink to the connector src directory without deleting sources', function () {
+      const connector = makeConnector()
+      mkdirSync(join(connector, 'src', 'nested'), { recursive: true })
+      writeFileSync(join(connector, 'src', 'index.ts'), 'export default {}\n')
+      writeFileSync(join(connector, 'src', 'nested', 'KEEP-ME.txt'), 'keep')
+      // The canonical output stays inside the connector, but it IS the src
+      // directory: emptying it would delete the connector sources
+      if (!trySymlink(join(connector, 'src'), join(connector, 'dist'))) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: join(connector, 'dist')
+      })).to.throw(/must not overlap the connector src directory/)
+
+      expect(existsSync(join(connector, 'src', 'index.ts'))).to.equal(true)
+      expect(existsSync(join(connector, 'src', 'nested', 'KEEP-ME.txt'))).to.equal(true)
+    })
+
     it('should accept the canonical connector dist directory', function () {
       const connector = makeConnector()
       mkdirSync(join(connector, 'dist'))
