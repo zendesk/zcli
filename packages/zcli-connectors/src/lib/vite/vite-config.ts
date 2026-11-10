@@ -391,17 +391,34 @@ export class ViteConfigBuilder {
     }
 
     const canonicalOutput = join(realpathSync(existingPath), ...pendingSegments)
-    if (canonicalOutput === canonicalInput || !canonicalOutput.startsWith(canonicalInput + sep)) {
+    const relativeOutput = relative(resolvedInput, resolvedOutput)
+    const isLexicallyInside = relativeOutput !== '' &&
+      !relativeOutput.startsWith('..') &&
+      !isAbsolute(relativeOutput)
+
+    if (isLexicallyInside) {
+      // Reject redirection rather than enumerating protected destinations:
+      // the canonical output must equal the lexical output rebased onto the
+      // canonical connector directory. Any difference means a symbolic link
+      // at dist or another output-specific component redirected the
+      // empty-on-build deletion (VEG-4556).
+      const expectedCanonicalOutput = join(canonicalInput, relativeOutput)
+      if (canonicalOutput !== expectedCanonicalOutput) {
+        throw new Error(
+          `Invalid outputPath "${outputPath}": symbolic links redirect it to "${canonicalOutput}" instead of "${expectedCanonicalOutput}". ` +
+          'The output directory is emptied on every bundle, so it must not be redirected through symbolic links.'
+        )
+      }
+    } else if (canonicalOutput === canonicalInput || !canonicalOutput.startsWith(canonicalInput + sep)) {
       throw new Error(
         `Invalid outputPath "${outputPath}": its canonical location "${canonicalOutput}" must be strictly inside the connector directory "${canonicalInput}". ` +
         'Symbolic links in the output path must not redirect the bundle output directory, because it is emptied on every bundle.'
       )
     }
 
-    // Containment alone is not enough: a symlink such as dist -> src keeps
-    // the canonical output inside the connector while redirecting the
-    // empty-on-build deletion onto the connector sources. Repeat the src
-    // overlap checks against canonical paths (VEG-4556).
+    // A lexically external output path can still resolve onto the connector
+    // sources, so repeat the src overlap checks against canonical paths
+    // (VEG-4556).
     const canonicalSrc = join(canonicalInput, 'src')
     if (existsSync(canonicalSrc)) {
       const realSrc = realpathSync(canonicalSrc)
