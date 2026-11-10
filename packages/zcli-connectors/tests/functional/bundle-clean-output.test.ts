@@ -249,9 +249,62 @@ describe('bundle clean output integration (VEG-4556)', function () {
       expect(() => ViteConfigBuilder.createConfig({
         inputPath: connector,
         outputPath: external
-      })).to.throw(/must be strictly inside the connector directory/)
+      })).to.throw(/must be a directory inside the connector directory/)
 
       expect(existsSync(join(external, 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should reject an external alias that symlinks into a connector-internal directory', function () {
+      const connector = makeConnector()
+      const internalData = join(connector, 'internal-data')
+      mkdirSync(internalData)
+      writeFileSync(join(internalData, 'KEEP-ME.txt'), 'keep')
+      // Lexically external, but the canonical location is inside the
+      // connector: an outside check based on canonical paths alone would
+      // accept it and the build would empty internal-data
+      const outputAlias = join(fixtureDir, 'output-alias')
+      if (!trySymlink(internalData, outputAlias)) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: outputAlias
+      })).to.throw(/must be a directory inside the connector directory/)
+
+      expect(existsSync(join(internalData, 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should reject a src directory that symlinks onto the output directory', function () {
+      const connector = makeConnector()
+      const dist = join(connector, 'dist')
+      mkdirSync(dist)
+      writeFileSync(join(dist, 'KEEP-ME.txt'), 'keep')
+      // Sources are read through src; if src aliases dist, emptying the
+      // output would delete the real source files
+      if (!trySymlink(dist, join(connector, 'src'))) {
+        this.skip()
+      }
+
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: dist
+      })).to.throw(/must not overlap the connector src directory/)
+
+      expect(existsSync(join(dist, 'KEEP-ME.txt'))).to.equal(true)
+    })
+
+    it('should accept an internal directory whose name starts with two dots', function () {
+      const connector = makeConnector()
+      const cacheDir = join(connector, '..cache')
+      mkdirSync(cacheDir)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: connector,
+        outputPath: cacheDir
+      })
+
+      expect(config.build.outDir).to.equal(cacheDir)
     })
 
     it('should accept the canonical connector dist directory', function () {
