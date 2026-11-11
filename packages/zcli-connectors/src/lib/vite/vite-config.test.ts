@@ -87,7 +87,8 @@ describe('ViteConfigBuilder', () => {
       })
 
       expect(config.root).to.equal('/connector/')
-      expect(resolve(config.build.outDir)).to.equal('/connector/dist')
+      // resolve() is platform-native; normalize the expectation the same way
+      expect(resolve(config.build.outDir)).to.equal(resolve('/connector/dist'))
     })
   })
 
