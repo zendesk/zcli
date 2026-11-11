@@ -71,6 +71,15 @@ describe('bundle clean output integration (VEG-4556)', function () {
     const stats = await ViteRunner.run(config)
     expect(stats.hasErrors(), JSON.stringify(stats.toJson().errors)).to.equal(false)
 
+    // Skipping the unsupported icon.svg must surface as a build warning so
+    // developers see that their file was left out (VEG-4556)
+    expect(stats.hasWarnings()).to.equal(true)
+    const warningMessages = stats.toJson().warnings.map((w: { message: string }) => w.message)
+    expect(
+      warningMessages.some((message: string) => message.includes('icon.svg')),
+      JSON.stringify(warningMessages)
+    ).to.equal(true)
+
     // Final dist tree: freshly built contract files only
     expect(existsSync(join(outputPath, 'connector.js'))).to.equal(true)
     expect(existsSync(join(outputPath, 'manifest.json'))).to.equal(true)

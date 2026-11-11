@@ -1,6 +1,5 @@
 export {
   ViteConfigBuilder,
-  ViteConfigOptions,
-  createConnectorViteConfig
+  ViteConfigOptions
 } from './vite-config'
 export { ViteRunner } from './vite-runner'

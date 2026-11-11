@@ -5,7 +5,7 @@ import * as sinon from 'sinon'
 import * as fs from 'fs'
 import * as os from 'os'
 import { join, resolve } from 'path'
-import { ViteConfigBuilder, createConnectorViteConfig } from './vite-config'
+import { ViteConfigBuilder } from './vite-config'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import * as publishModule from '../publish/publish'
 
@@ -547,20 +547,6 @@ describe('ViteConfigBuilder', () => {
         expect(error.message).to.include('must not contain path separators')
       }
       expect(createPackageArchiveStub.called).to.be.false
-    })
-  })
-
-  describe('createConnectorViteConfig helper function', () => {
-    it('should create config using ViteConfigBuilder', () => {
-      const options = {
-        inputPath: '/input',
-        outputPath: '/output'
-      }
-
-      const config = createConnectorViteConfig(options)
-
-      expect(config).to.have.property('build')
-      expect(config.build).to.have.property('lib')
     })
   })
 

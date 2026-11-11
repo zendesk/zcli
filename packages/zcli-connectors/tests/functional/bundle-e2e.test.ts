@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import * as fs from 'fs'
 import * as os from 'os'
 import { join } from 'path'
-import { createConnectorViteConfig, ViteRunner } from '../../src/lib/vite'
+import { ViteConfigBuilder, ViteRunner } from '../../src/lib/vite'
 
 /**
  * End-to-end bundle test that drives a REAL Vite/Rollup build (nothing stubbed).
@@ -63,7 +63,7 @@ describe('bundle (e2e real vite build)', function () {
   })
 
   it('bundles a connector without treating the entry as external', async () => {
-    const config = createConnectorViteConfig({
+    const config = ViteConfigBuilder.createConfig({
       inputPath: connectorDir,
       outputPath: distDir
     })
