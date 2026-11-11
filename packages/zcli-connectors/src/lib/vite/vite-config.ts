@@ -440,10 +440,3 @@ export class ViteConfigBuilder {
     return this.createNpmConfig(options)
   }
 }
-
-// Export a helper function to create Vite config
-export function createConnectorViteConfig (
-  options: ViteConfigOptions
-): ViteUserConfig {
-  return ViteConfigBuilder.createConfig(options)
-}
