@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, statSync } from 'fs'
-import { join, extname, basename } from 'path'
+import { join, extname, basename, relative } from 'path'
 import * as chalk from 'chalk'
 import type { ValidationContext } from './index'
+import { isOSMetadataEntry } from '../bundleContract'
 
 const ALLOWED_ASSET_EXTENSIONS = [
   '.svg'
@@ -51,7 +52,10 @@ function validateAssetsDirectory (
   }
 
   if (assets.length > 1) {
-    throw new Error(`Assets directory must contain only one logo file, but found ${assets.length} files (including subdirectories)`)
+    const names = assets.map(assetPath => relative(assetsPath, assetPath))
+    const shown = names.slice(0, 5).join(', ')
+    const remainder = names.length > 5 ? ` and ${names.length - 5} more` : ''
+    throw new Error(`Assets directory must contain only one logo file, but found ${assets.length} files (including subdirectories): ${shown}${remainder}. Remove the extra file(s) and retry.`)
   }
 
   for (const assetPath of assets) {
@@ -92,6 +96,12 @@ function getAllFiles (dirPath: string): string[] {
     const items = readdirSync(currentPath)
 
     for (const item of items) {
+      // Silently ignore OS metadata noise such as .DS_Store or AppleDouble
+      // sidecars, matching the bundle-time contract filter (VEG-4556)
+      if (isOSMetadataEntry(item)) {
+        continue
+      }
+
       const itemPath = join(currentPath, item)
       const stats = statSync(itemPath)
 
