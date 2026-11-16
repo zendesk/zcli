@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.5.0](https://github.com/zendesk/zcli/compare/v2.4.0...v2.5.0) (2026-11-16)
+
+
+### Bug Fixes
+
+* **connectors:** [VEG-4556] align assets validation with bundle contract ([e1b2585](https://github.com/zendesk/zcli/commit/e1b2585e662ae3f48ac978147275f1d3bd542e0a))
+* **connectors:** [VEG-4556] canonicalize output path against symlinks ([eac8a22](https://github.com/zendesk/zcli/commit/eac8a228ba144236decec581374bc0d6451bd2a1))
+* **connectors:** [VEG-4556] clean bundle output and allowlist-before-stat ([2471c4b](https://github.com/zendesk/zcli/commit/2471c4bde6c46a00260aeedcb3dac4280b22b7c1))
+* **connectors:** [VEG-4556] reject any symlink redirection of the output path ([516fbfe](https://github.com/zendesk/zcli/commit/516fbfe428d9f0d37d176ce606924d8659eb4820))
+* **connectors:** [VEG-4556] repeat src overlap checks on canonical paths ([4a75755](https://github.com/zendesk/zcli/commit/4a757552de08633447e006046fbdc57b9d6c8a7d))
+* **connectors:** [VEG-4556] require output path inside the connector directory ([5c50042](https://github.com/zendesk/zcli/commit/5c5004232d9444294cf63c62dfa98a040d963542))
+* **connectors:** [VEG-4556] validate output path before emptying it ([2f6a00d](https://github.com/zendesk/zcli/commit/2f6a00df8dc355568595bed684704f479e34e55e))
+
+
+### Features
+
+* **connectors:** [VEG-4556] enforce connector bundle contract when bundling ([5f60523](https://github.com/zendesk/zcli/commit/5f605231039ad8d0a9c726980beafd6952dc1341))
+
+
+
+
+
 # [2.4.0](https://github.com/zendesk/zcli/compare/v2.3.0...v2.4.0) (2026-11-03)
 
 
