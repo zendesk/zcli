@@ -64,8 +64,13 @@ describe('Windows tsc.cmd integration (VEG-3916)', function () {
   it('should run checkTypeScript successfully via the real Bundle command', async function () {
     // Stub only Vite — let checkTypeScript run for real against the temp project
     sinon.stub(ViteConfigBuilder, 'createConfig').returns({
+      root: '',
+      configFile: false,
+      publicDir: false,
+      envDir: false,
       build: {
         watch: false,
+        emptyOutDir: true,
         target: '',
         lib: { entry: '', fileName: '', formats: [] },
         outDir: '',

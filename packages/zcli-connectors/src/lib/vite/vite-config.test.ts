@@ -3,8 +3,9 @@
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import * as fs from 'fs'
-import { join } from 'path'
-import { ViteConfigBuilder, createConnectorViteConfig } from './vite-config'
+import * as os from 'os'
+import { join, resolve } from 'path'
+import { ViteConfigBuilder } from './vite-config'
 import { ManifestGenerator } from '../manifest-generator/generator'
 import * as publishModule from '../publish/publish'
 
@@ -31,8 +32,68 @@ describe('ViteConfigBuilder', () => {
     sinon.restore()
   })
 
+  describe('outputPath validation', () => {
+    it('should reject an outputPath equal to the connector directory before Vite runs', () => {
+      // Reproduction of the review scenario: emptying the output directory
+      // would erase src/index.ts and unrelated files in the connector root
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector'
+      })).to.throw(/must not be the connector directory/)
+    })
+
+    it('should reject an outputPath that is a parent of the connector directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/workspace/connector',
+        outputPath: '/workspace'
+      })).to.throw(/must not be the connector directory/)
+    })
+
+    it('should reject an outputPath that is the src directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/src'
+      })).to.throw(/must not overlap the connector src directory/)
+    })
+
+    it('should reject an outputPath nested inside the src directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/src/dist'
+      })).to.throw(/must not overlap the connector src directory/)
+    })
+
+    it('should reject an outputPath that contains the src directory', () => {
+      expect(() => ViteConfigBuilder.createConfig({
+        inputPath: '/connector/pkg',
+        outputPath: '/connector/pkg'
+      })).to.throw(/must not be the connector directory/)
+    })
+
+    it('should accept the canonical dist output directory', () => {
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/connector',
+        outputPath: '/connector/dist'
+      })
+
+      expect(config.root).to.equal('/connector')
+      expect(config.build.outDir).to.equal('/connector/dist')
+    })
+
+    it('should normalize trailing separators and dot segments before validating', () => {
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/connector/',
+        outputPath: '/connector/./dist/'
+      })
+
+      expect(config.root).to.equal('/connector/')
+      // resolve() is platform-native; normalize the expectation the same way
+      expect(resolve(config.build.outDir)).to.equal(resolve('/connector/dist'))
+    })
+  })
+
   describe('createAssetCopyPlugin', () => {
-    it('should copy assets and translations when writeBundle is called', async () => {
+    it('should copy bundle contract files from assets and translations when writeBundle is called', async () => {
       const inputPath = '/input'
       const outputPath = '/output'
 
@@ -43,15 +104,13 @@ describe('ViteConfigBuilder', () => {
         .withArgs(sinon.match(/input.*translations/)).returns(true)
 
       fsStubs.readdirSync
-        .withArgs(sinon.match(/input.*assets/)).returns(['file1.png', 'subdir'])
-        .withArgs(sinon.match(/input.*translations/)).returns(['en.json'])
-        .withArgs(sinon.match(/input.*assets.*subdir/)).returns(['file2.png'])
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg'])
+        .withArgs(sinon.match(/input.*translations/)).returns(['en.json', 'vi.json'])
 
       fsStubs.statSync
-        .withArgs(sinon.match(/file1\.png/)).returns({ isDirectory: () => false })
-        .withArgs(sinon.match(/subdir/)).returns({ isDirectory: () => true })
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
         .withArgs(sinon.match(/en\.json/)).returns({ isDirectory: () => false })
-        .withArgs(sinon.match(/file2\.png/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/vi\.json/)).returns({ isDirectory: () => false })
 
       fsStubs.mkdirSync.returns(undefined)
       fsStubs.copyFileSync.returns(undefined)
@@ -74,23 +133,145 @@ describe('ViteConfigBuilder', () => {
         join('/output', 'assets'), { recursive: true }
       ])
       expect(fsStubs.mkdirSync.secondCall.args).to.deep.equal([
-        join('/output', 'assets', 'subdir'), { recursive: true }
-      ])
-      expect(fsStubs.mkdirSync.thirdCall.args).to.deep.equal([
         join('/output', 'translations'), { recursive: true }
       ])
 
-      // Verify files were copied
-      expect(fsStubs.copyFileSync.called).to.be.true
+      // Verify only contract files were copied
+      expect(fsStubs.copyFileSync.calledThrice).to.be.true
       expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
-        join('/input', 'src', 'assets', 'file1.png'), join('/output', 'assets', 'file1.png')
+        join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
       ])
       expect(fsStubs.copyFileSync.secondCall.args).to.deep.equal([
-        join('/input', 'src', 'assets', 'subdir', 'file2.png'), join('/output', 'assets', 'subdir', 'file2.png')
-      ])
-      expect(fsStubs.copyFileSync.thirdCall.args).to.deep.equal([
         join('/input', 'src', 'translations', 'en.json'), join('/output', 'translations', 'en.json')
       ])
+      expect(fsStubs.copyFileSync.thirdCall.args).to.deep.equal([
+        join('/input', 'src', 'translations', 'vi.json'), join('/output', 'translations', 'vi.json')
+      ])
+    })
+
+    it('should skip OS metadata files when copying assets', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', '.DS_Store', '._logo.svg', '__MACOSX'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      const infoSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ info: infoSpy })
+
+      expect(fsStubs.copyFileSync.calledOnce).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
+      ])
+    })
+
+    it('should log skipped system files through the plugin context with relative paths', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', '.DS_Store'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      const infoSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ info: infoSpy })
+
+      expect(infoSpy.calledOnce).to.be.true
+      expect(infoSpy.firstCall.args[0]).to.equal(`Skipping system file: ${join('src', 'assets', '.DS_Store')}`)
+    })
+
+    it('should warn and skip unexpected files not in the bundle contract', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false) // default
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+        .withArgs(sinon.match(/input.*translations/)).returns(true)
+
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['logo.svg', 'icon.png', 'Thumbs.db', 'subdir'])
+        .withArgs(sinon.match(/input.*translations/)).returns(['en.json', 'notes.txt'])
+
+      fsStubs.statSync
+        .withArgs(sinon.match(/logo\.svg/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/icon\.png/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/Thumbs\.db/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/subdir/)).returns({ isDirectory: () => true })
+        .withArgs(sinon.match(/en\.json/)).returns({ isDirectory: () => false })
+        .withArgs(sinon.match(/notes\.txt/)).returns({ isDirectory: () => false })
+
+      fsStubs.mkdirSync.returns(undefined)
+      fsStubs.copyFileSync.returns(undefined)
+
+      const config = ViteConfigBuilder.createConfig({
+        inputPath,
+        outputPath
+      })
+
+      const assetPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations'
+      )
+
+      const warnSpy = sinon.spy()
+      await assetPlugin.writeBundle.call({ warn: warnSpy })
+
+      // Only contract files are copied
+      expect(fsStubs.copyFileSync.calledTwice).to.be.true
+      expect(fsStubs.copyFileSync.firstCall.args).to.deep.equal([
+        join('/input', 'src', 'assets', 'logo.svg'), join('/output', 'assets', 'logo.svg')
+      ])
+      expect(fsStubs.copyFileSync.secondCall.args).to.deep.equal([
+        join('/input', 'src', 'translations', 'en.json'), join('/output', 'translations', 'en.json')
+      ])
+
+      // Every unexpected entry (other files and subdirectories) is warned about
+      expect(warnSpy.callCount).to.equal(4)
+      expect(warnSpy.getCall(0).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'assets', 'icon.png')}`)
+      expect(warnSpy.getCall(1).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'assets', 'Thumbs.db')}`)
+      expect(warnSpy.getCall(2).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'assets', 'subdir')}`)
+      expect(warnSpy.getCall(3).args[0]).to.equal(
+        `Skipping unexpected file not in the connector bundle contract: ${join('src', 'translations', 'notes.txt')}`)
     })
 
     it('should copy settings.json from src to the output root', async () => {
@@ -136,6 +317,46 @@ describe('ViteConfigBuilder', () => {
       await assetPlugin.writeBundle()
 
       expect(fsStubs.copyFileSync.called).to.be.false
+    })
+
+    it('should not inspect the filesystem for entries outside the bundle contract', async () => {
+      const inputPath = '/input'
+      const outputPath = '/output'
+
+      fsStubs.existsSync
+        .withArgs(sinon.match.string).returns(false)
+        .withArgs(sinon.match(/input.*assets/)).returns(true)
+
+      // Only disallowed entries: no statSync (dangling symlinks must not
+      // abort the build before the allowlist rejects them by name)
+      fsStubs.readdirSync
+        .withArgs(sinon.match(/input.*assets/)).returns(['icon.png', 'Thumbs.db'])
+
+      const config = ViteConfigBuilder.createConfig({ inputPath, outputPath })
+      const copyPlugin = config.build.rollupOptions.plugins.find(
+        (p: any) => p.name === 'copy-assets-translations')
+
+      const warnSpy = sinon.spy()
+      copyPlugin.writeBundle.call({ info: sinon.spy(), warn: warnSpy })
+
+      expect(fsStubs.statSync.called).to.be.false
+      expect(warnSpy.calledTwice).to.be.true
+      expect(fsStubs.copyFileSync.called).to.be.false
+    })
+
+    it('should configure a clean, connector-scoped output directory', () => {
+      const config = ViteConfigBuilder.createConfig({
+        inputPath: '/input',
+        outputPath: '/input/dist'
+      })
+
+      // outDir is internal to the connector root and deliberately emptied,
+      // so stale files from previous builds cannot survive into the bundle
+      expect(config.root).to.equal('/input')
+      expect(config.build.emptyOutDir).to.equal(true)
+      expect(config.configFile).to.equal(false)
+      expect(config.publicDir).to.equal(false)
+      expect(config.envDir).to.equal(false)
     })
 
     it('should not copy assets or translations if directories do not exist', async () => {
@@ -329,20 +550,6 @@ describe('ViteConfigBuilder', () => {
     })
   })
 
-  describe('createConnectorViteConfig helper function', () => {
-    it('should create config using ViteConfigBuilder', () => {
-      const options = {
-        inputPath: '/input',
-        outputPath: '/output'
-      }
-
-      const config = createConnectorViteConfig(options)
-
-      expect(config).to.have.property('build')
-      expect(config.build).to.have.property('lib')
-    })
-  })
-
   describe('external function', () => {
     const getExternal = () =>
       ViteConfigBuilder.createConfig({
@@ -440,5 +647,57 @@ describe('ViteConfigBuilder', () => {
         join('/output', 'file.js'), join('/target', 'file.js')
       ])
     })
+  })
+})
+
+// Real-filesystem tests for symlink handling in the contract copy. These run
+// outside the stubbed describe above so fs calls hit a real temp directory.
+describe('createAssetCopyPlugin symlink handling (real filesystem)', () => {
+  const posixIt = process.platform === 'win32' ? it.skip : it
+
+  let connectorDir: string
+  let outputPath: string
+
+  beforeEach(() => {
+    connectorDir = fs.mkdtempSync(join(os.tmpdir(), 'zcli-symlink-test-'))
+    outputPath = join(connectorDir, 'dist')
+    fs.mkdirSync(join(connectorDir, 'src', 'assets'), { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync(connectorDir, { recursive: true, force: true })
+  })
+
+  const runCopyPlugin = (loggers: { info: sinon.SinonSpy, warn: sinon.SinonSpy }) => {
+    const config = ViteConfigBuilder.createConfig({ inputPath: connectorDir, outputPath })
+    const copyPlugin = config.build.rollupOptions.plugins.find(
+      (p: any) => p.name === 'copy-assets-translations')
+    copyPlugin.writeBundle.call(loggers)
+  }
+
+  posixIt('should warn and skip a dangling symlink outside the bundle contract', () => {
+    fs.writeFileSync(join(connectorDir, 'src', 'assets', 'logo.svg'), '<svg/>')
+    fs.symlinkSync(
+      join(connectorDir, 'src', 'assets', 'missing-target'),
+      join(connectorDir, 'src', 'assets', 'icon.svg'))
+
+    const loggers = { info: sinon.spy(), warn: sinon.spy() }
+
+    expect(() => runCopyPlugin(loggers)).to.not.throw()
+    expect(loggers.warn.calledOnce).to.be.true
+    expect(loggers.warn.firstCall.args[0]).to.include(join('src', 'assets', 'icon.svg'))
+    expect(fs.existsSync(join(outputPath, 'assets', 'logo.svg'))).to.be.true
+    expect(fs.existsSync(join(outputPath, 'assets', 'icon.svg'))).to.be.false
+  })
+
+  posixIt('should fail clearly for a dangling symlink to a contract file', () => {
+    // logo.svg is in the contract, so a broken one is a real authoring error
+    fs.symlinkSync(
+      join(connectorDir, 'src', 'assets', 'missing-target'),
+      join(connectorDir, 'src', 'assets', 'logo.svg'))
+
+    const loggers = { info: sinon.spy(), warn: sinon.spy() }
+
+    expect(() => runCopyPlugin(loggers)).to.throw(/ENOENT|no such file/)
   })
 })
