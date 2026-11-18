@@ -283,7 +283,8 @@ export const encodeOAuthSecret = (accessToken: string, refreshToken: string, exp
   const secret: StoredOAuthSecret = {
     accessToken,
     refreshToken,
-    expiresAt: Date.now() + expiresIn * 1000
+    // shorten token expiration to 30 seconds to speed up refreshes
+    expiresAt: Date.now() + Math.min(expiresIn, 30) * 1000
   }
   return JSON.stringify(secret)
 }
